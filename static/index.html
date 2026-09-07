@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TelcoHub - Official Customer Support Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="site-container">
+        <!-- Top Navbar -->
+        <nav class="portal-nav">
+            <div class="nav-brand">
+                <span class="logo">⚡</span>
+                <span class="title">TelcoHub Official Portal</span>
+            </div>
+            <div class="nav-links">
+                <a href="#services" class="active">Services & Plans</a>
+                <a href="#policies">Policies & Documents</a>
+                <a href="https://www.te.eg/" target="_blank" class="external-link">Telecom Egypt (te.eg) ↗</a>
+                <button class="btn btn-primary" onclick="toggleChatbot()">💬 CSR Agent Assist</button>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <header class="hero-section">
+            <h1>Customer Service & Knowledge Base Portal</h1>
+            <p>Access our official product plans, self-service guides, and download internal policy documents.</p>
+            <div class="hero-stats">
+                <div class="stat-box">
+                    <span class="num">100%</span>
+                    <span class="lbl">Fiber & 5G Coverage</span>
+                </div>
+                <div class="stat-box">
+                    <span class="num">&lt; 4 Hours</span>
+                    <span class="lbl">Technician SLA Guarantee</span>
+                </div>
+                <div class="stat-box">
+                    <span class="num">Free</span>
+                    <span class="lbl">Instant eSIM Replacement</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Section 1: WE Telecom Egypt Live Services & Knowledge Base -->
+        <section id="services" class="portal-section">
+            <div class="section-title">
+                <h2>🌐 Telecom Egypt (WE) Official Knowledge Base & Service Portals</h2>
+                <p>Real-time knowledge channels with live route links to official Telecom Egypt portals.</p>
+            </div>
+            <div class="cards-grid">
+                <!-- Source 1: Fixed Broadband & Fiber -->
+                <div class="product-card">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                        <span class="product-badge" style="background:rgba(59,130,246,0.2); color:#60a5fa; border:1px solid rgba(59,130,246,0.4);">🌐 Live Scraped Data</span>
+                        <a href="https://www.te.eg/web/guest/personal/services/fixed-broadband" target="_blank" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 10px;">Open te.eg ↗</a>
+                    </div>
+                    <h3>WE Space Home Fiber Internet</h3>
+                    <p class="desc">High-speed FTTH broadband, bandwidth speed tiers, and optical router installation.</p>
+                    <ul class="specs">
+                        <li>⚡ Speeds: Super (30 Mbps), Mega (70 Mbps), Ultra (100 Mbps), Max (200 Mbps)</li>
+                        <li>📦 Quotas: 140 GB to 1 TB monthly allowances & top-up addons</li>
+                        <li>🛠️ Optical Router configuration & fiber line provisioning</li>
+                    </ul>
+                </div>
+
+                <!-- Source 2: Mobile & SIM Management -->
+                <div class="product-card">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                        <span class="product-badge" style="background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(16,185,129,0.4);">📱 SIM & Mobile</span>
+                        <a href="https://www.te.eg/web/guest/personal/services/mobile-call-services" target="_blank" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 10px;">Open te.eg ↗</a>
+                    </div>
+                    <h3>Mobile Plans & SIM/eSIM Services</h3>
+                    <p class="desc">Postpaid WE Gold, Control prepaid lines, and instant digital eSIM activation.</p>
+                    <ul class="specs">
+                        <li>📲 Instant QR Code delivery for eSIM conversion ($0.00 fee)</li>
+                        <li>🛡️ National ID & biometric verification protocols for SIM replacement</li>
+                        <li>🌍 WE Roaming packages and unified international calling bundles</li>
+                    </ul>
+                </div>
+
+                <!-- Source 3: Technical Support & Diagnostics -->
+                <div class="product-card">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                        <span class="product-badge" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4);">🔧 Tech Support</span>
+                        <a href="https://www.te.eg/" target="_blank" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 10px;">Open te.eg ↗</a>
+                    </div>
+                    <h3>WiFi & Optical Diagnostics (SLA Dispatch)</h3>
+                    <p class="desc">Diagnostic checklists, ONT optical light status, and free technician dispatch rules.</p>
+                    <ul class="specs">
+                        <li>🔴 Solid Red Internet Light: 30-second power cycle & optical cable inspection</li>
+                        <li>⏱️ Technician SLA: Free onsite dispatch within &lt; 4 hours for persistent fiber outages</li>
+                        <li>⚙️ Optical Network Terminal (ONT) configuration & self-help steps</li>
+                    </ul>
+                </div>
+
+                <!-- Source 4: Billing & Dispute Management -->
+                <div class="product-card">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                        <span class="product-badge" style="background:rgba(139,92,246,0.2); color:#a78bfa; border:1px solid rgba(139,92,246,0.4);">💳 Billing & Refunds</span>
+                        <a href="https://www.te.eg/" target="_blank" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 10px;">Open te.eg ↗</a>
+                    </div>
+                    <h3>Billing, Invoicing & Fee Waiver Rules</h3>
+                    <p class="desc">Customer billing dispute policies, one-time courtesy waivers, and credit adjustments.</p>
+                    <ul class="specs">
+                        <li>💵 1-time annual courtesy waiver for $15 late payment fee for accounts in good standing</li>
+                        <li>🔄 Automatic next-cycle bill credit adjustments for verified overcharges</li>
+                        <li>📅 Grace period rules & electronic bill pay channels</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Scraper Sync Status & Re-indexing -->
+        <section class="portal-section scraper-box">
+            <div class="scraper-header">
+                <h3>⚡ Live Knowledge Base Synchronization</h3>
+                <p>Syncs real-time packages from <strong>te.eg</strong> and all internal telecom policy sources directly into the unified Qdrant vector collection.</p>
+            </div>
+            <div class="scraper-actions">
+                <button class="btn btn-primary" onclick="runFullPipeline()">🔄 Sync & Re-index Knowledge Base</button>
+                <span id="pipelineStatus" class="pipeline-status">Status: All Sources Synced in Qdrant</span>
+            </div>
+        </section>
+    </div>
+
+    <!-- Floating CSR Agent Assist Copilot Drawer/Widget -->
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-header">
+            <div class="header-title">
+                <span>🤖</span>
+                <div>
+                    <h3>CSR Agent Copilot</h3>
+                    <small>Grounded in Scraped Website & Downloaded Policies</small>
+                </div>
+            </div>
+            <button class="close-btn" onclick="toggleChatbot()">✕</button>
+        </div>
+        <div class="chat-body">
+            <!-- Quick Test Scenarios -->
+            <div class="quick-scenarios">
+                <button onclick="loadScenario('sim')">📱 Lost SIM</button>
+                <button onclick="loadScenario('wifi')">🌐 WiFi Red Light</button>
+                <button onclick="loadScenario('billing')">💳 $15 Late Fee</button>
+                <button onclick="loadScenario('te_eg')">⚡ WE Egypt Plans</button>
+            </div>
+
+            <div class="chat-input-box">
+                <label>Customer Problem Query:</label>
+                <textarea id="customerQuery" rows="3" placeholder="Enter customer inquiry (e.g. My WiFi has a red light and internet is down)..."></textarea>
+                <button id="solveBtn" class="btn btn-primary btn-block" onclick="solveProblem()">✨ Solve & Generate Reply</button>
+            </div>
+
+            <div id="solutionBody" class="solution-container">
+                <div class="empty-state">
+                    <p>Enter a query above or click a scenario to generate a verified CSR reply with source citations.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Toggle Button -->
+    <button class="floating-chat-toggle" onclick="toggleChatbot()">
+        <span>💬 Ask Copilot</span>
+    </button>
+
+    <script src="js/agent_assist.js"></script>
+</body>
+</html>

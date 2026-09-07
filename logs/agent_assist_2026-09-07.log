@@ -1,0 +1,940 @@
+2026-09-07 15:23:47.433 | INFO     | api.main:lifespan:29 - Starting Telecom Customer Service Agent Assist in development mode...
+2026-09-07 15:23:47.435 | INFO     | core.singletons:get_qdrant_client:24 - Initializing Qdrant Client (localhost:6333)
+2026-09-07 15:23:52.146 | WARNING  | repositories.qdrant_repository:initialize_collection:56 - Could not connect to live Qdrant server: [WinError 10061] No connection could be made because the target machine actively refused it. Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:23:53.304 | INFO     | core.singletons:get_cohere_client:41 - Cohere Client initialized successfully.
+2026-09-07 15:23:53.322 | INFO     | api.main:lifespan:35 - Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...
+2026-09-07 15:23:53.324 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/
+2026-09-07 15:23:53.327 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/
+2026-09-07 15:23:53.329 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/
+2026-09-07 15:23:56.795 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/ (332430 bytes)
+2026-09-07 15:23:56.995 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 7 chunks.
+2026-09-07 15:23:57.742 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 7 chunks in unified in-memory fallback store.
+2026-09-07 15:23:57.743 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 7 chunks from https://www.te.eg/ into Qdrant.
+2026-09-07 15:23:57.744 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:23:57.745 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:23:57.747 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:23:57.992 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/fixed-broadband (265997 bytes)
+2026-09-07 15:23:58.109 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 5 chunks.
+2026-09-07 15:23:58.458 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:23:58.459 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 5 chunks from https://www.te.eg/web/guest/personal/services/fixed-broadband into Qdrant.
+2026-09-07 15:23:58.461 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:23:58.465 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:23:58.478 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:23:58.729 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/mobile-call-services (349912 bytes)
+2026-09-07 15:23:58.783 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 2 chunks.
+2026-09-07 15:23:59.043 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 2 chunks in unified in-memory fallback store.
+2026-09-07 15:23:59.044 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 2 chunks from https://www.te.eg/web/guest/personal/services/mobile-call-services into Qdrant.
+2026-09-07 15:23:59.044 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:23:59.045 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:23:59.046 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:23:59.330 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/international-roaming (297128 bytes)
+2026-09-07 15:23:59.408 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 1 chunks.
+2026-09-07 15:23:59.659 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 1 chunks in unified in-memory fallback store.
+2026-09-07 15:23:59.660 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 1 chunks from https://www.te.eg/web/guest/personal/services/international-roaming into Qdrant.
+2026-09-07 15:23:59.661 | INFO     | api.main:lifespan:37 - Website & policy ingestion finished: 4 sources indexed in Qdrant.
+2026-09-07 15:25:55.232 | WARNING  | repositories.qdrant_repository:initialize_collection:56 - Could not connect to live Qdrant server: [WinError 10061] No connection could be made because the target machine actively refused it. Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:25:57.345 | WARNING  | repositories.qdrant_repository:initialize_collection:56 - Could not connect to live Qdrant server: [WinError 10061] No connection could be made because the target machine actively refused it. Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:25:58.397 | INFO     | core.singletons:get_gemini_client:57 - Google Gemini Client initialized with model: gemini-3.1-flash-lite-preview
+2026-09-07 15:25:58.397 | INFO     | core.singletons:get_gemini_client:57 - Google Gemini Client initialized with model: gemini-3.1-flash-lite-preview
+2026-09-07 15:25:58.401 | INFO     | services.agent_assist_service:solve_customer_problem:46 - Solving customer problem: 'I lost my iPhone on the metro this morning. I need my phone number working today for work. How can I get a replacement SIM card right away?' (Intent Filter: SIM_MANAGEMENT)
+2026-09-07 15:26:00.914 | INFO     | core.singletons:get_langfuse_client:76 - Langfuse Observability Client initialized.
+2026-09-07 15:26:00.917 | WARNING  | core.observability:trace_agent_assist:38 - Error creating Langfuse trace: 'Langfuse' object has no attribute 'trace'
+2026-09-07 15:26:01.384 | WARNING  | services.agent_assist_service:solve_customer_problem:67 - No relevant policy chunks found in vector database.
+2026-09-07 15:26:01.396 | INFO     | services.agent_assist_service:solve_customer_problem:46 - Solving customer problem: 'My home broadband optical router has a solid RED internet light since 8 AM. I work from home and cannot connect. Can someone come fix this?' (Intent Filter: WIFI_TECHNICAL_SUPPORT)
+2026-09-07 15:26:01.411 | WARNING  | core.observability:trace_agent_assist:38 - Error creating Langfuse trace: 'Langfuse' object has no attribute 'trace'
+2026-09-07 15:26:01.741 | WARNING  | services.agent_assist_service:solve_customer_problem:67 - No relevant policy chunks found in vector database.
+2026-09-07 15:28:49.618 | INFO     | api.main:lifespan:41 - Shutting down application...
+2026-09-07 15:28:53.928 | INFO     | api.main:lifespan:29 - Starting Telecom Customer Service Agent Assist in development mode...
+2026-09-07 15:28:53.929 | INFO     | core.singletons:get_qdrant_client:24 - Initializing Qdrant Client (localhost:6333)
+2026-09-07 15:28:58.417 | WARNING  | repositories.qdrant_repository:initialize_collection:56 - Could not connect to live Qdrant server: [WinError 10061] No connection could be made because the target machine actively refused it. Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:28:59.142 | INFO     | core.singletons:get_cohere_client:41 - Cohere Client initialized successfully.
+2026-09-07 15:28:59.143 | INFO     | api.main:lifespan:35 - Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...
+2026-09-07 15:28:59.145 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/sim_replacement_policy.html
+2026-09-07 15:28:59.147 | INFO     | ingestion.factories:get_extractor:33 - ExtractorFactory resolved HTMLExtractor for data/raw/sim_replacement_policy.html
+2026-09-07 15:28:59.148 | INFO     | ingestion.extractors.html_extractor:extract:16 - Extracting HTML document from: data/raw/sim_replacement_policy.html
+2026-09-07 15:28:59.152 | INFO     | ingestion.chunkers.policy_chunkers:chunk:95 - LangChain HTML SIMPolicyChunker produced 4 chunks.
+2026-09-07 15:29:00.071 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:29:00.075 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:29:00.079 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:29:00.082 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:29:01.148 | INFO     | core.singletons:get_gemini_client:57 - Google Gemini Client initialized with model: gemini-3.1-flash-lite-preview
+2026-09-07 15:29:01.306 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:29:05.417 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1081 chars)
+2026-09-07 15:29:05.435 | INFO     | ingestion.chunkers.policy_chunkers:chunk:182 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks.
+2026-09-07 15:29:06.044 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:29:06.046 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/billing_refund_policy.docx
+2026-09-07 15:29:06.048 | INFO     | ingestion.factories:get_extractor:39 - ExtractorFactory resolved DocxExtractor for data/raw/billing_refund_policy.docx
+2026-09-07 15:29:06.050 | INFO     | ingestion.extractors.docx_extractor:extract:17 - Extracting DOCX document from: data/raw/billing_refund_policy.docx
+2026-09-07 15:29:06.105 | INFO     | ingestion.chunkers.policy_chunkers:chunk:228 - LangChain BillingPolicyChunker produced 5 chunks.
+2026-09-07 15:29:06.410 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:29:06.411 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/
+2026-09-07 15:29:06.412 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/
+2026-09-07 15:29:06.413 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/
+2026-09-07 15:29:07.234 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/ (332430 bytes)
+2026-09-07 15:29:07.369 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 7 chunks.
+2026-09-07 15:29:07.770 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 7 chunks in unified in-memory fallback store.
+2026-09-07 15:29:07.772 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 7 chunks from https://www.te.eg/ into Qdrant.
+2026-09-07 15:29:07.775 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:29:07.780 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:29:07.783 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:29:08.091 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/fixed-broadband (265997 bytes)
+2026-09-07 15:29:08.175 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 5 chunks.
+2026-09-07 15:29:08.451 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:29:08.453 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 5 chunks from https://www.te.eg/web/guest/personal/services/fixed-broadband into Qdrant.
+2026-09-07 15:29:08.454 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:29:08.455 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:29:08.456 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:29:08.757 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/mobile-call-services (349912 bytes)
+2026-09-07 15:29:08.913 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 2 chunks.
+2026-09-07 15:29:09.135 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 2 chunks in unified in-memory fallback store.
+2026-09-07 15:29:09.137 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 2 chunks from https://www.te.eg/web/guest/personal/services/mobile-call-services into Qdrant.
+2026-09-07 15:29:09.138 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:29:09.139 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:29:09.140 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:29:09.445 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/international-roaming (297128 bytes)
+2026-09-07 15:29:09.634 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 1 chunks.
+2026-09-07 15:29:09.868 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 1 chunks in unified in-memory fallback store.
+2026-09-07 15:29:09.873 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 1 chunks from https://www.te.eg/web/guest/personal/services/international-roaming into Qdrant.
+2026-09-07 15:29:09.878 | INFO     | api.main:lifespan:37 - Website & policy ingestion finished: 7 sources indexed in Qdrant.
+2026-09-07 15:29:09.991 | INFO     | api.main:lifespan:41 - Shutting down application...
+2026-09-07 15:29:14.172 | INFO     | api.main:lifespan:29 - Starting Telecom Customer Service Agent Assist in development mode...
+2026-09-07 15:29:14.175 | INFO     | core.singletons:get_qdrant_client:24 - Initializing Qdrant Client (localhost:6333)
+2026-09-07 15:29:18.903 | WARNING  | repositories.qdrant_repository:initialize_collection:56 - Could not connect to live Qdrant server: [WinError 10061] No connection could be made because the target machine actively refused it. Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:29:19.998 | INFO     | core.singletons:get_cohere_client:41 - Cohere Client initialized successfully.
+2026-09-07 15:29:19.999 | INFO     | api.main:lifespan:36 - Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...
+2026-09-07 15:29:20.002 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/sim_replacement_policy.html
+2026-09-07 15:29:20.006 | INFO     | ingestion.factories:get_extractor:33 - ExtractorFactory resolved HTMLExtractor for data/raw/sim_replacement_policy.html
+2026-09-07 15:29:20.010 | INFO     | ingestion.extractors.html_extractor:extract:16 - Extracting HTML document from: data/raw/sim_replacement_policy.html
+2026-09-07 15:29:20.022 | INFO     | ingestion.chunkers.policy_chunkers:chunk:95 - LangChain HTML SIMPolicyChunker produced 4 chunks.
+2026-09-07 15:29:20.649 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:29:20.650 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:29:20.651 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:29:20.652 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:29:21.235 | INFO     | core.singletons:get_gemini_client:57 - Google Gemini Client initialized with model: gemini-3.1-flash-lite-preview
+2026-09-07 15:29:21.312 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:29:24.571 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1071 chars)
+2026-09-07 15:29:24.581 | INFO     | ingestion.chunkers.policy_chunkers:chunk:182 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks.
+2026-09-07 15:29:24.926 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:29:24.927 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/billing_refund_policy.docx
+2026-09-07 15:29:24.928 | INFO     | ingestion.factories:get_extractor:39 - ExtractorFactory resolved DocxExtractor for data/raw/billing_refund_policy.docx
+2026-09-07 15:29:24.928 | INFO     | ingestion.extractors.docx_extractor:extract:17 - Extracting DOCX document from: data/raw/billing_refund_policy.docx
+2026-09-07 15:29:24.942 | INFO     | ingestion.chunkers.policy_chunkers:chunk:228 - LangChain BillingPolicyChunker produced 5 chunks.
+2026-09-07 15:29:25.287 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:29:25.289 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/
+2026-09-07 15:29:25.292 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/
+2026-09-07 15:29:25.293 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/
+2026-09-07 15:29:25.750 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/ (332430 bytes)
+2026-09-07 15:29:25.861 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 7 chunks.
+2026-09-07 15:29:26.186 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 7 chunks in unified in-memory fallback store.
+2026-09-07 15:29:26.187 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 7 chunks from https://www.te.eg/ into Qdrant.
+2026-09-07 15:29:26.188 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:29:26.188 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:29:26.190 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:29:26.385 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/fixed-broadband (265997 bytes)
+2026-09-07 15:29:26.487 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 5 chunks.
+2026-09-07 15:29:26.759 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:29:26.760 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 5 chunks from https://www.te.eg/web/guest/personal/services/fixed-broadband into Qdrant.
+2026-09-07 15:29:26.761 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:29:26.762 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:29:26.763 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:29:28.063 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/mobile-call-services (349912 bytes)
+2026-09-07 15:29:28.234 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 2 chunks.
+2026-09-07 15:29:28.516 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 2 chunks in unified in-memory fallback store.
+2026-09-07 15:29:28.525 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 2 chunks from https://www.te.eg/web/guest/personal/services/mobile-call-services into Qdrant.
+2026-09-07 15:29:28.532 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:29:28.538 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:29:28.544 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:29:29.111 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/international-roaming (297128 bytes)
+2026-09-07 15:29:29.190 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 1 chunks.
+2026-09-07 15:29:29.433 | INFO     | repositories.qdrant_repository:upsert_chunks:113 - Stored 1 chunks in unified in-memory fallback store.
+2026-09-07 15:29:29.436 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 1 chunks from https://www.te.eg/web/guest/personal/services/international-roaming into Qdrant.
+2026-09-07 15:29:29.438 | INFO     | api.main:lifespan:38 - Website & policy ingestion finished: 7 sources indexed in Qdrant.
+2026-09-07 15:31:33.056 | INFO     | api.main:lifespan:42 - Shutting down application...
+2026-09-07 15:31:37.793 | INFO     | api.main:lifespan:29 - Starting Telecom Customer Service Agent Assist in development mode...
+2026-09-07 15:31:37.795 | INFO     | core.singletons:get_qdrant_client:24 - Initializing Qdrant Client (localhost:6333)
+2026-09-07 15:31:38.825 | WARNING  | repositories.qdrant_repository:initialize_collection:59 - Could not connect to live Qdrant server: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1000). Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:31:40.142 | INFO     | core.singletons:get_cohere_client:41 - Cohere Client initialized successfully.
+2026-09-07 15:31:40.145 | INFO     | api.main:lifespan:36 - Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...
+2026-09-07 15:31:40.147 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/sim_replacement_policy.html
+2026-09-07 15:31:40.150 | INFO     | ingestion.factories:get_extractor:33 - ExtractorFactory resolved HTMLExtractor for data/raw/sim_replacement_policy.html
+2026-09-07 15:31:40.153 | INFO     | ingestion.extractors.html_extractor:extract:16 - Extracting HTML document from: data/raw/sim_replacement_policy.html
+2026-09-07 15:31:40.159 | INFO     | ingestion.chunkers.policy_chunkers:chunk:95 - LangChain HTML SIMPolicyChunker produced 4 chunks.
+2026-09-07 15:31:40.781 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:31:40.783 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:31:40.784 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:31:40.785 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:31:41.833 | INFO     | core.singletons:get_gemini_client:57 - Google Gemini Client initialized with model: gemini-3.1-flash-lite-preview
+2026-09-07 15:31:42.029 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:31:44.567 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1066 chars)
+2026-09-07 15:31:44.576 | INFO     | ingestion.chunkers.policy_chunkers:chunk:182 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks.
+2026-09-07 15:31:44.911 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:31:44.912 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/billing_refund_policy.docx
+2026-09-07 15:31:44.913 | INFO     | ingestion.factories:get_extractor:39 - ExtractorFactory resolved DocxExtractor for data/raw/billing_refund_policy.docx
+2026-09-07 15:31:44.915 | INFO     | ingestion.extractors.docx_extractor:extract:17 - Extracting DOCX document from: data/raw/billing_refund_policy.docx
+2026-09-07 15:31:44.937 | INFO     | ingestion.chunkers.policy_chunkers:chunk:228 - LangChain BillingPolicyChunker produced 5 chunks.
+2026-09-07 15:31:45.276 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:31:45.277 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/
+2026-09-07 15:31:45.279 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/
+2026-09-07 15:31:45.280 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/
+2026-09-07 15:31:45.740 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/ (332430 bytes)
+2026-09-07 15:31:45.842 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 7 chunks.
+2026-09-07 15:31:46.128 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 7 chunks in unified in-memory fallback store.
+2026-09-07 15:31:46.129 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 7 chunks from https://www.te.eg/ into Qdrant.
+2026-09-07 15:31:46.132 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:31:46.133 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:31:46.134 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:31:46.400 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/fixed-broadband (265997 bytes)
+2026-09-07 15:31:46.581 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 5 chunks.
+2026-09-07 15:31:46.859 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:31:46.861 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 5 chunks from https://www.te.eg/web/guest/personal/services/fixed-broadband into Qdrant.
+2026-09-07 15:31:46.862 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:31:46.864 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:31:46.867 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:31:47.228 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/mobile-call-services (349912 bytes)
+2026-09-07 15:31:47.435 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 2 chunks.
+2026-09-07 15:31:47.678 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 2 chunks in unified in-memory fallback store.
+2026-09-07 15:31:47.680 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 2 chunks from https://www.te.eg/web/guest/personal/services/mobile-call-services into Qdrant.
+2026-09-07 15:31:47.682 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:31:47.683 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:31:47.684 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:31:48.916 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/international-roaming (297128 bytes)
+2026-09-07 15:31:48.997 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 1 chunks.
+2026-09-07 15:31:49.209 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 1 chunks in unified in-memory fallback store.
+2026-09-07 15:31:49.210 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 1 chunks from https://www.te.eg/web/guest/personal/services/international-roaming into Qdrant.
+2026-09-07 15:31:49.211 | INFO     | api.main:lifespan:38 - Website & policy ingestion finished: 7 sources indexed in Qdrant.
+2026-09-07 15:35:39.550 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/sim_replacement_policy.html
+2026-09-07 15:35:39.552 | INFO     | ingestion.factories:get_extractor:33 - ExtractorFactory resolved HTMLExtractor for data/raw/sim_replacement_policy.html
+2026-09-07 15:35:39.555 | INFO     | ingestion.extractors.html_extractor:extract:16 - Extracting HTML document from: data/raw/sim_replacement_policy.html
+2026-09-07 15:35:39.565 | INFO     | ingestion.chunkers.policy_chunkers:chunk:95 - LangChain HTML SIMPolicyChunker produced 4 chunks.
+2026-09-07 15:35:40.192 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:35:40.195 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:35:40.199 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:35:40.206 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:35:40.457 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:35:43.372 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1081 chars)
+2026-09-07 15:35:43.377 | INFO     | ingestion.chunkers.policy_chunkers:chunk:182 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks.
+2026-09-07 15:35:43.682 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:35:43.689 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/billing_refund_policy.docx
+2026-09-07 15:35:43.701 | INFO     | ingestion.factories:get_extractor:39 - ExtractorFactory resolved DocxExtractor for data/raw/billing_refund_policy.docx
+2026-09-07 15:35:43.712 | INFO     | ingestion.extractors.docx_extractor:extract:17 - Extracting DOCX document from: data/raw/billing_refund_policy.docx
+2026-09-07 15:35:43.786 | INFO     | ingestion.chunkers.policy_chunkers:chunk:228 - LangChain BillingPolicyChunker produced 5 chunks.
+2026-09-07 15:35:44.096 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:35:44.098 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/
+2026-09-07 15:35:44.100 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/
+2026-09-07 15:35:44.102 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/
+2026-09-07 15:35:44.512 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/ (332430 bytes)
+2026-09-07 15:35:44.800 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 7 chunks.
+2026-09-07 15:35:45.163 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 7 chunks in unified in-memory fallback store.
+2026-09-07 15:35:45.169 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 7 chunks from https://www.te.eg/ into Qdrant.
+2026-09-07 15:35:45.180 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:35:45.188 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:35:45.205 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:35:45.509 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/fixed-broadband (265997 bytes)
+2026-09-07 15:35:45.818 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 5 chunks.
+2026-09-07 15:35:46.194 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:35:46.199 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 5 chunks from https://www.te.eg/web/guest/personal/services/fixed-broadband into Qdrant.
+2026-09-07 15:35:46.213 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:35:46.226 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:35:46.244 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:35:46.595 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/mobile-call-services (349912 bytes)
+2026-09-07 15:35:46.889 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 2 chunks.
+2026-09-07 15:35:47.175 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 2 chunks in unified in-memory fallback store.
+2026-09-07 15:35:47.177 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 2 chunks from https://www.te.eg/web/guest/personal/services/mobile-call-services into Qdrant.
+2026-09-07 15:35:47.190 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:35:47.201 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:35:47.213 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:35:47.505 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/international-roaming (297128 bytes)
+2026-09-07 15:35:47.651 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 1 chunks.
+2026-09-07 15:35:47.904 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 1 chunks in unified in-memory fallback store.
+2026-09-07 15:35:47.913 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 1 chunks from https://www.te.eg/web/guest/personal/services/international-roaming into Qdrant.
+2026-09-07 15:35:47.947 | INFO     | services.agent_assist_service:solve_customer_problem:46 - Solving customer problem: 'I lost my iPhone on the metro this morning. How can I get a replacement SIM card right away?' (Intent Filter: None)
+2026-09-07 15:35:50.998 | INFO     | core.singletons:get_langfuse_client:76 - Langfuse Observability Client initialized.
+2026-09-07 15:35:57.959 | ERROR    | controllers.agent_assist_controller:solve_problem:29 - Error processing agent assist query: 'Settings' object has no attribute 'GEMINI_MODEL'
+2026-09-07 15:36:21.355 | INFO     | api.main:lifespan:42 - Shutting down application...
+2026-09-07 15:36:25.526 | INFO     | api.main:lifespan:29 - Starting Telecom Customer Service Agent Assist in development mode...
+2026-09-07 15:36:25.527 | INFO     | core.singletons:get_qdrant_client:24 - Initializing Qdrant Client (localhost:6333)
+2026-09-07 15:36:25.859 | WARNING  | repositories.qdrant_repository:initialize_collection:59 - Could not connect to live Qdrant server: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1000). Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:36:26.657 | INFO     | core.singletons:get_cohere_client:41 - Cohere Client initialized successfully.
+2026-09-07 15:36:26.658 | INFO     | api.main:lifespan:36 - Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...
+2026-09-07 15:36:26.659 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/sim_replacement_policy.html
+2026-09-07 15:36:26.660 | INFO     | ingestion.factories:get_extractor:33 - ExtractorFactory resolved HTMLExtractor for data/raw/sim_replacement_policy.html
+2026-09-07 15:36:26.660 | INFO     | ingestion.extractors.html_extractor:extract:16 - Extracting HTML document from: data/raw/sim_replacement_policy.html
+2026-09-07 15:36:26.664 | INFO     | ingestion.chunkers.policy_chunkers:chunk:95 - LangChain HTML SIMPolicyChunker produced 4 chunks.
+2026-09-07 15:36:27.299 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:36:27.302 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:36:27.305 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:36:27.308 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:36:28.994 | INFO     | core.singletons:get_gemini_client:57 - Google Gemini Client initialized with model: gemini-3.1-flash-lite-preview
+2026-09-07 15:36:29.086 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:36:31.750 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1080 chars)
+2026-09-07 15:36:31.754 | INFO     | ingestion.chunkers.policy_chunkers:chunk:182 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks.
+2026-09-07 15:36:32.005 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:36:32.006 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/billing_refund_policy.docx
+2026-09-07 15:36:32.007 | INFO     | ingestion.factories:get_extractor:39 - ExtractorFactory resolved DocxExtractor for data/raw/billing_refund_policy.docx
+2026-09-07 15:36:32.008 | INFO     | ingestion.extractors.docx_extractor:extract:17 - Extracting DOCX document from: data/raw/billing_refund_policy.docx
+2026-09-07 15:36:32.025 | INFO     | ingestion.chunkers.policy_chunkers:chunk:228 - LangChain BillingPolicyChunker produced 5 chunks.
+2026-09-07 15:36:32.283 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:36:32.284 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/
+2026-09-07 15:36:32.285 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/
+2026-09-07 15:36:32.286 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/
+2026-09-07 15:36:32.664 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/ (332430 bytes)
+2026-09-07 15:36:32.762 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 7 chunks.
+2026-09-07 15:36:33.040 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 7 chunks in unified in-memory fallback store.
+2026-09-07 15:36:33.041 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 7 chunks from https://www.te.eg/ into Qdrant.
+2026-09-07 15:36:33.043 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:36:33.044 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:36:33.045 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:36:33.378 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/fixed-broadband (265997 bytes)
+2026-09-07 15:36:33.449 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 5 chunks.
+2026-09-07 15:36:33.810 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:36:33.811 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 5 chunks from https://www.te.eg/web/guest/personal/services/fixed-broadband into Qdrant.
+2026-09-07 15:36:33.812 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:36:33.813 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:36:33.814 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:36:34.419 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/mobile-call-services (349912 bytes)
+2026-09-07 15:36:34.580 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 2 chunks.
+2026-09-07 15:36:35.047 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 2 chunks in unified in-memory fallback store.
+2026-09-07 15:36:35.049 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 2 chunks from https://www.te.eg/web/guest/personal/services/mobile-call-services into Qdrant.
+2026-09-07 15:36:35.051 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:36:35.053 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:36:35.055 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:36:38.914 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/international-roaming (297128 bytes)
+2026-09-07 15:36:39.001 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 1 chunks.
+2026-09-07 15:36:39.248 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 1 chunks in unified in-memory fallback store.
+2026-09-07 15:36:39.252 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 1 chunks from https://www.te.eg/web/guest/personal/services/international-roaming into Qdrant.
+2026-09-07 15:36:39.256 | INFO     | api.main:lifespan:38 - Website & policy ingestion finished: 7 sources indexed in Qdrant.
+2026-09-07 15:36:42.651 | INFO     | api.main:lifespan:42 - Shutting down application...
+2026-09-07 15:36:46.408 | INFO     | api.main:lifespan:29 - Starting Telecom Customer Service Agent Assist in development mode...
+2026-09-07 15:36:46.409 | INFO     | core.singletons:get_qdrant_client:24 - Initializing Qdrant Client (localhost:6333)
+2026-09-07 15:36:46.758 | WARNING  | repositories.qdrant_repository:initialize_collection:59 - Could not connect to live Qdrant server: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1000). Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:36:47.446 | INFO     | core.singletons:get_cohere_client:41 - Cohere Client initialized successfully.
+2026-09-07 15:36:47.447 | INFO     | api.main:lifespan:36 - Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...
+2026-09-07 15:36:47.448 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/sim_replacement_policy.html
+2026-09-07 15:36:47.449 | INFO     | ingestion.factories:get_extractor:33 - ExtractorFactory resolved HTMLExtractor for data/raw/sim_replacement_policy.html
+2026-09-07 15:36:47.450 | INFO     | ingestion.extractors.html_extractor:extract:16 - Extracting HTML document from: data/raw/sim_replacement_policy.html
+2026-09-07 15:36:47.456 | INFO     | ingestion.chunkers.policy_chunkers:chunk:95 - LangChain HTML SIMPolicyChunker produced 4 chunks.
+2026-09-07 15:36:48.049 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:36:48.054 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:36:48.060 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:36:48.065 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:36:48.776 | INFO     | core.singletons:get_gemini_client:57 - Google Gemini Client initialized with model: gemini-3.1-flash-lite-preview
+2026-09-07 15:36:48.864 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:36:51.503 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1080 chars)
+2026-09-07 15:36:51.515 | INFO     | ingestion.chunkers.policy_chunkers:chunk:182 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks.
+2026-09-07 15:36:51.820 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:36:51.821 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/billing_refund_policy.docx
+2026-09-07 15:36:51.823 | INFO     | ingestion.factories:get_extractor:39 - ExtractorFactory resolved DocxExtractor for data/raw/billing_refund_policy.docx
+2026-09-07 15:36:51.825 | INFO     | ingestion.extractors.docx_extractor:extract:17 - Extracting DOCX document from: data/raw/billing_refund_policy.docx
+2026-09-07 15:36:51.861 | INFO     | ingestion.chunkers.policy_chunkers:chunk:228 - LangChain BillingPolicyChunker produced 5 chunks.
+2026-09-07 15:36:52.158 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:36:52.160 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/
+2026-09-07 15:36:52.162 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/
+2026-09-07 15:36:52.165 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/
+2026-09-07 15:36:52.509 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/ (332430 bytes)
+2026-09-07 15:36:52.644 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 7 chunks.
+2026-09-07 15:36:52.951 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 7 chunks in unified in-memory fallback store.
+2026-09-07 15:36:52.952 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 7 chunks from https://www.te.eg/ into Qdrant.
+2026-09-07 15:36:52.953 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:36:52.953 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:36:52.954 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:36:53.200 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/fixed-broadband (265997 bytes)
+2026-09-07 15:36:53.305 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 5 chunks.
+2026-09-07 15:36:53.615 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:36:53.617 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 5 chunks from https://www.te.eg/web/guest/personal/services/fixed-broadband into Qdrant.
+2026-09-07 15:36:53.619 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:36:53.620 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:36:53.621 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:36:53.971 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/mobile-call-services (349912 bytes)
+2026-09-07 15:36:54.147 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 2 chunks.
+2026-09-07 15:36:54.424 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 2 chunks in unified in-memory fallback store.
+2026-09-07 15:36:54.428 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 2 chunks from https://www.te.eg/web/guest/personal/services/mobile-call-services into Qdrant.
+2026-09-07 15:36:54.431 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:36:54.435 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:36:54.441 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:36:55.965 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/international-roaming (297128 bytes)
+2026-09-07 15:36:56.061 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 1 chunks.
+2026-09-07 15:36:56.333 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 1 chunks in unified in-memory fallback store.
+2026-09-07 15:36:56.337 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 1 chunks from https://www.te.eg/web/guest/personal/services/international-roaming into Qdrant.
+2026-09-07 15:36:56.340 | INFO     | api.main:lifespan:38 - Website & policy ingestion finished: 7 sources indexed in Qdrant.
+2026-09-07 15:38:12.377 | INFO     | services.agent_assist_service:solve_customer_problem:46 - Solving customer problem: 'I lost my iPhone on the metro this morning. How can I get a replacement SIM card right away?' (Intent Filter: None)
+2026-09-07 15:38:14.633 | INFO     | core.singletons:get_langfuse_client:76 - Langfuse Observability Client initialized.
+2026-09-07 15:38:18.501 | INFO     | core.observability:log_generation:87 - [gemini_agent_assist_synthesis] Model: gemini-3.1-flash-lite-preview | Latency: 3.107s | Tokens: (In: 744, Out: 671, Total: 1415) | Est. Cost: $0.000257 USD
+2026-09-07 15:38:18.508 | INFO     | services.agent_assist_service:solve_customer_problem:148 - Problem resolved in 6.131s | Intent: SIM_MANAGEMENT | Tokens: 1415 | Cost: $0.000257
+2026-09-07 15:41:55.036 | INFO     | services.agent_assist_service:solve_customer_problem:46 - Solving customer problem: 'What are the available WE Space high speed fiber internet packages and speed tiers for home broadband?' (Intent Filter: None)
+2026-09-07 15:41:59.162 | INFO     | core.observability:log_generation:87 - [gemini_agent_assist_synthesis] Model: gemini-3.1-flash-lite-preview | Latency: 3.517s | Tokens: (In: 719, Out: 572, Total: 1291) | Est. Cost: $0.000226 USD
+2026-09-07 15:41:59.175 | INFO     | services.agent_assist_service:solve_customer_problem:148 - Problem resolved in 4.140s | Intent: WIFI_TECHNICAL_SUPPORT | Tokens: 1291 | Cost: $0.000226
+2026-09-07 15:46:29.811 | INFO     | api.main:lifespan:42 - Shutting down application...
+2026-09-07 15:46:34.409 | INFO     | api.main:lifespan:29 - Starting Telecom Customer Service Agent Assist in development mode...
+2026-09-07 15:46:34.410 | INFO     | core.singletons:get_qdrant_client:24 - Initializing Qdrant Client (localhost:6333)
+2026-09-07 15:46:34.812 | WARNING  | repositories.qdrant_repository:initialize_collection:59 - Could not connect to live Qdrant server: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1000). Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:46:35.894 | INFO     | core.singletons:get_cohere_client:41 - Cohere Client initialized successfully.
+2026-09-07 15:46:35.897 | INFO     | api.main:lifespan:36 - Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...
+2026-09-07 15:46:35.900 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/sim_replacement_policy.html
+2026-09-07 15:46:35.902 | INFO     | ingestion.factories:get_extractor:33 - ExtractorFactory resolved HTMLExtractor for data/raw/sim_replacement_policy.html
+2026-09-07 15:46:35.906 | INFO     | ingestion.extractors.html_extractor:extract:16 - Extracting HTML document from: data/raw/sim_replacement_policy.html
+2026-09-07 15:46:35.917 | INFO     | ingestion.chunkers.policy_chunkers:chunk:95 - LangChain HTML SIMPolicyChunker produced 4 chunks.
+2026-09-07 15:46:36.644 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:46:36.649 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/pdf.pdf
+2026-09-07 15:46:36.652 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/pdf.pdf
+2026-09-07 15:46:36.654 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/pdf.pdf
+2026-09-07 15:46:37.624 | INFO     | core.singletons:get_gemini_client:57 - Google Gemini Client initialized with model: gemini-3.1-flash-lite-preview
+2026-09-07 15:46:37.816 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:46:42.030 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1068 chars)
+2026-09-07 15:46:42.035 | INFO     | ingestion.chunkers.policy_chunkers:chunk:182 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks.
+2026-09-07 15:46:42.430 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:46:42.431 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:46:42.433 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:46:42.434 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:46:42.506 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:46:45.731 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1079 chars)
+2026-09-07 15:46:45.740 | INFO     | ingestion.chunkers.policy_chunkers:chunk:182 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks.
+2026-09-07 15:46:46.030 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:46:46.033 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/billing_refund_policy.docx
+2026-09-07 15:46:46.035 | INFO     | ingestion.factories:get_extractor:39 - ExtractorFactory resolved DocxExtractor for data/raw/billing_refund_policy.docx
+2026-09-07 15:46:46.037 | INFO     | ingestion.extractors.docx_extractor:extract:17 - Extracting DOCX document from: data/raw/billing_refund_policy.docx
+2026-09-07 15:46:46.068 | INFO     | ingestion.chunkers.policy_chunkers:chunk:228 - LangChain BillingPolicyChunker produced 5 chunks.
+2026-09-07 15:46:46.367 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:46:46.367 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/
+2026-09-07 15:46:46.368 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/
+2026-09-07 15:46:46.369 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/
+2026-09-07 15:46:46.938 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/ (332430 bytes)
+2026-09-07 15:46:47.022 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 7 chunks.
+2026-09-07 15:46:47.324 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 7 chunks in unified in-memory fallback store.
+2026-09-07 15:46:47.327 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 7 chunks from https://www.te.eg/ into Qdrant.
+2026-09-07 15:46:47.330 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:46:47.335 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:46:47.336 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:46:47.640 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/fixed-broadband (265997 bytes)
+2026-09-07 15:46:47.735 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 5 chunks.
+2026-09-07 15:46:48.046 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:46:48.049 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 5 chunks from https://www.te.eg/web/guest/personal/services/fixed-broadband into Qdrant.
+2026-09-07 15:46:48.052 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:46:48.055 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:46:48.057 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:46:48.385 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/mobile-call-services (349912 bytes)
+2026-09-07 15:46:48.557 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 2 chunks.
+2026-09-07 15:46:48.807 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 2 chunks in unified in-memory fallback store.
+2026-09-07 15:46:48.809 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 2 chunks from https://www.te.eg/web/guest/personal/services/mobile-call-services into Qdrant.
+2026-09-07 15:46:48.810 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:46:48.813 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:46:48.814 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:46:49.093 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/international-roaming (297128 bytes)
+2026-09-07 15:46:49.180 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 1 chunks.
+2026-09-07 15:46:49.418 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 1 chunks in unified in-memory fallback store.
+2026-09-07 15:46:49.422 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 1 chunks from https://www.te.eg/web/guest/personal/services/international-roaming into Qdrant.
+2026-09-07 15:46:49.426 | INFO     | api.main:lifespan:38 - Website & policy ingestion finished: 8 sources indexed in Qdrant.
+2026-09-07 15:46:49.547 | INFO     | api.main:lifespan:42 - Shutting down application...
+2026-09-07 15:46:52.733 | INFO     | api.main:lifespan:29 - Starting Telecom Customer Service Agent Assist in development mode...
+2026-09-07 15:46:52.735 | INFO     | core.singletons:get_qdrant_client:24 - Initializing Qdrant Client (localhost:6333)
+2026-09-07 15:46:53.076 | WARNING  | repositories.qdrant_repository:initialize_collection:59 - Could not connect to live Qdrant server: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1000). Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:46:53.964 | INFO     | core.singletons:get_cohere_client:41 - Cohere Client initialized successfully.
+2026-09-07 15:46:53.965 | INFO     | api.main:lifespan:36 - Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...
+2026-09-07 15:46:53.966 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/sim_replacement_policy.html
+2026-09-07 15:46:53.967 | INFO     | ingestion.factories:get_extractor:33 - ExtractorFactory resolved HTMLExtractor for data/raw/sim_replacement_policy.html
+2026-09-07 15:46:53.967 | INFO     | ingestion.extractors.html_extractor:extract:16 - Extracting HTML document from: data/raw/sim_replacement_policy.html
+2026-09-07 15:46:53.971 | INFO     | ingestion.chunkers.policy_chunkers:chunk:95 - LangChain HTML SIMPolicyChunker produced 4 chunks.
+2026-09-07 15:46:54.531 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:46:54.533 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/pdf.pdf
+2026-09-07 15:46:54.539 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/pdf.pdf
+2026-09-07 15:46:54.544 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/pdf.pdf
+2026-09-07 15:46:55.380 | INFO     | core.singletons:get_gemini_client:57 - Google Gemini Client initialized with model: gemini-3.1-flash-lite-preview
+2026-09-07 15:46:55.466 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:46:58.254 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1076 chars)
+2026-09-07 15:46:58.268 | INFO     | ingestion.chunkers.policy_chunkers:chunk:182 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks.
+2026-09-07 15:46:58.561 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:46:58.562 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:46:58.563 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:46:58.564 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:46:58.616 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:47:01.826 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1078 chars)
+2026-09-07 15:47:01.838 | INFO     | ingestion.chunkers.policy_chunkers:chunk:182 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks.
+2026-09-07 15:47:02.124 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:47:02.129 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/billing_refund_policy.docx
+2026-09-07 15:47:02.136 | INFO     | ingestion.factories:get_extractor:39 - ExtractorFactory resolved DocxExtractor for data/raw/billing_refund_policy.docx
+2026-09-07 15:47:02.141 | INFO     | ingestion.extractors.docx_extractor:extract:17 - Extracting DOCX document from: data/raw/billing_refund_policy.docx
+2026-09-07 15:47:02.167 | INFO     | ingestion.chunkers.policy_chunkers:chunk:228 - LangChain BillingPolicyChunker produced 5 chunks.
+2026-09-07 15:47:02.476 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:47:02.478 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/
+2026-09-07 15:47:02.479 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/
+2026-09-07 15:47:02.480 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/
+2026-09-07 15:47:02.869 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/ (332430 bytes)
+2026-09-07 15:47:02.969 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 7 chunks.
+2026-09-07 15:47:03.362 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 7 chunks in unified in-memory fallback store.
+2026-09-07 15:47:03.364 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 7 chunks from https://www.te.eg/ into Qdrant.
+2026-09-07 15:47:03.364 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:47:03.365 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:47:03.365 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:47:03.606 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/fixed-broadband (265997 bytes)
+2026-09-07 15:47:03.666 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 5 chunks.
+2026-09-07 15:47:03.964 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:47:03.965 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 5 chunks from https://www.te.eg/web/guest/personal/services/fixed-broadband into Qdrant.
+2026-09-07 15:47:03.967 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:47:03.968 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:47:03.971 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:47:04.271 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/mobile-call-services (349912 bytes)
+2026-09-07 15:47:04.548 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 2 chunks.
+2026-09-07 15:47:04.812 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 2 chunks in unified in-memory fallback store.
+2026-09-07 15:47:04.815 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 2 chunks from https://www.te.eg/web/guest/personal/services/mobile-call-services into Qdrant.
+2026-09-07 15:47:04.818 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:47:04.822 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:47:04.825 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:47:05.097 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/international-roaming (297128 bytes)
+2026-09-07 15:47:05.163 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 1 chunks.
+2026-09-07 15:47:05.564 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 1 chunks in unified in-memory fallback store.
+2026-09-07 15:47:05.567 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 1 chunks from https://www.te.eg/web/guest/personal/services/international-roaming into Qdrant.
+2026-09-07 15:47:05.571 | INFO     | api.main:lifespan:38 - Website & policy ingestion finished: 8 sources indexed in Qdrant.
+2026-09-07 15:47:15.419 | INFO     | api.main:lifespan:42 - Shutting down application...
+2026-09-07 15:47:19.229 | INFO     | api.main:lifespan:29 - Starting Telecom Customer Service Agent Assist in development mode...
+2026-09-07 15:47:19.231 | INFO     | core.singletons:get_qdrant_client:24 - Initializing Qdrant Client (localhost:6333)
+2026-09-07 15:47:19.907 | WARNING  | repositories.qdrant_repository:initialize_collection:59 - Could not connect to live Qdrant server: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1000). Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:47:20.780 | INFO     | core.singletons:get_cohere_client:41 - Cohere Client initialized successfully.
+2026-09-07 15:47:20.781 | INFO     | api.main:lifespan:36 - Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...
+2026-09-07 15:47:20.782 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/sim_replacement_policy.html
+2026-09-07 15:47:20.784 | INFO     | ingestion.factories:get_extractor:33 - ExtractorFactory resolved HTMLExtractor for data/raw/sim_replacement_policy.html
+2026-09-07 15:47:20.785 | INFO     | ingestion.extractors.html_extractor:extract:16 - Extracting HTML document from: data/raw/sim_replacement_policy.html
+2026-09-07 15:47:20.788 | INFO     | ingestion.chunkers.policy_chunkers:chunk:95 - LangChain HTML SIMPolicyChunker produced 4 chunks.
+2026-09-07 15:47:21.358 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:47:21.360 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/pdf.pdf
+2026-09-07 15:47:21.361 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/pdf.pdf
+2026-09-07 15:47:21.362 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/pdf.pdf
+2026-09-07 15:47:22.479 | INFO     | core.singletons:get_gemini_client:57 - Google Gemini Client initialized with model: gemini-3.1-flash-lite-preview
+2026-09-07 15:47:22.565 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:47:25.523 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1104 chars)
+2026-09-07 15:47:25.536 | INFO     | ingestion.chunkers.policy_chunkers:chunk:182 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks.
+2026-09-07 15:47:25.840 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:47:25.841 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:47:25.842 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:47:25.843 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:47:25.897 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:47:28.708 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1073 chars)
+2026-09-07 15:47:28.715 | INFO     | ingestion.chunkers.policy_chunkers:chunk:182 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks.
+2026-09-07 15:47:29.009 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:47:29.011 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/billing_refund_policy.docx
+2026-09-07 15:47:29.011 | INFO     | ingestion.factories:get_extractor:39 - ExtractorFactory resolved DocxExtractor for data/raw/billing_refund_policy.docx
+2026-09-07 15:47:29.012 | INFO     | ingestion.extractors.docx_extractor:extract:17 - Extracting DOCX document from: data/raw/billing_refund_policy.docx
+2026-09-07 15:47:29.025 | INFO     | ingestion.chunkers.policy_chunkers:chunk:228 - LangChain BillingPolicyChunker produced 5 chunks.
+2026-09-07 15:47:29.317 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:47:29.319 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/
+2026-09-07 15:47:29.320 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/
+2026-09-07 15:47:29.321 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/
+2026-09-07 15:47:29.708 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/ (332430 bytes)
+2026-09-07 15:47:29.834 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 7 chunks.
+2026-09-07 15:47:30.187 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 7 chunks in unified in-memory fallback store.
+2026-09-07 15:47:30.189 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 7 chunks from https://www.te.eg/ into Qdrant.
+2026-09-07 15:47:30.191 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:47:30.193 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:47:30.196 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:47:30.467 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/fixed-broadband (265997 bytes)
+2026-09-07 15:47:30.569 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 5 chunks.
+2026-09-07 15:47:30.872 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:47:30.873 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 5 chunks from https://www.te.eg/web/guest/personal/services/fixed-broadband into Qdrant.
+2026-09-07 15:47:30.874 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:47:30.874 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:47:30.875 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:47:31.194 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/mobile-call-services (349912 bytes)
+2026-09-07 15:47:31.379 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 2 chunks.
+2026-09-07 15:47:31.656 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 2 chunks in unified in-memory fallback store.
+2026-09-07 15:47:31.658 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 2 chunks from https://www.te.eg/web/guest/personal/services/mobile-call-services into Qdrant.
+2026-09-07 15:47:31.659 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:47:31.660 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:47:31.661 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:47:31.927 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/international-roaming (297128 bytes)
+2026-09-07 15:47:32.038 | INFO     | ingestion.chunkers.policy_chunkers:chunk:282 - LangChain WebScrapedPolicyChunker produced 1 chunks.
+2026-09-07 15:47:32.306 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 1 chunks in unified in-memory fallback store.
+2026-09-07 15:47:32.311 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 1 chunks from https://www.te.eg/web/guest/personal/services/international-roaming into Qdrant.
+2026-09-07 15:47:32.311 | INFO     | api.main:lifespan:38 - Website & policy ingestion finished: 8 sources indexed in Qdrant.
+2026-09-07 15:48:44.862 | INFO     | services.agent_assist_service:solve_customer_problem:46 - Solving customer problem: 'What are the available WE Space high speed fiber internet packages and speed tiers for home broadband?' (Intent Filter: None)
+2026-09-07 15:48:47.962 | INFO     | core.singletons:get_langfuse_client:76 - Langfuse Observability Client initialized.
+2026-09-07 15:48:50.438 | INFO     | core.observability:log_generation:87 - [gemini_agent_assist_synthesis] Model: gemini-3.1-flash-lite-preview | Latency: 1.732s | Tokens: (In: 718, Out: 570, Total: 1288) | Est. Cost: $0.000225 USD
+2026-09-07 15:48:50.449 | INFO     | services.agent_assist_service:solve_customer_problem:148 - Problem resolved in 5.586s | Intent: WIFI_TECHNICAL_SUPPORT | Tokens: 1288 | Cost: $0.000225
+2026-09-07 15:51:00.749 | INFO     | services.agent_assist_service:solve_customer_problem:46 - Solving customer problem: 'What specific backup mobile data allowance and technician dispatch SLA times are guaranteed in the home WiFi outage policy?' (Intent Filter: None)
+2026-09-07 15:51:03.863 | INFO     | core.observability:log_generation:87 - [gemini_agent_assist_synthesis] Model: gemini-3.1-flash-lite-preview | Latency: 2.440s | Tokens: (In: 645, Out: 657, Total: 1302) | Est. Cost: $0.000245 USD
+2026-09-07 15:51:03.871 | INFO     | services.agent_assist_service:solve_customer_problem:148 - Problem resolved in 3.121s | Intent: WIFI_TECHNICAL_SUPPORT | Tokens: 1302 | Cost: $0.000245
+2026-09-07 15:52:15.085 | INFO     | api.main:lifespan:42 - Shutting down application...
+2026-09-07 15:52:18.834 | INFO     | api.main:lifespan:29 - Starting Telecom Customer Service Agent Assist in development mode...
+2026-09-07 15:52:18.836 | INFO     | core.singletons:get_qdrant_client:24 - Initializing Qdrant Client (localhost:6333)
+2026-09-07 15:52:19.295 | WARNING  | repositories.qdrant_repository:initialize_collection:59 - Could not connect to live Qdrant server: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1000). Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:52:20.189 | INFO     | core.singletons:get_cohere_client:41 - Cohere Client initialized successfully.
+2026-09-07 15:52:20.191 | INFO     | api.main:lifespan:36 - Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...
+2026-09-07 15:52:20.192 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/sim_replacement_policy.html
+2026-09-07 15:52:20.192 | INFO     | ingestion.factories:get_extractor:33 - ExtractorFactory resolved HTMLExtractor for data/raw/sim_replacement_policy.html
+2026-09-07 15:52:20.192 | INFO     | ingestion.extractors.html_extractor:extract:16 - Extracting HTML document from: data/raw/sim_replacement_policy.html
+2026-09-07 15:52:20.198 | INFO     | ingestion.chunkers.policy_chunkers:chunk:95 - LangChain HTML SIMPolicyChunker produced 4 chunks.
+2026-09-07 15:52:20.878 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:52:20.880 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/pdf.pdf
+2026-09-07 15:52:20.882 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/pdf.pdf
+2026-09-07 15:52:20.883 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/pdf.pdf
+2026-09-07 15:52:21.492 | INFO     | core.singletons:get_gemini_client:57 - Google Gemini Client initialized with model: gemini-3.1-flash-lite-preview
+2026-09-07 15:52:21.623 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:52:24.421 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1072 chars)
+2026-09-07 15:52:24.423 | ERROR    | services.ingestion_service:ingest_all_default_policies:124 - Failed to ingest local policy data/raw/pdf.pdf: name 'os' is not defined
+2026-09-07 15:52:24.424 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:52:24.426 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:52:24.428 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/wifi_troubleshooting_policy.pdf
+2026-09-07 15:52:24.492 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:52:27.609 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1081 chars)
+2026-09-07 15:52:27.621 | ERROR    | services.ingestion_service:ingest_all_default_policies:124 - Failed to ingest local policy data/raw/wifi_troubleshooting_policy.pdf: name 'os' is not defined
+2026-09-07 15:52:27.630 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/billing_refund_policy.docx
+2026-09-07 15:52:27.635 | INFO     | ingestion.factories:get_extractor:39 - ExtractorFactory resolved DocxExtractor for data/raw/billing_refund_policy.docx
+2026-09-07 15:52:27.641 | INFO     | ingestion.extractors.docx_extractor:extract:17 - Extracting DOCX document from: data/raw/billing_refund_policy.docx
+2026-09-07 15:52:27.675 | INFO     | ingestion.chunkers.policy_chunkers:chunk:229 - LangChain BillingPolicyChunker produced 5 chunks.
+2026-09-07 15:52:28.212 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:52:28.215 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/
+2026-09-07 15:52:28.218 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/
+2026-09-07 15:52:28.222 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/
+2026-09-07 15:52:28.754 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/ (332430 bytes)
+2026-09-07 15:52:28.858 | INFO     | ingestion.chunkers.policy_chunkers:chunk:283 - LangChain WebScrapedPolicyChunker produced 7 chunks.
+2026-09-07 15:52:29.188 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 7 chunks in unified in-memory fallback store.
+2026-09-07 15:52:29.190 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 7 chunks from https://www.te.eg/ into Qdrant.
+2026-09-07 15:52:29.191 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:52:29.192 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:52:29.193 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:52:29.453 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/fixed-broadband (265997 bytes)
+2026-09-07 15:52:29.548 | INFO     | ingestion.chunkers.policy_chunkers:chunk:283 - LangChain WebScrapedPolicyChunker produced 5 chunks.
+2026-09-07 15:52:30.250 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:52:30.251 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 5 chunks from https://www.te.eg/web/guest/personal/services/fixed-broadband into Qdrant.
+2026-09-07 15:52:30.253 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:52:30.254 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:52:30.255 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:52:30.578 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/mobile-call-services (349912 bytes)
+2026-09-07 15:52:30.733 | INFO     | ingestion.chunkers.policy_chunkers:chunk:283 - LangChain WebScrapedPolicyChunker produced 2 chunks.
+2026-09-07 15:52:30.997 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 2 chunks in unified in-memory fallback store.
+2026-09-07 15:52:30.998 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 2 chunks from https://www.te.eg/web/guest/personal/services/mobile-call-services into Qdrant.
+2026-09-07 15:52:30.999 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:52:31.000 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:52:31.001 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:52:31.267 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/international-roaming (297128 bytes)
+2026-09-07 15:52:31.319 | INFO     | ingestion.chunkers.policy_chunkers:chunk:283 - LangChain WebScrapedPolicyChunker produced 1 chunks.
+2026-09-07 15:52:31.564 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 1 chunks in unified in-memory fallback store.
+2026-09-07 15:52:31.567 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 1 chunks from https://www.te.eg/web/guest/personal/services/international-roaming into Qdrant.
+2026-09-07 15:52:31.569 | INFO     | api.main:lifespan:38 - Website & policy ingestion finished: 6 sources indexed in Qdrant.
+2026-09-07 15:52:31.679 | INFO     | api.main:lifespan:42 - Shutting down application...
+2026-09-07 15:52:35.756 | INFO     | api.main:lifespan:29 - Starting Telecom Customer Service Agent Assist in development mode...
+2026-09-07 15:52:35.757 | INFO     | core.singletons:get_qdrant_client:24 - Initializing Qdrant Client (localhost:6333)
+2026-09-07 15:52:36.158 | WARNING  | repositories.qdrant_repository:initialize_collection:59 - Could not connect to live Qdrant server: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1000). Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:52:36.877 | INFO     | core.singletons:get_cohere_client:41 - Cohere Client initialized successfully.
+2026-09-07 15:52:36.878 | INFO     | api.main:lifespan:36 - Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...
+2026-09-07 15:52:36.879 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/sim_replacement_policy.html
+2026-09-07 15:52:36.880 | INFO     | ingestion.factories:get_extractor:33 - ExtractorFactory resolved HTMLExtractor for data/raw/sim_replacement_policy.html
+2026-09-07 15:52:36.881 | INFO     | ingestion.extractors.html_extractor:extract:16 - Extracting HTML document from: data/raw/sim_replacement_policy.html
+2026-09-07 15:52:36.886 | INFO     | ingestion.chunkers.policy_chunkers:chunk:96 - LangChain HTML SIMPolicyChunker produced 4 chunks.
+2026-09-07 15:52:37.540 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:52:37.542 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/pdf.pdf
+2026-09-07 15:52:37.542 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/pdf.pdf
+2026-09-07 15:52:37.543 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/pdf.pdf
+2026-09-07 15:52:39.126 | INFO     | core.singletons:get_gemini_client:57 - Google Gemini Client initialized with model: gemini-3.1-flash-lite-preview
+2026-09-07 15:52:39.333 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:52:44.957 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1057 chars)
+2026-09-07 15:52:44.967 | INFO     | ingestion.chunkers.policy_chunkers:chunk:184 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks for data/raw/pdf.pdf.
+2026-09-07 15:52:45.450 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:52:45.452 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/billing_refund_policy.docx
+2026-09-07 15:52:45.453 | INFO     | ingestion.factories:get_extractor:39 - ExtractorFactory resolved DocxExtractor for data/raw/billing_refund_policy.docx
+2026-09-07 15:52:45.454 | INFO     | ingestion.extractors.docx_extractor:extract:17 - Extracting DOCX document from: data/raw/billing_refund_policy.docx
+2026-09-07 15:52:45.482 | INFO     | ingestion.chunkers.policy_chunkers:chunk:230 - LangChain BillingPolicyChunker produced 5 chunks.
+2026-09-07 15:52:45.809 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:52:45.810 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/
+2026-09-07 15:52:45.811 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/
+2026-09-07 15:52:45.812 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/
+2026-09-07 15:52:46.168 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/ (332430 bytes)
+2026-09-07 15:52:46.297 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 7 chunks.
+2026-09-07 15:52:47.076 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 7 chunks in unified in-memory fallback store.
+2026-09-07 15:52:47.077 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 7 chunks from https://www.te.eg/ into Qdrant.
+2026-09-07 15:52:47.078 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:52:47.078 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:52:47.079 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:52:47.338 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/fixed-broadband (265997 bytes)
+2026-09-07 15:52:47.413 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 5 chunks.
+2026-09-07 15:52:47.730 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:52:47.732 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 5 chunks from https://www.te.eg/web/guest/personal/services/fixed-broadband into Qdrant.
+2026-09-07 15:52:47.733 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:52:47.734 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:52:47.736 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:52:48.078 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/mobile-call-services (349912 bytes)
+2026-09-07 15:52:48.317 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 2 chunks.
+2026-09-07 15:52:48.570 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 2 chunks in unified in-memory fallback store.
+2026-09-07 15:52:48.573 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 2 chunks from https://www.te.eg/web/guest/personal/services/mobile-call-services into Qdrant.
+2026-09-07 15:52:48.579 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:52:48.586 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:52:48.595 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:52:48.876 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/international-roaming (297128 bytes)
+2026-09-07 15:52:48.952 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 1 chunks.
+2026-09-07 15:52:49.216 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 1 chunks in unified in-memory fallback store.
+2026-09-07 15:52:49.220 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 1 chunks from https://www.te.eg/web/guest/personal/services/international-roaming into Qdrant.
+2026-09-07 15:52:49.224 | INFO     | api.main:lifespan:38 - Website & policy ingestion finished: 7 sources indexed in Qdrant.
+2026-09-07 15:53:06.560 | INFO     | api.main:lifespan:42 - Shutting down application...
+2026-09-07 15:53:10.514 | INFO     | api.main:lifespan:29 - Starting Telecom Customer Service Agent Assist in development mode...
+2026-09-07 15:53:10.515 | INFO     | core.singletons:get_qdrant_client:24 - Initializing Qdrant Client (localhost:6333)
+2026-09-07 15:53:11.031 | WARNING  | repositories.qdrant_repository:initialize_collection:59 - Could not connect to live Qdrant server: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1000). Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:53:11.881 | INFO     | core.singletons:get_cohere_client:41 - Cohere Client initialized successfully.
+2026-09-07 15:53:11.882 | INFO     | api.main:lifespan:36 - Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...
+2026-09-07 15:53:11.883 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/sim_replacement_policy.html
+2026-09-07 15:53:11.884 | INFO     | ingestion.factories:get_extractor:33 - ExtractorFactory resolved HTMLExtractor for data/raw/sim_replacement_policy.html
+2026-09-07 15:53:11.885 | INFO     | ingestion.extractors.html_extractor:extract:16 - Extracting HTML document from: data/raw/sim_replacement_policy.html
+2026-09-07 15:53:11.888 | INFO     | ingestion.chunkers.policy_chunkers:chunk:96 - LangChain HTML SIMPolicyChunker produced 4 chunks.
+2026-09-07 15:53:12.504 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:53:12.506 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/pdf.pdf
+2026-09-07 15:53:12.511 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/pdf.pdf
+2026-09-07 15:53:12.519 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/pdf.pdf
+2026-09-07 15:53:14.344 | INFO     | core.singletons:get_gemini_client:57 - Google Gemini Client initialized with model: gemini-3.1-flash-lite-preview
+2026-09-07 15:53:14.471 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:53:18.271 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1076 chars)
+2026-09-07 15:53:18.277 | INFO     | ingestion.chunkers.policy_chunkers:chunk:184 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks for data/raw/pdf.pdf.
+2026-09-07 15:53:18.682 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:53:18.684 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/billing_refund_policy.docx
+2026-09-07 15:53:18.686 | INFO     | ingestion.factories:get_extractor:39 - ExtractorFactory resolved DocxExtractor for data/raw/billing_refund_policy.docx
+2026-09-07 15:53:18.688 | INFO     | ingestion.extractors.docx_extractor:extract:17 - Extracting DOCX document from: data/raw/billing_refund_policy.docx
+2026-09-07 15:53:18.710 | INFO     | ingestion.chunkers.policy_chunkers:chunk:230 - LangChain BillingPolicyChunker produced 5 chunks.
+2026-09-07 15:53:18.981 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:53:18.983 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/
+2026-09-07 15:53:18.983 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/
+2026-09-07 15:53:18.984 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/
+2026-09-07 15:53:21.919 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/ (332430 bytes)
+2026-09-07 15:53:22.005 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 7 chunks.
+2026-09-07 15:53:22.287 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 7 chunks in unified in-memory fallback store.
+2026-09-07 15:53:22.288 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 7 chunks from https://www.te.eg/ into Qdrant.
+2026-09-07 15:53:22.289 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:53:22.289 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:53:22.290 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:53:22.533 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/fixed-broadband (265997 bytes)
+2026-09-07 15:53:22.577 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 5 chunks.
+2026-09-07 15:53:22.877 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:53:22.879 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 5 chunks from https://www.te.eg/web/guest/personal/services/fixed-broadband into Qdrant.
+2026-09-07 15:53:22.881 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:53:22.882 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:53:22.884 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:53:23.156 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/mobile-call-services (349912 bytes)
+2026-09-07 15:53:23.318 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 2 chunks.
+2026-09-07 15:53:23.555 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 2 chunks in unified in-memory fallback store.
+2026-09-07 15:53:23.557 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 2 chunks from https://www.te.eg/web/guest/personal/services/mobile-call-services into Qdrant.
+2026-09-07 15:53:23.559 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:53:23.562 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:53:23.566 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:53:23.890 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/international-roaming (297128 bytes)
+2026-09-07 15:53:23.968 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 1 chunks.
+2026-09-07 15:53:24.180 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 1 chunks in unified in-memory fallback store.
+2026-09-07 15:53:24.181 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 1 chunks from https://www.te.eg/web/guest/personal/services/international-roaming into Qdrant.
+2026-09-07 15:53:24.182 | INFO     | api.main:lifespan:38 - Website & policy ingestion finished: 7 sources indexed in Qdrant.
+2026-09-07 15:53:29.158 | INFO     | api.main:lifespan:29 - Starting Telecom Customer Service Agent Assist in development mode...
+2026-09-07 15:53:29.159 | INFO     | core.singletons:get_qdrant_client:24 - Initializing Qdrant Client (localhost:6333)
+2026-09-07 15:53:29.538 | WARNING  | repositories.qdrant_repository:initialize_collection:59 - Could not connect to live Qdrant server: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1000). Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:53:30.201 | INFO     | core.singletons:get_cohere_client:41 - Cohere Client initialized successfully.
+2026-09-07 15:53:30.203 | INFO     | api.main:lifespan:36 - Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...
+2026-09-07 15:53:30.204 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/sim_replacement_policy.html
+2026-09-07 15:53:30.206 | INFO     | ingestion.factories:get_extractor:33 - ExtractorFactory resolved HTMLExtractor for data/raw/sim_replacement_policy.html
+2026-09-07 15:53:30.207 | INFO     | ingestion.extractors.html_extractor:extract:16 - Extracting HTML document from: data/raw/sim_replacement_policy.html
+2026-09-07 15:53:30.214 | INFO     | ingestion.chunkers.policy_chunkers:chunk:96 - LangChain HTML SIMPolicyChunker produced 4 chunks.
+2026-09-07 15:53:30.799 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:53:30.801 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/pdf.pdf
+2026-09-07 15:53:30.803 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/pdf.pdf
+2026-09-07 15:53:30.804 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/pdf.pdf
+2026-09-07 15:53:31.389 | INFO     | core.singletons:get_gemini_client:57 - Google Gemini Client initialized with model: gemini-3.1-flash-lite-preview
+2026-09-07 15:53:31.476 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:53:34.278 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1083 chars)
+2026-09-07 15:53:34.290 | INFO     | ingestion.chunkers.policy_chunkers:chunk:184 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks for data/raw/pdf.pdf.
+2026-09-07 15:53:34.586 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:53:34.591 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/billing_refund_policy.docx
+2026-09-07 15:53:34.595 | INFO     | ingestion.factories:get_extractor:39 - ExtractorFactory resolved DocxExtractor for data/raw/billing_refund_policy.docx
+2026-09-07 15:53:34.601 | INFO     | ingestion.extractors.docx_extractor:extract:17 - Extracting DOCX document from: data/raw/billing_refund_policy.docx
+2026-09-07 15:53:34.635 | INFO     | ingestion.chunkers.policy_chunkers:chunk:230 - LangChain BillingPolicyChunker produced 5 chunks.
+2026-09-07 15:53:34.892 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:53:34.893 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/
+2026-09-07 15:53:34.894 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/
+2026-09-07 15:53:34.895 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/
+2026-09-07 15:53:35.231 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/ (332430 bytes)
+2026-09-07 15:53:35.391 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 7 chunks.
+2026-09-07 15:53:35.684 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 7 chunks in unified in-memory fallback store.
+2026-09-07 15:53:35.685 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 7 chunks from https://www.te.eg/ into Qdrant.
+2026-09-07 15:53:35.686 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:53:35.687 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:53:35.687 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:53:35.948 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/fixed-broadband (265997 bytes)
+2026-09-07 15:53:36.028 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 5 chunks.
+2026-09-07 15:53:36.336 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:53:36.337 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 5 chunks from https://www.te.eg/web/guest/personal/services/fixed-broadband into Qdrant.
+2026-09-07 15:53:36.339 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:53:36.340 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:53:36.341 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:53:36.634 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/mobile-call-services (349912 bytes)
+2026-09-07 15:53:36.768 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 2 chunks.
+2026-09-07 15:53:37.023 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 2 chunks in unified in-memory fallback store.
+2026-09-07 15:53:37.026 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 2 chunks from https://www.te.eg/web/guest/personal/services/mobile-call-services into Qdrant.
+2026-09-07 15:53:37.030 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:53:37.036 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:53:37.043 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:53:37.303 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/international-roaming (297128 bytes)
+2026-09-07 15:53:37.394 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 1 chunks.
+2026-09-07 15:53:37.614 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 1 chunks in unified in-memory fallback store.
+2026-09-07 15:53:37.615 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 1 chunks from https://www.te.eg/web/guest/personal/services/international-roaming into Qdrant.
+2026-09-07 15:53:37.616 | INFO     | api.main:lifespan:38 - Website & policy ingestion finished: 7 sources indexed in Qdrant.
+2026-09-07 15:54:20.675 | INFO     | services.agent_assist_service:solve_customer_problem:46 - Solving customer problem: 'What specific backup mobile data allowance and technician dispatch SLA times are guaranteed in the home WiFi outage policy?' (Intent Filter: None)
+2026-09-07 15:54:23.267 | INFO     | core.singletons:get_langfuse_client:76 - Langfuse Observability Client initialized.
+2026-09-07 15:54:26.556 | INFO     | core.observability:log_generation:87 - [gemini_agent_assist_synthesis] Model: gemini-3.1-flash-lite-preview | Latency: 2.653s | Tokens: (In: 631, Out: 610, Total: 1241) | Est. Cost: $0.000230 USD
+2026-09-07 15:54:26.566 | INFO     | services.agent_assist_service:solve_customer_problem:148 - Problem resolved in 5.890s | Intent: WIFI_TECHNICAL_SUPPORT | Tokens: 1241 | Cost: $0.000230
+2026-09-07 15:55:46.217 | INFO     | api.main:lifespan:42 - Shutting down application...
+2026-09-07 15:55:50.191 | INFO     | api.main:lifespan:29 - Starting Telecom Customer Service Agent Assist in development mode...
+2026-09-07 15:55:50.192 | INFO     | core.singletons:get_qdrant_client:24 - Initializing Qdrant Client (localhost:6333)
+2026-09-07 15:55:50.706 | WARNING  | repositories.qdrant_repository:initialize_collection:59 - Could not connect to live Qdrant server: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1000). Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:55:51.508 | INFO     | core.singletons:get_cohere_client:41 - Cohere Client initialized successfully.
+2026-09-07 15:55:51.509 | INFO     | api.main:lifespan:36 - Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...
+2026-09-07 15:55:51.509 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/sim_replacement_policy.html
+2026-09-07 15:55:51.511 | INFO     | ingestion.factories:get_extractor:33 - ExtractorFactory resolved HTMLExtractor for data/raw/sim_replacement_policy.html
+2026-09-07 15:55:51.512 | INFO     | ingestion.extractors.html_extractor:extract:16 - Extracting HTML document from: data/raw/sim_replacement_policy.html
+2026-09-07 15:55:51.514 | INFO     | ingestion.chunkers.policy_chunkers:chunk:96 - LangChain HTML SIMPolicyChunker produced 4 chunks.
+2026-09-07 15:55:52.114 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:55:52.115 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/pdf.pdf
+2026-09-07 15:55:52.117 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/pdf.pdf
+2026-09-07 15:55:52.119 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/pdf.pdf
+2026-09-07 15:55:52.779 | INFO     | core.singletons:get_gemini_client:57 - Google Gemini Client initialized with model: gemini-3.1-flash-lite-preview
+2026-09-07 15:55:52.885 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:55:56.021 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1076 chars)
+2026-09-07 15:55:56.030 | INFO     | ingestion.chunkers.policy_chunkers:chunk:184 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks for data/raw/pdf.pdf.
+2026-09-07 15:55:56.287 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:55:56.289 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/billing_refund_policy.docx
+2026-09-07 15:55:56.290 | INFO     | ingestion.factories:get_extractor:39 - ExtractorFactory resolved DocxExtractor for data/raw/billing_refund_policy.docx
+2026-09-07 15:55:56.292 | INFO     | ingestion.extractors.docx_extractor:extract:17 - Extracting DOCX document from: data/raw/billing_refund_policy.docx
+2026-09-07 15:55:56.314 | INFO     | ingestion.chunkers.policy_chunkers:chunk:230 - LangChain BillingPolicyChunker produced 5 chunks.
+2026-09-07 15:55:56.635 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:55:56.637 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/
+2026-09-07 15:55:56.639 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/
+2026-09-07 15:55:56.641 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/
+2026-09-07 15:55:56.996 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/ (332430 bytes)
+2026-09-07 15:55:57.119 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 7 chunks.
+2026-09-07 15:55:57.395 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 7 chunks in unified in-memory fallback store.
+2026-09-07 15:55:57.396 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 7 chunks from https://www.te.eg/ into Qdrant.
+2026-09-07 15:55:57.397 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:55:57.397 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:55:57.398 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:55:57.896 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/fixed-broadband (265997 bytes)
+2026-09-07 15:55:57.990 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 5 chunks.
+2026-09-07 15:55:58.268 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:55:58.268 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 5 chunks from https://www.te.eg/web/guest/personal/services/fixed-broadband into Qdrant.
+2026-09-07 15:55:58.270 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:55:58.270 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:55:58.271 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:55:58.614 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/mobile-call-services (349912 bytes)
+2026-09-07 15:55:58.777 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 2 chunks.
+2026-09-07 15:55:59.029 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 2 chunks in unified in-memory fallback store.
+2026-09-07 15:55:59.033 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 2 chunks from https://www.te.eg/web/guest/personal/services/mobile-call-services into Qdrant.
+2026-09-07 15:55:59.037 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:55:59.043 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:55:59.049 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:55:59.392 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/international-roaming (297128 bytes)
+2026-09-07 15:55:59.509 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 1 chunks.
+2026-09-07 15:55:59.896 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 1 chunks in unified in-memory fallback store.
+2026-09-07 15:55:59.902 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 1 chunks from https://www.te.eg/web/guest/personal/services/international-roaming into Qdrant.
+2026-09-07 15:55:59.906 | INFO     | api.main:lifespan:38 - Website & policy ingestion finished: 7 sources indexed in Qdrant.
+2026-09-07 15:56:05.833 | INFO     | api.main:lifespan:29 - Starting Telecom Customer Service Agent Assist in development mode...
+2026-09-07 15:56:05.834 | INFO     | core.singletons:get_qdrant_client:24 - Initializing Qdrant Client (localhost:6333)
+2026-09-07 15:56:06.222 | WARNING  | repositories.qdrant_repository:initialize_collection:59 - Could not connect to live Qdrant server: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1000). Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:56:07.093 | INFO     | core.singletons:get_cohere_client:41 - Cohere Client initialized successfully.
+2026-09-07 15:56:07.094 | INFO     | api.main:lifespan:36 - Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...
+2026-09-07 15:56:07.096 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/sim_replacement_policy.html
+2026-09-07 15:56:07.096 | INFO     | ingestion.factories:get_extractor:33 - ExtractorFactory resolved HTMLExtractor for data/raw/sim_replacement_policy.html
+2026-09-07 15:56:07.097 | INFO     | ingestion.extractors.html_extractor:extract:16 - Extracting HTML document from: data/raw/sim_replacement_policy.html
+2026-09-07 15:56:07.100 | INFO     | ingestion.chunkers.policy_chunkers:chunk:96 - LangChain HTML SIMPolicyChunker produced 4 chunks.
+2026-09-07 15:56:07.605 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:56:07.606 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/pdf.pdf
+2026-09-07 15:56:07.609 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/pdf.pdf
+2026-09-07 15:56:07.611 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/pdf.pdf
+2026-09-07 15:56:08.335 | INFO     | core.singletons:get_gemini_client:57 - Google Gemini Client initialized with model: gemini-3.1-flash-lite-preview
+2026-09-07 15:56:08.446 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:56:11.705 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1089 chars)
+2026-09-07 15:56:11.716 | INFO     | ingestion.chunkers.policy_chunkers:chunk:184 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks for data/raw/pdf.pdf.
+2026-09-07 15:56:11.988 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:56:11.989 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/billing_refund_policy.docx
+2026-09-07 15:56:11.990 | INFO     | ingestion.factories:get_extractor:39 - ExtractorFactory resolved DocxExtractor for data/raw/billing_refund_policy.docx
+2026-09-07 15:56:11.992 | INFO     | ingestion.extractors.docx_extractor:extract:17 - Extracting DOCX document from: data/raw/billing_refund_policy.docx
+2026-09-07 15:56:12.013 | INFO     | ingestion.chunkers.policy_chunkers:chunk:230 - LangChain BillingPolicyChunker produced 5 chunks.
+2026-09-07 15:56:12.276 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:56:12.277 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/
+2026-09-07 15:56:12.277 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/
+2026-09-07 15:56:12.278 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/
+2026-09-07 15:56:12.908 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/ (332430 bytes)
+2026-09-07 15:56:13.023 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 7 chunks.
+2026-09-07 15:56:13.296 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 7 chunks in unified in-memory fallback store.
+2026-09-07 15:56:13.297 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 7 chunks from https://www.te.eg/ into Qdrant.
+2026-09-07 15:56:13.298 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:56:13.299 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:56:13.300 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:56:13.546 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/fixed-broadband (265997 bytes)
+2026-09-07 15:56:13.646 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 5 chunks.
+2026-09-07 15:56:14.540 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:56:14.542 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 5 chunks from https://www.te.eg/web/guest/personal/services/fixed-broadband into Qdrant.
+2026-09-07 15:56:14.544 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:56:14.545 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:56:14.547 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:56:14.835 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/mobile-call-services (349912 bytes)
+2026-09-07 15:56:15.033 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 2 chunks.
+2026-09-07 15:56:15.271 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 2 chunks in unified in-memory fallback store.
+2026-09-07 15:56:15.274 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 2 chunks from https://www.te.eg/web/guest/personal/services/mobile-call-services into Qdrant.
+2026-09-07 15:56:15.277 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:56:15.279 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:56:15.282 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:56:15.655 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/international-roaming (297128 bytes)
+2026-09-07 15:56:15.760 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 1 chunks.
+2026-09-07 15:56:16.022 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 1 chunks in unified in-memory fallback store.
+2026-09-07 15:56:16.025 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 1 chunks from https://www.te.eg/web/guest/personal/services/international-roaming into Qdrant.
+2026-09-07 15:56:16.027 | INFO     | api.main:lifespan:38 - Website & policy ingestion finished: 7 sources indexed in Qdrant.
+2026-09-07 15:58:47.168 | INFO     | api.main:lifespan:42 - Shutting down application...
+2026-09-07 15:58:50.318 | INFO     | api.main:lifespan:29 - Starting Telecom Customer Service Agent Assist in development mode...
+2026-09-07 15:58:50.319 | INFO     | core.singletons:get_qdrant_client:24 - Initializing Qdrant Client (localhost:6333)
+2026-09-07 15:58:50.726 | WARNING  | repositories.qdrant_repository:initialize_collection:59 - Could not connect to live Qdrant server: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1000). Running in robust In-Memory Hybrid Mock mode.
+2026-09-07 15:58:51.457 | INFO     | core.singletons:get_cohere_client:41 - Cohere Client initialized successfully.
+2026-09-07 15:58:51.458 | INFO     | api.main:lifespan:36 - Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...
+2026-09-07 15:58:51.459 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/sim_replacement_policy.html
+2026-09-07 15:58:51.460 | INFO     | ingestion.factories:get_extractor:33 - ExtractorFactory resolved HTMLExtractor for data/raw/sim_replacement_policy.html
+2026-09-07 15:58:51.461 | INFO     | ingestion.extractors.html_extractor:extract:16 - Extracting HTML document from: data/raw/sim_replacement_policy.html
+2026-09-07 15:58:51.464 | INFO     | ingestion.chunkers.policy_chunkers:chunk:96 - LangChain HTML SIMPolicyChunker produced 4 chunks.
+2026-09-07 15:58:52.189 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:58:52.190 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/pdf.pdf
+2026-09-07 15:58:52.194 | INFO     | ingestion.factories:get_extractor:36 - ExtractorFactory resolved GeminiOCRExtractor for data/raw/pdf.pdf
+2026-09-07 15:58:52.198 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:20 - Extracting PDF via Gemini Multimodal OCR from: data/raw/pdf.pdf
+2026-09-07 15:58:52.721 | INFO     | core.singletons:get_gemini_client:57 - Google Gemini Client initialized with model: gemini-3.1-flash-lite-preview
+2026-09-07 15:58:52.842 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:45 - Invoking Gemini Multimodal Vision OCR on PDF page 1...
+2026-09-07 15:58:56.748 | INFO     | ingestion.extractors.gemini_ocr_extractor:extract:54 - Gemini OCR successfully extracted page 1 (1058 chars)
+2026-09-07 15:58:56.755 | INFO     | ingestion.chunkers.policy_chunkers:chunk:184 - LangChain Markdown-Aware WifiPolicyChunker produced 4 chunks for data/raw/pdf.pdf.
+2026-09-07 15:58:57.058 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 4 chunks in unified in-memory fallback store.
+2026-09-07 15:58:57.062 | INFO     | services.ingestion_service:ingest_file:74 - Ingesting local document: data/raw/billing_refund_policy.docx
+2026-09-07 15:58:57.066 | INFO     | ingestion.factories:get_extractor:39 - ExtractorFactory resolved DocxExtractor for data/raw/billing_refund_policy.docx
+2026-09-07 15:58:57.068 | INFO     | ingestion.extractors.docx_extractor:extract:17 - Extracting DOCX document from: data/raw/billing_refund_policy.docx
+2026-09-07 15:58:57.085 | INFO     | ingestion.chunkers.policy_chunkers:chunk:230 - LangChain BillingPolicyChunker produced 5 chunks.
+2026-09-07 15:58:57.434 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:58:57.435 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/
+2026-09-07 15:58:57.437 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/
+2026-09-07 15:58:57.439 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/
+2026-09-07 15:58:57.961 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/ (332430 bytes)
+2026-09-07 15:58:58.172 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 7 chunks.
+2026-09-07 15:58:58.572 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 7 chunks in unified in-memory fallback store.
+2026-09-07 15:58:58.573 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 7 chunks from https://www.te.eg/ into Qdrant.
+2026-09-07 15:58:58.574 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:58:58.574 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:58:58.575 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/fixed-broadband
+2026-09-07 15:58:58.808 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/fixed-broadband (265997 bytes)
+2026-09-07 15:58:58.856 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 5 chunks.
+2026-09-07 15:58:59.150 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 5 chunks in unified in-memory fallback store.
+2026-09-07 15:58:59.150 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 5 chunks from https://www.te.eg/web/guest/personal/services/fixed-broadband into Qdrant.
+2026-09-07 15:58:59.152 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:58:59.154 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:58:59.155 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/mobile-call-services
+2026-09-07 15:58:59.435 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/mobile-call-services (349912 bytes)
+2026-09-07 15:58:59.582 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 2 chunks.
+2026-09-07 15:58:59.845 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 2 chunks in unified in-memory fallback store.
+2026-09-07 15:58:59.847 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 2 chunks from https://www.te.eg/web/guest/personal/services/mobile-call-services into Qdrant.
+2026-09-07 15:58:59.847 | INFO     | services.ingestion_service:ingest_url:34 - Starting in-memory scrape & ingestion for: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:58:59.848 | INFO     | ingestion.factories:get_extractor:28 - ExtractorFactory resolved WebScraperExtractor for URL: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:58:59.849 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:30 - WebScraper fetching live URL in-memory: https://www.te.eg/web/guest/personal/services/international-roaming
+2026-09-07 15:59:00.112 | INFO     | ingestion.extractors.web_scraper_extractor:scrape_url_in_memory:36 - Fetched https://www.te.eg/web/guest/personal/services/international-roaming (297128 bytes)
+2026-09-07 15:59:00.205 | INFO     | ingestion.chunkers.policy_chunkers:chunk:284 - LangChain WebScrapedPolicyChunker produced 1 chunks.
+2026-09-07 15:59:00.446 | INFO     | repositories.qdrant_repository:upsert_chunks:116 - Stored 1 chunks in unified in-memory fallback store.
+2026-09-07 15:59:00.448 | INFO     | services.ingestion_service:ingest_url:60 - Successfully scraped & indexed 1 chunks from https://www.te.eg/web/guest/personal/services/international-roaming into Qdrant.
+2026-09-07 15:59:00.450 | INFO     | api.main:lifespan:38 - Website & policy ingestion finished: 7 sources indexed in Qdrant.
+2026-09-07 15:59:19.042 | INFO     | services.agent_assist_service:solve_customer_problem:46 - Solving customer problem: 'what is sim' (Intent Filter: None)
+2026-09-07 15:59:20.019 | INFO     | core.singletons:get_langfuse_client:76 - Langfuse Observability Client initialized.
+2026-09-07 15:59:22.648 | INFO     | core.observability:log_generation:87 - [gemini_agent_assist_synthesis] Model: gemini-3.1-flash-lite-preview | Latency: 2.037s | Tokens: (In: 784, Out: 603, Total: 1387) | Est. Cost: $0.000240 USD
+2026-09-07 15:59:22.653 | INFO     | services.agent_assist_service:solve_customer_problem:148 - Problem resolved in 3.611s | Intent: SIM_MANAGEMENT | Tokens: 1387 | Cost: $0.000240
+2026-09-07 16:00:10.888 | INFO     | services.agent_assist_service:solve_customer_problem:46 - Solving customer problem: 'what is One-Time Annual Courtesy Late Fee Waiver' (Intent Filter: None)
+2026-09-07 16:00:15.282 | INFO     | core.observability:log_generation:87 - [gemini_agent_assist_synthesis] Model: gemini-3.1-flash-lite-preview | Latency: 2.798s | Tokens: (In: 562, Out: 570, Total: 1132) | Est. Cost: $0.000213 USD
+2026-09-07 16:00:15.286 | INFO     | services.agent_assist_service:solve_customer_problem:148 - Problem resolved in 4.398s | Intent: BILLING_AND_PAYMENTS | Tokens: 1132 | Cost: $0.000213
+2026-09-07 16:01:47.396 | INFO     | services.agent_assist_service:solve_customer_problem:46 - Solving customer problem: 'what is we' (Intent Filter: None)
+2026-09-07 16:01:49.703 | INFO     | core.observability:log_generation:87 - [gemini_agent_assist_synthesis] Model: gemini-3.1-flash-lite-preview | Latency: 1.546s | Tokens: (In: 622, Out: 575, Total: 1197) | Est. Cost: $0.000219 USD
+2026-09-07 16:01:49.710 | INFO     | services.agent_assist_service:solve_customer_problem:148 - Problem resolved in 2.314s | Intent: PLANS_AND_OFFERS | Tokens: 1197 | Cost: $0.000219

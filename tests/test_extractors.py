@@ -1,0 +1,36 @@
+import os
+import pytest
+from ingestion.extractors.html_extractor import HTMLExtractor
+from ingestion.chunkers.policy_chunkers import SIMPolicyChunker
+
+
+def test_html_extractor_and_sim_chunker(tmp_path):
+    """Test HTML policy parsing and chunking workflow."""
+    html_content = """
+    <html>
+        <head><title>SIM Replacement Test Policy</title></head>
+        <body>
+            <h1>SIM Policy</h1>
+            <h2>eSIM Activation</h2>
+            <p>Instant eSIM activation is free of charge for all customers.</p>
+            <h2>Physical SIM Store Pickup</h2>
+            <p>Physical SIM pickup costs $5 unless customer is Gold Tier.</p>
+        </body>
+    </html>
+    """
+    test_file = tmp_path / "test_sim.html"
+    test_file.write_text(html_content, encoding="utf-8")
+
+    extractor = HTMLExtractor()
+    doc = extractor.extract(str(test_file))
+
+    assert doc.policy_type == "sim_replacement"
+    assert len(doc.sections) >= 2
+    assert "SIM Replacement Test Policy" in doc.title
+
+    chunker = SIMPolicyChunker()
+    chunks = chunker.chunk(doc)
+
+    assert len(chunks) >= 2
+    assert any("eSIM" in c.content for c in chunks)
+    assert chunks[0].policy_type == "sim_replacement"

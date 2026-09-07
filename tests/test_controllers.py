@@ -1,0 +1,29 @@
+import pytest
+from fastapi.testclient import TestClient
+from api.main import app
+
+client = TestClient(app)
+
+
+def test_health_endpoint():
+    """Test /api/health endpoint returns 200 OK and healthy status."""
+    response = client.get("/api/health")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "HEALTHY"
+    assert "vector_store" in data
+
+
+def test_agent_assist_solve_endpoint():
+    """Test /api/agent-assist/solve generates grounded CSR solution."""
+    payload = {
+        "customer_query": "I lost my phone today and need a replacement SIM card right away.",
+        "policy_filter": "sim_replacement"
+    }
+    response = client.post("/api/agent-assist/solve", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert "suggested_customer_reply" in data
+    assert "actionable_agent_steps" in data
+    assert "policy_citations" in data
+    assert len(data["policy_citations"]) > 0
