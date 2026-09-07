@@ -34,6 +34,7 @@ class AgentSolutionResponse(BaseModel):
     retrieved_chunks_count: int
     total_tokens: int = Field(default=0, description="Total prompt and completion tokens processed")
     estimated_cost_usd: float = Field(default=0.0, description="Estimated total execution cost in USD")
+    latency_breakdown: Optional[dict] = Field(default_factory=dict, description="Execution time breakdown per service in seconds")
 
 
 class ScrapeUrlRequest(BaseModel):

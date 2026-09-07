@@ -19,7 +19,8 @@ MODEL_COST_PER_MILLION = {
 
 class ObservabilityTracer:
     """
-    Production Langfuse Observability Tracer with token & cost analytics.
+    Production Langfuse Observability Tracer with token & cost analytics
+    and granular span tracing for Embedder, Qdrant Hybrid Retrieval, Cohere Reranker, and Gemini LLM.
     """
 
     @staticmethod
@@ -28,23 +29,46 @@ class ObservabilityTracer:
         langfuse = SingletonsManager.get_langfuse_client()
         if langfuse:
             try:
+                sid = session_id or f"session_{int(time.time())}"
+                trace_obj = None
                 if hasattr(langfuse, "trace"):
-                    return langfuse.trace(
+                    trace_obj = langfuse.trace(
                         name="agent_assist_solve",
-                        session_id=session_id or f"session_{int(time.time())}",
+                        session_id=sid,
                         input={"query": query},
-                        tags=["customer_service", "telecom", "rag", "intent_attribution"]
+                        tags=["customer_service", "telecom", "rag", "hybrid_search"]
                     )
                 elif hasattr(langfuse, "create_trace"):
-                    return langfuse.create_trace(
+                    trace_obj = langfuse.create_trace(
                         name="agent_assist_solve",
-                        session_id=session_id or f"session_{int(time.time())}",
+                        session_id=sid,
                         input={"query": query},
-                        tags=["customer_service", "telecom", "rag", "intent_attribution"]
+                        tags=["customer_service", "telecom", "rag", "hybrid_search"]
                     )
+                
+                if trace_obj:
+                    trace_id = getattr(trace_obj, "id", "active")
+                    logger.info(f"📊 [LANGFUSE TRACE CREATED] ID: {trace_id} | Session: {sid} | Dashboard: {settings.LANGFUSE_HOST}")
+                return trace_obj
             except Exception as e:
                 logger.warning(f"Error creating Langfuse trace: {e}")
         return None
+
+    @staticmethod
+    def log_span(trace, name: str, input_data: Any, output_data: Any, latency: float, metadata: Optional[Dict[str, Any]] = None):
+        """Log an intermediate execution step (Embedder, Vector Search, Reranker) as a span."""
+        if trace and hasattr(trace, "span"):
+            try:
+                span = trace.span(
+                    name=name,
+                    input=input_data,
+                    output=output_data,
+                    metadata=metadata or {}
+                )
+                if hasattr(span, "end"):
+                    span.end()
+            except Exception as e:
+                logger.warning(f"Failed to log span '{name}' to Langfuse: {e}")
 
     @staticmethod
     def calculate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> float:
@@ -90,7 +114,7 @@ class ObservabilityTracer:
             f"Est. Cost: ${cost_usd:.6f} USD"
         )
 
-        if trace:
+        if trace and hasattr(trace, "generation"):
             try:
                 trace.generation(
                     name=name,
@@ -114,12 +138,16 @@ class ObservabilityTracer:
                         "estimated_cost_usd": cost_usd
                     }
                 )
-                # Flush buffer to send trace immediately to Langfuse Cloud
-                langfuse = SingletonsManager.get_langfuse_client()
-                if langfuse and hasattr(langfuse, "flush"):
-                    langfuse.flush()
             except Exception as e:
                 logger.warning(f"Failed to log generation to Langfuse: {e}")
+
+        # Flush buffer to send all trace spans immediately to Langfuse Cloud
+        langfuse = SingletonsManager.get_langfuse_client()
+        if langfuse and hasattr(langfuse, "flush"):
+            try:
+                langfuse.flush()
+            except Exception as e:
+                logger.warning(f"Langfuse flush error: {e}")
 
         return {
             "prompt_tokens": p_tokens,

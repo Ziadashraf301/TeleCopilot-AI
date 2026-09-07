@@ -49,11 +49,21 @@ class AgentAssistService:
         trace = ObservabilityTracer.trace_agent_assist(customer_query, session_id)
 
         # 2. Embed Query: Dense Vector (Cohere) + Sparse Vector (BM25)
+        embed_start = time.time()
         query_dense_vector = self.cohere_service.get_embedding(customer_query, input_type="search_query")
         sparse_vec = self.sparse_model.embed_text(customer_query)
         query_sparse_vector = SparseVectorData(indices=sparse_vec.indices, values=sparse_vec.values)
+        ObservabilityTracer.log_span(
+            trace=trace,
+            name="cohere_and_bm25_query_embedding",
+            input_data={"query": customer_query},
+            output_data={"dense_dim": len(query_dense_vector), "sparse_indices_count": len(sparse_vec.indices)},
+            latency=time.time() - embed_start,
+            metadata={"dense_model": settings.DENSE_EMBEDDING_MODEL, "sparse_model": settings.SPARSE_EMBEDDING_MODEL}
+        )
 
         # 3. True Hybrid Search (Dense + Sparse) in Qdrant Vector Repository
+        search_start = time.time()
         search_results = self.vector_repo.hybrid_search(
             query=customer_query,
             query_dense_vector=query_dense_vector,
@@ -61,6 +71,14 @@ class AgentAssistService:
             top_k=settings.RETRIEVAL_TOP_K,
             policy_filter=policy_filter,
             intent_filter=intent_filter
+        )
+        ObservabilityTracer.log_span(
+            trace=trace,
+            name="qdrant_hybrid_vector_search",
+            input_data={"top_k": settings.RETRIEVAL_TOP_K, "intent_filter": intent_filter, "policy_filter": policy_filter},
+            output_data={"retrieved_candidates_count": len(search_results)},
+            latency=time.time() - search_start,
+            metadata={"collection": settings.QDRANT_COLLECTION}
         )
 
         if not search_results:
@@ -82,11 +100,20 @@ class AgentAssistService:
             }
 
         # 4. Rerank Candidates via Cohere Rerank
+        rerank_start = time.time()
         candidate_docs = [r.content for r in search_results]
         rerank_results = self.cohere_service.rerank(
             query=customer_query,
             documents=candidate_docs,
             top_n=settings.RERANK_TOP_N
+        )
+        ObservabilityTracer.log_span(
+            trace=trace,
+            name="cohere_neural_rerank",
+            input_data={"candidates_count": len(candidate_docs), "top_n": settings.RERANK_TOP_N},
+            output_data={"reranked_top_scores": [item["relevance_score"] for item in rerank_results]},
+            latency=time.time() - rerank_start,
+            metadata={"rerank_model": settings.RERANK_MODEL}
         )
 
         top_contexts = []
@@ -139,11 +166,23 @@ class AgentAssistService:
             latency=gen_latency
         )
 
-        total_latency = time.time() - start_time
-        solution["execution_time_seconds"] = round(total_latency, 3)
+        embed_latency = round(search_start - embed_start, 3)
+        search_latency = round(rerank_start - search_start, 3)
+        rerank_latency = round(gen_start - rerank_start, 3)
+        generation_latency = round(gen_latency, 3)
+        total_latency = round(time.time() - start_time, 3)
+
+        solution["execution_time_seconds"] = total_latency
         solution["retrieved_chunks_count"] = len(top_contexts)
         solution["total_tokens"] = metrics["total_tokens"]
         solution["estimated_cost_usd"] = metrics["estimated_cost_usd"]
+        solution["latency_breakdown"] = {
+            "query_embedding_seconds": embed_latency,
+            "qdrant_hybrid_search_seconds": search_latency,
+            "cohere_rerank_seconds": rerank_latency,
+            "gemini_llm_synthesis_seconds": generation_latency,
+            "total_seconds": total_latency
+        }
 
         logger.info(
             f"Problem resolved in {total_latency:.3f}s | "

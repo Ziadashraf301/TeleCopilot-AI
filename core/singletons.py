@@ -66,14 +66,15 @@ class SingletonsManager:
         """Get or initialize singleton Langfuse Observability Client."""
         if cls._langfuse_client is None:
             try:
+                host_url = settings.langfuse_host_url
                 if settings.LANGFUSE_PUBLIC_KEY and settings.LANGFUSE_SECRET_KEY:
                     from langfuse import Langfuse
                     cls._langfuse_client = Langfuse(
                         public_key=settings.LANGFUSE_PUBLIC_KEY,
                         secret_key=settings.LANGFUSE_SECRET_KEY,
-                        host=settings.LANGFUSE_HOST,
+                        host=host_url,
                     )
-                    logger.info("Langfuse Observability Client initialized.")
+                    logger.info(f"🟢 [LANGFUSE OPENED] Observability client connected to host: {host_url} (Public Key: {settings.LANGFUSE_PUBLIC_KEY[:10]}...)")
                 else:
                     logger.info("Langfuse credentials not set. Traces will log to console.")
             except Exception as e:

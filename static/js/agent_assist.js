@@ -124,8 +124,22 @@ function renderSolution(data) {
                 ${citationsHtml}
             </div>
 
+            <!-- Latency Breakdown Per Service -->
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 10px; font-size: 0.72rem;">
+                <div style="font-weight: 700; color: #94a3b8; margin-bottom: 6px; display: flex; justify-content: space-between;">
+                    <span>⚡ Service Latency Breakdown:</span>
+                    <span style="color: #38bdf8;">Total: ${data.execution_time_seconds}s</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; color: #cbd5e1;">
+                    <div>🔢 Embed (Cohere+BM25): <strong style="color: #60a5fa;">${data.latency_breakdown?.query_embedding_seconds || 0}s</strong></div>
+                    <div>🔍 Qdrant Hybrid Search: <strong style="color: #a78bfa;">${data.latency_breakdown?.qdrant_hybrid_search_seconds || 0}s</strong></div>
+                    <div>🎯 Cohere Rerank v3.5: <strong style="color: #f59e0b;">${data.latency_breakdown?.cohere_rerank_seconds || 0}s</strong></div>
+                    <div>🤖 Gemini 3.1 LLM: <strong style="color: #34d399;">${data.latency_breakdown?.gemini_llm_synthesis_seconds || 0}s</strong></div>
+                </div>
+            </div>
+
             <div style="font-size: 0.72rem; color: #94a3b8; display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px; margin-top: 4px;">
-                <span>⏱️ ${data.execution_time_seconds}s &bull; 🧩 ${data.retrieved_chunks_count} chunks</span>
+                <span>🧩 ${data.retrieved_chunks_count} chunks retrieved</span>
                 <span>🔢 ${data.total_tokens} tokens &bull; <strong style="color: #34d399;">$${data.estimated_cost_usd} USD</strong></span>
             </div>
         </div>

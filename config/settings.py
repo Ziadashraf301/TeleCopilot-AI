@@ -41,7 +41,12 @@ class Settings(BaseSettings):
     # Langfuse Observability
     LANGFUSE_PUBLIC_KEY: Optional[str] = None
     LANGFUSE_SECRET_KEY: Optional[str] = None
-    LANGFUSE_HOST: str = "https://cloud.langfuse.com"
+    LANGFUSE_HOST: Optional[str] = None
+    LANGFUSE_BASE_URL: Optional[str] = None
+
+    @property
+    def langfuse_host_url(self) -> str:
+        return self.LANGFUSE_BASE_URL or self.LANGFUSE_HOST or "https://cloud.langfuse.com"
 
     # RAG Tuning Parameters
     RETRIEVAL_TOP_K: int = 5
