@@ -21,54 +21,83 @@ class ObservabilityTracer:
     """
     Production Langfuse Observability Tracer with token & cost analytics
     and granular span tracing for Embedder, Qdrant Hybrid Retrieval, Cohere Reranker, and Gemini LLM.
+
+    Compatible with Langfuse Python SDK v4.x (context-manager-based API).
     """
 
     @staticmethod
     def trace_agent_assist(query: str, session_id: Optional[str] = None):
-        """Create a new Langfuse trace for agent assist resolution."""
+        """Create a new Langfuse trace for agent assist resolution.
+
+        Returns a dict with trace metadata that other methods use to attach spans.
+        """
         langfuse = SingletonsManager.get_langfuse_client()
         if langfuse:
             try:
                 sid = session_id or f"session_{int(time.time())}"
-                trace_obj = None
-                if hasattr(langfuse, "trace"):
-                    trace_obj = langfuse.trace(
-                        name="agent_assist_solve",
-                        session_id=sid,
-                        input={"query": query},
-                        tags=["customer_service", "telecom", "rag", "hybrid_search"]
-                    )
-                elif hasattr(langfuse, "create_trace"):
-                    trace_obj = langfuse.create_trace(
-                        name="agent_assist_solve",
-                        session_id=sid,
-                        input={"query": query},
-                        tags=["customer_service", "telecom", "rag", "hybrid_search"]
-                    )
-                
-                if trace_obj:
-                    trace_id = getattr(trace_obj, "id", "active")
-                    logger.info(f"📊 [LANGFUSE TRACE CREATED] ID: {trace_id} | Session: {sid} | Dashboard: {settings.LANGFUSE_HOST}")
-                return trace_obj
+                trace_id = langfuse.create_trace_id()
+
+                # Create the root span for the entire agent assist pipeline
+                root_span = langfuse.start_as_current_observation(
+                    name="agent_assist_solve",
+                    as_type="span",
+                    trace_context={
+                        "trace_id": trace_id,
+                        "session_id": sid,
+                    },
+                    input={"query": query},
+                    metadata={
+                        "tags": ["customer_service", "telecom", "rag", "hybrid_search"],
+                        "session_id": sid,
+                    },
+                    end_on_exit=False,
+                )
+                # Enter the context manager manually so we can end it later
+                span_obj = root_span.__enter__()
+
+                trace_ctx = {
+                    "trace_id": trace_id,
+                    "session_id": sid,
+                    "langfuse": langfuse,
+                    "root_span": span_obj,
+                    "root_ctx": root_span,
+                }
+
+                logger.info(
+                    f"📊 [LANGFUSE TRACE CREATED] ID: {trace_id} | Session: {sid} | Dashboard: {settings.langfuse_host_url}"
+                )
+                return trace_ctx
             except Exception as e:
                 logger.warning(f"Error creating Langfuse trace: {e}")
         return None
 
     @staticmethod
     def log_span(trace, name: str, input_data: Any, output_data: Any, latency: float, metadata: Optional[Dict[str, Any]] = None):
-        """Log an intermediate execution step (Embedder, Vector Search, Reranker) as a span."""
-        if trace and hasattr(trace, "span"):
-            try:
-                span = trace.span(
-                    name=name,
-                    input=input_data,
+        """Log an intermediate execution step (Embedder, Vector Search, Reranker) as a child span."""
+        if not trace:
+            return
+
+        langfuse = trace.get("langfuse")
+        if not langfuse:
+            return
+
+        try:
+            with langfuse.start_as_current_observation(
+                name=name,
+                as_type="span",
+                trace_context={
+                    "trace_id": trace["trace_id"],
+                    "session_id": trace.get("session_id"),
+                },
+                input=input_data,
+                metadata=metadata or {},
+            ) as span:
+                span.update(
                     output=output_data,
-                    metadata=metadata or {}
+                    metadata={**(metadata or {}), "latency_seconds": round(latency, 3)},
                 )
-                if hasattr(span, "end"):
-                    span.end()
-            except Exception as e:
-                logger.warning(f"Failed to log span '{name}' to Langfuse: {e}")
+        except Exception as e:
+            logger.warning(f"Failed to log span '{name}' to Langfuse: {e}")
 
     @staticmethod
     def calculate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> float:
@@ -114,40 +143,36 @@ class ObservabilityTracer:
             f"Est. Cost: ${cost_usd:.6f} USD"
         )
 
-        if trace and hasattr(trace, "generation"):
-            try:
-                trace.generation(
-                    name=name,
-                    model=model,
-                    input=input_data,
-                    output=output_data,
-                    usage={
-                        "prompt_tokens": p_tokens,
-                        "completion_tokens": c_tokens,
-                        "total_tokens": total_tokens,
-                    },
-                    usage_details={
-                        "input": p_tokens,
-                        "output": c_tokens,
-                        "total": total_tokens,
-                    },
-                    cost=cost_usd,
-                    metadata={
-                        "latency_seconds": round(latency, 3),
-                        "cost_currency": "USD",
-                        "estimated_cost_usd": cost_usd
-                    }
-                )
-            except Exception as e:
-                logger.warning(f"Failed to log generation to Langfuse: {e}")
-
-        # Flush buffer to send all trace spans immediately to Langfuse Cloud
-        langfuse = SingletonsManager.get_langfuse_client()
-        if langfuse and hasattr(langfuse, "flush"):
-            try:
-                langfuse.flush()
-            except Exception as e:
-                logger.warning(f"Langfuse flush error: {e}")
+        if trace:
+            langfuse = trace.get("langfuse")
+            if langfuse:
+                try:
+                    with langfuse.start_as_current_observation(
+                        name=name,
+                        as_type="generation",
+                        trace_context={
+                            "trace_id": trace["trace_id"],
+                            "session_id": trace.get("session_id"),
+                        },
+                        model=model,
+                        input=input_data,
+                        usage_details={
+                            "input": p_tokens,
+                            "output": c_tokens,
+                            "total": total_tokens,
+                        },
+                        cost_details={
+                            "total": cost_usd,
+                        },
+                        metadata={
+                            "latency_seconds": round(latency, 3),
+                            "cost_currency": "USD",
+                            "estimated_cost_usd": cost_usd,
+                        },
+                    ) as gen:
+                        gen.update(output=output_data)
+                except Exception as e:
+                    logger.warning(f"Failed to log generation to Langfuse: {e}")
 
         return {
             "prompt_tokens": p_tokens,
@@ -155,3 +180,25 @@ class ObservabilityTracer:
             "total_tokens": total_tokens,
             "estimated_cost_usd": cost_usd
         }
+
+    @staticmethod
+    def end_trace(trace):
+        """End the root trace span and flush all data to Langfuse cloud."""
+        if not trace:
+            return
+
+        try:
+            root_span = trace.get("root_span")
+            root_ctx = trace.get("root_ctx")
+            if root_span and root_ctx:
+                root_ctx.__exit__(None, None, None)
+        except Exception as e:
+            logger.warning(f"Error ending root trace span: {e}")
+
+        # Always flush
+        try:
+            langfuse = trace.get("langfuse") or SingletonsManager.get_langfuse_client()
+            if langfuse and hasattr(langfuse, "flush"):
+                langfuse.flush()
+        except Exception as e:
+            logger.warning(f"Langfuse flush error: {e}")

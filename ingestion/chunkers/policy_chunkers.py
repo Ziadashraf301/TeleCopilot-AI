@@ -12,6 +12,34 @@ from core.logger import get_logger
 logger = get_logger()
 
 
+def get_intent_for_policy(policy_type: str) -> str:
+    """Helper to map any policy type or keyword to its canonical intent category."""
+    p = (policy_type or "").lower()
+    if "sim" in p:
+        return "SIM_MANAGEMENT"
+    elif "5g" in p or "network" in p:
+        return "NETWORK_TECHNICAL_SUPPORT"
+    elif "roam" in p:
+        return "ROAMING_AND_INTERNATIONAL"
+    elif "enterprise" in p or "sla" in p:
+        return "ENTERPRISE_B2B_SUPPORT"
+    elif "bill" in p or "refund" in p:
+        return "BILLING_AND_PAYMENTS"
+    elif "fiber" in p or "ftth" in p or "install" in p:
+        return "BROADBAND_INSTALLATION"
+    elif "fraud" in p or "secur" in p or "cyber" in p:
+        return "FRAUD_AND_SECURITY"
+    elif "family" in p or "bundle" in p or "migrat" in p:
+        return "ACCOUNT_MIGRATION_OFFERS"
+    elif "router" in p or "diagnostic" in p:
+        return "ROUTER_HARDWARE_SUPPORT"
+    elif "wifi" in p or "outage" in p:
+        return "WIFI_TECHNICAL_SUPPORT"
+    elif "web" in p or "plan" in p or "te.eg" in p:
+        return "PLANS_AND_OFFERS"
+    return "GENERAL_SUPPORT"
+
+
 class SIMPolicyChunker(BaseChunker):
     """
     Source 1 (HTML): HTML Structural Header Splitter + Recursive Splitter.
@@ -35,6 +63,8 @@ class SIMPolicyChunker(BaseChunker):
     def chunk(self, document: ExtractedDocument) -> List[DocumentChunk]:
         chunks = []
         chunk_idx = 1
+        intent = get_intent_for_policy(document.policy_type)
+        doc_tag = os.path.basename(document.source_path).replace(".", "_")
 
         # 1. First split by HTML header hierarchy if raw HTML is available
         try:
@@ -48,22 +78,22 @@ class SIMPolicyChunker(BaseChunker):
                 header_title = doc.metadata.get("Header 2") or doc.metadata.get("Header 1") or document.title
                 for part in splits:
                     content = (
-                        f"[SOURCE: LOCAL_HTML] [INTENT: SIM_MANAGEMENT]\n"
+                        f"[SOURCE: LOCAL_HTML] [INTENT: {intent}]\n"
                         f"DOCUMENT: {document.title}\n"
                         f"TOPIC: {header_title}\n"
                         f"RULES & WORKFLOW:\n{part}"
                     )
                     chunks.append(
                         DocumentChunk(
-                            chunk_id=f"sim_chunk_{chunk_idx}",
+                            chunk_id=f"html_{doc_tag}_{chunk_idx}",
                             content=content,
                             source=document.source_path,
                             source_modality="LOCAL_HTML",
-                            policy_type="sim_replacement",
-                            intent_category="SIM_MANAGEMENT",
+                            policy_type=document.policy_type,
+                            intent_category=intent,
                             section_title=header_title,
                             page_number=1,
-                            metadata={"format": "html", "intent": "SIM_MANAGEMENT", "splitter": "LangChain_HTMLHeaderTextSplitter"}
+                            metadata={"format": "html", "intent": intent, "splitter": "LangChain_HTMLHeaderTextSplitter"}
                         )
                     )
                     chunk_idx += 1
@@ -73,34 +103,34 @@ class SIMPolicyChunker(BaseChunker):
                 splits = self.text_splitter.split_text(sec.get("content", ""))
                 for part in splits:
                     content = (
-                        f"[SOURCE: LOCAL_HTML] [INTENT: SIM_MANAGEMENT]\n"
+                        f"[SOURCE: LOCAL_HTML] [INTENT: {intent}]\n"
                         f"DOCUMENT: {document.title}\n"
                         f"TOPIC: {sec['section_title']}\n"
                         f"RULES & WORKFLOW:\n{part}"
                     )
                     chunks.append(
                         DocumentChunk(
-                            chunk_id=f"sim_chunk_{chunk_idx}",
+                            chunk_id=f"html_{doc_tag}_{chunk_idx}",
                             content=content,
                             source=document.source_path,
                             source_modality="LOCAL_HTML",
-                            policy_type="sim_replacement",
-                            intent_category="SIM_MANAGEMENT",
+                            policy_type=document.policy_type,
+                            intent_category=intent,
                             section_title=sec["section_title"],
                             page_number=1,
-                            metadata={"format": "html", "intent": "SIM_MANAGEMENT", "splitter": "LangChain_RecursiveCharacter"}
+                            metadata={"format": "html", "intent": intent, "splitter": "LangChain_RecursiveCharacter"}
                         )
                     )
                     chunk_idx += 1
 
-        logger.info(f"LangChain HTML SIMPolicyChunker produced {len(chunks)} chunks.")
+        logger.info(f"LangChain HTML SIMPolicyChunker produced {len(chunks)} chunks for {document.source_path}.")
         return chunks
 
 
 class WifiPolicyChunker(BaseChunker):
     """
-    Source 2 (PDF with Gemini Vision OCR): Markdown Header Splitter for Gemini OCR Outputs.
-    Step 1: Gemini Vision OCR converts PDF pages & tables into structured Markdown (`#`, `##`, tables).
+    Source 2 (PDF with Gemini Vision OCR / Text PDF): Markdown Header Splitter for PDF Outputs.
+    Step 1: Gemini Vision OCR / PyMuPDF converts PDF pages & tables into structured Markdown (`#`, `##`, tables).
     Step 2: MarkdownHeaderTextSplitter splits on Markdown sections (`#`, `##`, `###`) preserving complete diagnostic steps and SLA tables.
     """
 
@@ -124,6 +154,7 @@ class WifiPolicyChunker(BaseChunker):
         chunks = []
         chunk_idx = 1
         doc_tag = os.path.basename(document.source_path).replace(".", "_")
+        intent = get_intent_for_policy(document.policy_type)
 
         # 1. Split Markdown OCR output by headers
         try:
@@ -134,25 +165,25 @@ class WifiPolicyChunker(BaseChunker):
         if md_header_docs:
             for doc in md_header_docs:
                 splits = self.text_splitter.split_text(doc.page_content)
-                header_title = doc.metadata.get("Header 2") or doc.metadata.get("Header 1") or "WiFi Troubleshooting"
+                header_title = doc.metadata.get("Header 2") or doc.metadata.get("Header 1") or document.title
                 for part in splits:
                     content = (
-                        f"[SOURCE: PDF_VISION_OCR] [INTENT: WIFI_TECHNICAL_SUPPORT]\n"
+                        f"[SOURCE: PDF_VISION_OCR] [INTENT: {intent}]\n"
                         f"DOCUMENT: {document.title}\n"
                         f"SECTION: {header_title}\n"
                         f"DIAGNOSTIC & SLA DISPATCH RULES:\n{part}"
                     )
                     chunks.append(
                         DocumentChunk(
-                            chunk_id=f"wifi_{doc_tag}_{chunk_idx}",
+                            chunk_id=f"pdf_{doc_tag}_{chunk_idx}",
                             content=content,
                             source=document.source_path,
                             source_modality="PDF_VISION_OCR",
-                            policy_type="wifi_troubleshooting",
-                            intent_category="WIFI_TECHNICAL_SUPPORT",
+                            policy_type=document.policy_type,
+                            intent_category=intent,
                             section_title=header_title,
                             page_number=1,
-                            metadata={"format": "pdf", "intent": "WIFI_TECHNICAL_SUPPORT", "splitter": "LangChain_MarkdownHeaderTextSplitter", "ocr_engine": "gemini-vision"}
+                            metadata={"format": "pdf", "intent": intent, "splitter": "LangChain_MarkdownHeaderTextSplitter", "ocr_engine": "gemini-vision"}
                         )
                     )
                     chunk_idx += 1
@@ -161,22 +192,22 @@ class WifiPolicyChunker(BaseChunker):
                 splits = self.text_splitter.split_text(sec.get("content", ""))
                 for part in splits:
                     content = (
-                        f"[SOURCE: PDF_VISION_OCR] [INTENT: WIFI_TECHNICAL_SUPPORT]\n"
+                        f"[SOURCE: PDF_VISION_OCR] [INTENT: {intent}]\n"
                         f"DOCUMENT: {document.title}\n"
                         f"SECTION: {sec['section_title']}\n"
                         f"DIAGNOSTIC & SLA DISPATCH RULES:\n{part}"
                     )
                     chunks.append(
                         DocumentChunk(
-                            chunk_id=f"wifi_{doc_tag}_{chunk_idx}",
+                            chunk_id=f"pdf_{doc_tag}_{chunk_idx}",
                             content=content,
                             source=document.source_path,
                             source_modality="PDF_VISION_OCR",
-                            policy_type="wifi_troubleshooting",
-                            intent_category="WIFI_TECHNICAL_SUPPORT",
+                            policy_type=document.policy_type,
+                            intent_category=intent,
                             section_title=sec["section_title"],
                             page_number=sec.get("page_number", 1),
-                            metadata={"format": "pdf", "intent": "WIFI_TECHNICAL_SUPPORT", "splitter": "LangChain_RecursiveCharacter"}
+                            metadata={"format": "pdf", "intent": intent, "splitter": "LangChain_RecursiveCharacter"}
                         )
                     )
                     chunk_idx += 1
@@ -188,7 +219,7 @@ class WifiPolicyChunker(BaseChunker):
 class BillingPolicyChunker(BaseChunker):
     """
     Source 3 (DOCX): Clause-Aware Recursive Text Splitter.
-    Preserves legal clauses, dollar thresholds ($15, $50), and annual courtesy waiver rules.
+    Preserves legal clauses, financial schedules, installation procedures, and credit rules.
     """
 
     def __init__(self, chunk_size: int = 450, chunk_overlap: int = 60):
@@ -201,33 +232,84 @@ class BillingPolicyChunker(BaseChunker):
     def chunk(self, document: ExtractedDocument) -> List[DocumentChunk]:
         chunks = []
         chunk_idx = 1
+        doc_tag = os.path.basename(document.source_path).replace(".", "_")
+        intent = get_intent_for_policy(document.policy_type)
+
         for sec in document.sections:
             sec_text = sec.get("content", "")
             split_texts = self.text_splitter.split_text(sec_text)
 
             for part in split_texts:
                 content = (
-                    f"[SOURCE: WORD_DOCX] [INTENT: BILLING_AND_PAYMENTS]\n"
+                    f"[SOURCE: WORD_DOCX] [INTENT: {intent}]\n"
                     f"DOCUMENT: {document.title}\n"
-                    f"CLAUSE: {sec['section_title']}\n"
-                    f"REFUND RULES & CRITERIA:\n{part}"
+                    f"CLAUSE / TOPIC: {sec['section_title']}\n"
+                    f"POLICY RULES & CRITERIA:\n{part}"
                 )
                 chunks.append(
                     DocumentChunk(
-                        chunk_id=f"billing_chunk_{chunk_idx}",
+                        chunk_id=f"docx_{doc_tag}_{chunk_idx}",
                         content=content,
                         source=document.source_path,
                         source_modality="WORD_DOCX",
-                        policy_type="billing_refund",
-                        intent_category="BILLING_AND_PAYMENTS",
+                        policy_type=document.policy_type,
+                        intent_category=intent,
                         section_title=sec["section_title"],
                         page_number=sec.get("page_number", 1),
-                        metadata={"format": "docx", "intent": "BILLING_AND_PAYMENTS", "splitter": "LangChain_ClauseSplitter"}
+                        metadata={"format": "docx", "intent": intent, "splitter": "LangChain_ClauseSplitter"}
                     )
                 )
                 chunk_idx += 1
 
-        logger.info(f"LangChain BillingPolicyChunker produced {len(chunks)} chunks.")
+        logger.info(f"LangChain BillingPolicyChunker produced {len(chunks)} chunks for {document.source_path}.")
+        return chunks
+
+
+class XMLPolicyChunker(BaseChunker):
+    """
+    Source 5 (XML): Tariff and SLA contract splitter for hierarchical XML policies.
+    """
+
+    def __init__(self, chunk_size: int = 500, chunk_overlap: int = 80):
+        self.text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            separators=["\n\n", "\n", ". ", " "]
+        )
+
+    def chunk(self, document: ExtractedDocument) -> List[DocumentChunk]:
+        chunks = []
+        chunk_idx = 1
+        doc_tag = os.path.basename(document.source_path).replace(".", "_")
+        intent = get_intent_for_policy(document.policy_type)
+
+        for sec in document.sections:
+            sec_text = sec.get("content", "")
+            split_texts = self.text_splitter.split_text(sec_text)
+
+            for part in split_texts:
+                content = (
+                    f"[SOURCE: LOCAL_XML] [INTENT: {intent}]\n"
+                    f"DOCUMENT: {document.title}\n"
+                    f"SECTION: {sec['section_title']}\n"
+                    f"SPECIFICATIONS & RULES:\n{part}"
+                )
+                chunks.append(
+                    DocumentChunk(
+                        chunk_id=f"xml_{doc_tag}_{chunk_idx}",
+                        content=content,
+                        source=document.source_path,
+                        source_modality="LOCAL_XML",
+                        policy_type=document.policy_type,
+                        intent_category=intent,
+                        section_title=sec["section_title"],
+                        page_number=sec.get("page_number", 1),
+                        metadata={"format": "xml", "intent": intent, "splitter": "LangChain_XMLRecursive"}
+                    )
+                )
+                chunk_idx += 1
+
+        logger.info(f"LangChain XMLPolicyChunker produced {len(chunks)} chunks for {document.source_path}.")
         return chunks
 
 

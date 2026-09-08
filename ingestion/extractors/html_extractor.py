@@ -9,7 +9,7 @@ logger = get_logger()
 class HTMLExtractor(BaseExtractor):
     """
     Extracts semantic structure, headings, policy clauses, and metadata from HTML files.
-    Ideal for SIM Replacement and Device Service Guides.
+    Ideal for SIM Replacement and 5G Network Device Service Guides.
     """
 
     def extract(self, file_path: str) -> ExtractedDocument:
@@ -17,7 +17,8 @@ class HTMLExtractor(BaseExtractor):
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file_path}")
 
-        with open(file_path, "r", encoding="utf-8") as f:
+        base_name = os.path.splitext(os.path.basename(file_path))[0]
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             html_content = f.read()
 
         soup = BeautifulSoup(html_content, "html.parser")
@@ -26,7 +27,7 @@ class HTMLExtractor(BaseExtractor):
         for tag in soup(["script", "style", "nav", "footer"]):
             tag.decompose()
 
-        title = soup.title.string.strip() if soup.title else os.path.basename(file_path)
+        title = soup.title.string.strip() if soup.title else base_name.replace("_", " ").title()
 
         sections = []
         headings = soup.find_all(["h1", "h2", "h3"])
@@ -63,7 +64,7 @@ class HTMLExtractor(BaseExtractor):
             source_path=file_path,
             title=title,
             raw_text=raw_text,
-            policy_type="sim_replacement",
+            policy_type=base_name,
             sections=sections,
             metadata={"format": "html", "file_size": len(html_content)}
         )

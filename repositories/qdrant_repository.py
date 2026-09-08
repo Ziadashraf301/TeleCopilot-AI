@@ -125,103 +125,108 @@ class QdrantVectorRepository(BaseVectorRepository):
         policy_filter: Optional[str] = None,
         intent_filter: Optional[str] = None,
     ) -> List[SearchResult]:
-        """
-        True Hybrid Search:
-        Performs simultaneous Dense vector search + Sparse (BM25) vector search in Qdrant,
-        combining semantic similarity with exact keyword matching via NamedVector search and RRF score fusion.
-        """
         if self._is_live:
             try:
+                # 1. Build Payload Filters
                 conditions = []
                 if policy_filter:
                     conditions.append(
                         qmodels.FieldCondition(
                             key="policy_type",
-                            match=qmodels.MatchValue(value=policy_filter)
+                            match=qmodels.MatchValue(value=policy_filter),
                         )
                     )
                 if intent_filter:
                     conditions.append(
                         qmodels.FieldCondition(
                             key="intent_category",
-                            match=qmodels.MatchValue(value=intent_filter)
+                            match=qmodels.MatchValue(value=intent_filter),
                         )
                     )
 
-                query_filter = qmodels.Filter(must=conditions) if conditions else None
-
-                # 1. Search Dense Vector
-                dense_hits = self.client.search(
-                    collection_name=self.collection_name,
-                    query_vector=qmodels.NamedVector(
-                        name="dense",
-                        vector=query_dense_vector
-                    ),
-                    query_filter=query_filter,
-                    limit=top_k * 2
+                query_filter = (
+                    qmodels.Filter(must=conditions) if conditions else None
                 )
 
-                # 2. Search Sparse Vector (BM25) if provided
-                sparse_hits = []
-                if query_sparse_vector and query_sparse_vector.indices:
-                    sparse_hits = self.client.search(
-                        collection_name=self.collection_name,
-                        query_vector=qmodels.NamedSparseVector(
-                            name="sparse",
-                            vector=qmodels.SparseVector(
-                                indices=query_sparse_vector.indices,
-                                values=query_sparse_vector.values
-                            )
-                        ),
-                        query_filter=query_filter,
-                        limit=top_k * 2
+                # 2. Configure Prefetches (Sub-queries)
+                prefetches = [
+                    qmodels.Prefetch(
+                        query=query_dense_vector,
+                        using="dense",
+                        filter=query_filter,
+                        limit=top_k * 2,
                     )
+                ]
 
-                # 3. Hybrid Score Fusion (Reciprocal Rank Fusion 60 + weighted score)
-                combined_scores: Dict[str, dict] = {}
-
-                for rank, hit in enumerate(dense_hits):
-                    pid = str(hit.id)
-                    rrf = 1.0 / (60 + rank + 1)
-                    combined_scores[pid] = {
-                        "hit": hit,
-                        "score": (hit.score * 0.7) + (rrf * 0.3)
-                    }
-
-                for rank, hit in enumerate(sparse_hits):
-                    pid = str(hit.id)
-                    rrf = 1.0 / (60 + rank + 1)
-                    sparse_score = (hit.score * 0.5) + (rrf * 0.3)
-                    if pid in combined_scores:
-                        combined_scores[pid]["score"] += sparse_score
-                    else:
-                        combined_scores[pid] = {
-                            "hit": hit,
-                            "score": sparse_score
-                        }
-
-                sorted_fused = sorted(combined_scores.values(), key=lambda x: x["score"], reverse=True)[:top_k]
-
-                results = []
-                for item in sorted_fused:
-                    hit = item["hit"]
-                    results.append(
-                        SearchResult(
-                            chunk_id=hit.payload.get("chunk_id", ""),
-                            content=hit.payload.get("content", ""),
-                            source=hit.payload.get("source", ""),
-                            source_modality=hit.payload.get("source_modality", "LOCAL"),
-                            policy_type=hit.payload.get("policy_type", ""),
-                            intent_category=hit.payload.get("intent_category", "GENERAL"),
-                            section_title=hit.payload.get("section_title", ""),
-                            page_number=hit.payload.get("page_number"),
-                            score=round(item["score"], 4),
-                            metadata=hit.payload.get("metadata", {})
+                if query_sparse_vector and query_sparse_vector.indices:
+                    sparse_obj = qmodels.SparseVector(
+                        indices=query_sparse_vector.indices,
+                        values=query_sparse_vector.values,
+                    )
+                    prefetches.append(
+                        qmodels.Prefetch(
+                            query=sparse_obj,
+                            using="sparse",
+                            filter=query_filter,
+                            limit=top_k * 2,
                         )
                     )
-                return results
+
+                # 3. Single-Roundtrip Native Query + Fusion
+                if len(prefetches) > 1:
+                    # Qdrant client >= 1.16 supports models.RrfQuery(rrf=models.Rrf(k=60))
+                    # For compatibility across versions >= 1.10, models.FusionQuery works as well:
+                    try:
+                        fusion_query = qmodels.FusionQuery(
+                            fusion=qmodels.Fusion.RRF
+                        )
+                    except AttributeError:
+                        fusion_query = qmodels.RrfQuery(
+                            rrf=qmodels.Rrf(k=60)
+                        )
+
+                    response = self.client.query_points(
+                        collection_name=self.collection_name,
+                        prefetch=prefetches,
+                        query=fusion_query,
+                        limit=top_k,
+                        with_payload=True,
+                    )
+                else:
+                    # If sparse vector is absent, run dense directly
+                    response = self.client.query_points(
+                        collection_name=self.collection_name,
+                        query=query_dense_vector,
+                        using="dense",
+                        query_filter=query_filter,
+                        limit=top_k,
+                        with_payload=True,
+                    )
+
+                return [
+                    SearchResult(
+                        chunk_id=point.payload.get("chunk_id", ""),
+                        content=point.payload.get("content", ""),
+                        source=point.payload.get("source", ""),
+                        source_modality=point.payload.get(
+                            "source_modality", "LOCAL"
+                        ),
+                        policy_type=point.payload.get("policy_type", ""),
+                        intent_category=point.payload.get(
+                            "intent_category", "GENERAL"
+                        ),
+                        section_title=point.payload.get("section_title", ""),
+                        page_number=point.payload.get("page_number"),
+                        score=round(point.score, 4),
+                        metadata=point.payload.get("metadata", {}),
+                    )
+                    for point in response.points
+                ]
+
             except Exception as e:
-                logger.error(f"Qdrant live hybrid search failed: {e}. Falling back to in-memory search.")
+                logger.error(
+                    f"Qdrant live native hybrid search failed: {e}. Falling back to in-memory search."
+                )
 
         # In-memory keyword + cosine fallback
         query_words = set(query.lower().split())

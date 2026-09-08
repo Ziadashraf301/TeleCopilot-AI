@@ -3,170 +3,427 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TelcoHub - Official Customer Support Portal</title>
+    <title>Telecom Connect | Official Knowledge Base & CSR Copilot</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="site-container">
-        <!-- Top Navbar -->
-        <nav class="portal-nav">
-            <div class="nav-brand">
-                <span class="logo">⚡</span>
-                <span class="title">TelcoHub Official Portal</span>
-            </div>
-            <div class="nav-links">
-                <a href="#services" class="active">Services & Plans</a>
-                <a href="#policies">Policies & Documents</a>
-                <a href="https://www.te.eg/" target="_blank" class="external-link">Telecom Egypt (te.eg) ↗</a>
-                <button class="btn btn-primary" onclick="toggleChatbot()">💬 CSR Agent Assist</button>
-            </div>
-        </nav>
 
-        <!-- Hero Section -->
-        <header class="hero-section">
-            <h1>Customer Service & Knowledge Base Portal</h1>
-            <p>Access our official product plans, self-service guides, and download internal policy documents.</p>
-            <div class="hero-stats">
-                <div class="stat-box">
-                    <span class="num">100%</span>
-                    <span class="lbl">Fiber & 5G Coverage</span>
-                </div>
-                <div class="stat-box">
-                    <span class="num">&lt; 4 Hours</span>
-                    <span class="lbl">Technician SLA Guarantee</span>
-                </div>
-                <div class="stat-box">
-                    <span class="num">Free</span>
-                    <span class="lbl">Instant eSIM Replacement</span>
-                </div>
-            </div>
-        </header>
-
-        <!-- Section 1: WE Telecom Egypt Live Services & Knowledge Base -->
-        <section id="services" class="portal-section">
-            <div class="section-title">
-                <h2>🌐 Telecom Egypt (WE) Official Knowledge Base & Service Portals</h2>
-                <p>Real-time knowledge channels with live route links to official Telecom Egypt portals.</p>
-            </div>
-            <div class="cards-grid">
-                <!-- Source 1: Fixed Broadband & Fiber -->
-                <div class="product-card">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
-                        <span class="product-badge" style="background:rgba(59,130,246,0.2); color:#60a5fa; border:1px solid rgba(59,130,246,0.4);">🌐 Live Scraped Data</span>
-                        <a href="https://www.te.eg/web/guest/personal/services/fixed-broadband" target="_blank" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 10px;">Open te.eg ↗</a>
-                    </div>
-                    <h3>WE Space Home Fiber Internet</h3>
-                    <p class="desc">High-speed FTTH broadband, bandwidth speed tiers, and optical router installation.</p>
-                    <ul class="specs">
-                        <li>⚡ Speeds: Super (30 Mbps), Mega (70 Mbps), Ultra (100 Mbps), Max (200 Mbps)</li>
-                        <li>📦 Quotas: 140 GB to 1 TB monthly allowances & top-up addons</li>
-                        <li>🛠️ Optical Router configuration & fiber line provisioning</li>
-                    </ul>
-                </div>
-
-                <!-- Source 2: Mobile & SIM Management -->
-                <div class="product-card">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
-                        <span class="product-badge" style="background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(16,185,129,0.4);">📱 SIM & Mobile</span>
-                        <a href="https://www.te.eg/web/guest/personal/services/mobile-call-services" target="_blank" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 10px;">Open te.eg ↗</a>
-                    </div>
-                    <h3>Mobile Plans & SIM/eSIM Services</h3>
-                    <p class="desc">Postpaid WE Gold, Control prepaid lines, and instant digital eSIM activation.</p>
-                    <ul class="specs">
-                        <li>📲 Instant QR Code delivery for eSIM conversion ($0.00 fee)</li>
-                        <li>🛡️ National ID & biometric verification protocols for SIM replacement</li>
-                        <li>🌍 WE Roaming packages and unified international calling bundles</li>
-                    </ul>
-                </div>
-
-                <!-- Source 3: Technical Support & Diagnostics -->
-                <div class="product-card">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
-                        <span class="product-badge" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4);">🔧 Tech Support</span>
-                        <a href="https://www.te.eg/" target="_blank" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 10px;">Open te.eg ↗</a>
-                    </div>
-                    <h3>WiFi & Optical Diagnostics (SLA Dispatch)</h3>
-                    <p class="desc">Diagnostic checklists, ONT optical light status, and free technician dispatch rules.</p>
-                    <ul class="specs">
-                        <li>🔴 Solid Red Internet Light: 30-second power cycle & optical cable inspection</li>
-                        <li>⏱️ Technician SLA: Free onsite dispatch within &lt; 4 hours for persistent fiber outages</li>
-                        <li>⚙️ Optical Network Terminal (ONT) configuration & self-help steps</li>
-                    </ul>
-                </div>
-
-                <!-- Source 4: Billing & Dispute Management -->
-                <div class="product-card">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
-                        <span class="product-badge" style="background:rgba(139,92,246,0.2); color:#a78bfa; border:1px solid rgba(139,92,246,0.4);">💳 Billing & Refunds</span>
-                        <a href="https://www.te.eg/" target="_blank" class="btn btn-secondary" style="font-size:0.75rem; padding:4px 10px;">Open te.eg ↗</a>
-                    </div>
-                    <h3>Billing, Invoicing & Fee Waiver Rules</h3>
-                    <p class="desc">Customer billing dispute policies, one-time courtesy waivers, and credit adjustments.</p>
-                    <ul class="specs">
-                        <li>💵 1-time annual courtesy waiver for $15 late payment fee for accounts in good standing</li>
-                        <li>🔄 Automatic next-cycle bill credit adjustments for verified overcharges</li>
-                        <li>📅 Grace period rules & electronic bill pay channels</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section 2: Scraper Sync Status & Re-indexing -->
-        <section class="portal-section scraper-box">
-            <div class="scraper-header">
-                <h3>⚡ Live Knowledge Base Synchronization</h3>
-                <p>Syncs real-time packages from <strong>te.eg</strong> and all internal telecom policy sources directly into the unified Qdrant vector collection.</p>
-            </div>
-            <div class="scraper-actions">
-                <button class="btn btn-primary" onclick="runFullPipeline()">🔄 Sync & Re-index Knowledge Base</button>
-                <span id="pipelineStatus" class="pipeline-status">Status: All Sources Synced in Qdrant</span>
-            </div>
-        </section>
+    <!-- TOP ANNOUNCEMENT BAR -->
+    <div class="top-announcement">
+        <span>⚡ Enterprise Customer Service & AI Knowledge Portal • 10 Ground Truth Policies & te.eg Scraped Data Indexed in Qdrant</span>
     </div>
 
-    <!-- Floating CSR Agent Assist Copilot Drawer/Widget -->
+    <!-- MAIN NAVBAR -->
+    <header class="main-header">
+        <div class="header-container">
+            <!-- Brand Logo -->
+            <a href="#" class="brand-logo">
+                <span class="logo-tick">✓</span>
+                <span class="logo-name">telecom</span>
+            </a>
+
+            <!-- Nav Links: Only Why Telecom, Knowledge & Policies, and te.eg -->
+            <nav class="nav-menu">
+                <a href="#network" class="nav-item">Why Telecom</a>
+                <a href="#policies" class="nav-item highlight">📚 Knowledge & Policies</a>
+                <a href="https://www.te.eg/" target="_blank" class="nav-item ext">te.eg ↗</a>
+            </nav>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="globalSearch" placeholder="Search policies, guides, documents..." oninput="handleGlobalSearch(this.value)">
+            </div>
+
+            <!-- Right Actions -->
+            <div class="header-actions">
+                <button class="btn btn-copilot" onclick="toggleChatbot()">
+                    <span class="copilot-pulse"></span>
+                    <span>💬 CSR Copilot AI</span>
+                </button>
+                <a href="#policies" class="user-link">Docs (10)</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECTION 1: TRUST & WHY TELECOM -->
+    <section id="network" class="section-network">
+        <div class="section-container">
+            <div class="network-header">
+                <span class="section-eyebrow">ENTERPRISE INFRASTRUCTURE</span>
+                <h2>The network America relies on. <span class="text-red">Fast. Reliable. Award-winning.</span></h2>
+                <p>Engineered with next-generation fiber backbones, automated optical failovers, and rigorous 4-hour SLA technician dispatch guarantees.</p>
+            </div>
+
+            <div class="network-grid">
+                <div class="network-pill">
+                    <div class="pill-icon">🛡️</div>
+                    <h4>Reliable when it matters most</h4>
+                    <p>99.99% core network uptime backed by 24/7 operations center monitoring and redundant optical ring topologies.</p>
+                    <a href="javascript:void(0)" onclick="openDocumentViewer('arabic_enterprise_sla_contracts.xml')">Review B2B SLAs &rarr;</a>
+                </div>
+
+                <div class="network-pill">
+                    <div class="pill-icon">🏆</div>
+                    <h4>Award-winning performance</h4>
+                    <p>Certified #1 for low latency, fiber optic stability, and high-speed multi-gigabit broadband delivery nationwide.</p>
+                    <a href="javascript:void(0)" onclick="openDocumentViewer('pdf.pdf')">View Ops Specs &rarr;</a>
+                </div>
+
+                <div class="network-pill">
+                    <div class="pill-icon">💼</div>
+                    <h4>Built to keep up with your business</h4>
+                    <p>Dedicated enterprise FTTH circuits, priority customer service queues, and comprehensive international roaming.</p>
+                    <a href="javascript:void(0)" onclick="openDocumentViewer('roaming_passport_travel_rates.xml')">Roaming Rates &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: OFFICIAL DATA SOURCES & POLICY REPOSITORY -->
+    <!-- Every card opens the file directly within the website in an in-page document viewer! -->
+    <section id="policies" class="section-policies">
+        <div class="section-container">
+            <div class="policies-header">
+                <div class="policies-title-wrap">
+                    <span class="section-eyebrow">GROUND TRUTH POLICIES & REPOSITORY</span>
+                    <h2>📚 Official Telecom Knowledge Base & Data Sources</h2>
+                    <p>Access all 10 verified policy documents and the live scraped portal indexed directly in Qdrant Vector DB. <strong>Click any source below to inspect and read the full file directly on this website.</strong></p>
+                </div>
+                <div class="policies-controls">
+                    <button class="btn btn-primary" onclick="runFullPipeline()">🔄 Sync & Re-index Qdrant</button>
+                </div>
+            </div>
+
+            <!-- Format Filter Bar -->
+            <div class="policy-format-filters">
+                <button class="format-btn active" onclick="filterPolicyFormat('ALL', this)">All Sources (11)</button>
+                <button class="format-btn" onclick="filterPolicyFormat('PDF', this)">📄 PDF Documents (4)</button>
+                <button class="format-btn" onclick="filterPolicyFormat('DOCX', this)">📝 Word DOCX (2)</button>
+                <button class="format-btn" onclick="filterPolicyFormat('HTML', this)">🌐 HTML Policies (2)</button>
+                <button class="format-btn" onclick="filterPolicyFormat('XML', this)">📊 XML Catalogs (2)</button>
+                <button class="format-btn" onclick="filterPolicyFormat('WEB', this)">🌍 Live Web Scrape (1)</button>
+            </div>
+
+            <!-- Policy Grid -->
+            <div class="policy-cards-grid" id="policyGrid">
+                <!-- Source 0: Live Web Scraped Portal -->
+                <div class="policy-card" data-format="WEB" data-lang="AR/EN">
+                    <div class="card-top">
+                        <span class="badge badge-web">🌍 LIVE WEB SCRAPED</span>
+                        <span class="badge badge-lang">AR / EN</span>
+                    </div>
+                    <h4>https://www.te.eg/ (Official Telecom Egypt)</h4>
+                    <p>Live scraped customer portal containing WE Space broadband tiers, WE Gold mobile plans, and branch locator data.</p>
+                    <div class="card-meta">
+                        <span>Source: te.eg</span>
+                        <span>Status: Indexed in Qdrant</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-view-doc" onclick="openDocumentViewer('https://www.te.eg/', 'Telecom Egypt Portal')">📖 View Portal in Reader</button>
+                        <a href="https://www.te.eg/" target="_blank" class="btn btn-raw-link">External ↗</a>
+                    </div>
+                </div>
+
+                <!-- Source 1: sim_replacement_policy.html -->
+                <div class="policy-card" data-format="HTML" data-lang="EN">
+                    <div class="card-top">
+                        <span class="badge badge-html">🌐 HTML (2.17 MB)</span>
+                        <span class="badge badge-lang">🇬🇧 English</span>
+                    </div>
+                    <h4>SIM Card Replacement & Digital eSIM Activation</h4>
+                    <p>Lost SIM reporting, biometric ID verification, instant QR-code eSIM provisioning, and outgoing line security bars.</p>
+                    <div class="card-meta">
+                        <span>File: sim_replacement_policy.html</span>
+                        <span>Size: ~2.17 MB</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-view-doc" onclick="openDocumentViewer('sim_replacement_policy.html')">📖 View File in Website</button>
+                        <a href="/api/v1/files/raw/sim_replacement_policy.html" target="_blank" class="btn btn-raw-link">Raw File ↗</a>
+                    </div>
+                </div>
+
+                <!-- Source 2: 5g_network_device_troubleshooting.html -->
+                <div class="policy-card" data-format="HTML" data-lang="EN">
+                    <div class="card-top">
+                        <span class="badge badge-html">🌐 HTML (2.17 MB)</span>
+                        <span class="badge badge-lang">🇬🇧 English</span>
+                    </div>
+                    <h4>5G Network Diagnostic & Hardware Troubleshooting</h4>
+                    <p>5G NSA/SA band locking, VoNR call dropping, APN provisioning, and RF radio modem diagnostic procedures.</p>
+                    <div class="card-meta">
+                        <span>File: 5g_network_device_troubleshooting.html</span>
+                        <span>Size: ~2.17 MB</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-view-doc" onclick="openDocumentViewer('5g_network_device_troubleshooting.html')">📖 View File in Website</button>
+                        <a href="/api/v1/files/raw/5g_network_device_troubleshooting.html" target="_blank" class="btn btn-raw-link">Raw File ↗</a>
+                    </div>
+                </div>
+
+                <!-- Source 3: billing_refund_policy.docx -->
+                <div class="policy-card" data-format="DOCX" data-lang="EN">
+                    <div class="card-top">
+                        <span class="badge badge-docx">📝 DOCX (2.20 MB)</span>
+                        <span class="badge badge-lang">🇬🇧 English</span>
+                    </div>
+                    <h4>Customer Billing Dispute, Fee Waivers & Refund Policy</h4>
+                    <p>Courtesy late fee waivers, roaming overage adjustments, payment arrangements, and dispute escalation protocols.</p>
+                    <div class="card-meta">
+                        <span>File: billing_refund_policy.docx</span>
+                        <span>Size: ~2.20 MB</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-view-doc" onclick="openDocumentViewer('billing_refund_policy.docx')">📖 View File in Website</button>
+                        <a href="/api/v1/files/raw/billing_refund_policy.docx" download class="btn btn-raw-link">Download ⬇</a>
+                    </div>
+                </div>
+
+                <!-- Source 4: fiber_optic_ftth_installation_guide.docx -->
+                <div class="policy-card" data-format="DOCX" data-lang="EN">
+                    <div class="card-top">
+                        <span class="badge badge-docx">📝 DOCX (2.20 MB)</span>
+                        <span class="badge badge-lang">🇬🇧 English</span>
+                    </div>
+                    <h4>FTTH Fiber Optic Installation & Verification Guide</h4>
+                    <p>Drop cable termination, optical power attenuation dBm acceptance, ONT fusion splicing, and site certification.</p>
+                    <div class="card-meta">
+                        <span>File: fiber_optic_ftth_installation_guide.docx</span>
+                        <span>Size: ~2.20 MB</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-view-doc" onclick="openDocumentViewer('fiber_optic_ftth_installation_guide.docx')">📖 View File in Website</button>
+                        <a href="/api/v1/files/raw/fiber_optic_ftth_installation_guide.docx" download class="btn btn-raw-link">Download ⬇</a>
+                    </div>
+                </div>
+
+                <!-- Source 5: arabic_family_bundles_migration.pdf -->
+                <div class="policy-card" data-format="PDF" data-lang="AR">
+                    <div class="card-top">
+                        <span class="badge badge-pdf">📄 PDF (2.29 MB)</span>
+                        <span class="badge badge-lang">🇪🇬 العربية</span>
+                    </div>
+                    <h4>دليل تحويل باقات العائلة وباقات الاشتراك المنزلي المشترك</h4>
+                    <p>شروط ضم خطوط العائلة، توزيع الجيجابايتس والدقائق، وسياسات الترحيل وتوحيد الفواتير للعملاء المنزليين.</p>
+                    <div class="card-meta">
+                        <span>File: arabic_family_bundles_migration.pdf</span>
+                        <span>Pages: 16 | ~2.29 MB</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-view-doc" onclick="openDocumentViewer('arabic_family_bundles_migration.pdf')">📖 View File in Website</button>
+                        <a href="/api/v1/files/raw/arabic_family_bundles_migration.pdf" target="_blank" class="btn btn-raw-link">Raw PDF ↗</a>
+                    </div>
+                </div>
+
+                <!-- Source 6: arabic_router_diagnostics_scan.pdf -->
+                <div class="policy-card" data-format="PDF" data-lang="AR">
+                    <div class="card-top">
+                        <span class="badge badge-pdf">📄 PDF (2.38 MB)</span>
+                        <span class="badge badge-lang">🇪🇬 العربية</span>
+                    </div>
+                    <h4>دليل الفحص الميداني وأعطال أجهزة التوجيه والراوتر المنزلي</h4>
+                    <p>تشخيص لمبات الراوتر، دلالة إشارة LOS الحمراء، استقرار خطوط VDSL/FTTH، وإجراءات استبدال الأجهزة في الفروع.</p>
+                    <div class="card-meta">
+                        <span>File: arabic_router_diagnostics_scan.pdf</span>
+                        <span>Pages: 19 | ~2.38 MB</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-view-doc" onclick="openDocumentViewer('arabic_router_diagnostics_scan.pdf')">📖 View File in Website</button>
+                        <a href="/api/v1/files/raw/arabic_router_diagnostics_scan.pdf" target="_blank" class="btn btn-raw-link">Raw PDF ↗</a>
+                    </div>
+                </div>
+
+                <!-- Source 7: cybersecurity_account_fraud_prevention.pdf -->
+                <div class="policy-card" data-format="PDF" data-lang="EN">
+                    <div class="card-top">
+                        <span class="badge badge-pdf">📄 PDF (2.29 MB)</span>
+                        <span class="badge badge-lang">🇬🇧 English</span>
+                    </div>
+                    <h4>Account Security, SIM Swap Prevention & Anti-Fraud</h4>
+                    <p>Mandatory 24-hour financial SMS lock, OTP credential sniffing countermeasures, and unauthorized transfer handling.</p>
+                    <div class="card-meta">
+                        <span>File: cybersecurity_account_fraud_prevention.pdf</span>
+                        <span>Pages: 16 | ~2.29 MB</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-view-doc" onclick="openDocumentViewer('cybersecurity_account_fraud_prevention.pdf')">📖 View File in Website</button>
+                        <a href="/api/v1/files/raw/cybersecurity_account_fraud_prevention.pdf" target="_blank" class="btn btn-raw-link">Raw PDF ↗</a>
+                    </div>
+                </div>
+
+                <!-- Source 8: pdf.pdf -->
+                <div class="policy-card" data-format="PDF" data-lang="EN">
+                    <div class="card-top">
+                        <span class="badge badge-pdf">📄 PDF (2.48 MB)</span>
+                        <span class="badge badge-lang">🇬🇧 English</span>
+                    </div>
+                    <h4>Enterprise Operations & Engineering Network Protocols</h4>
+                    <p>Core optical distribution frame standards, SLA dispatch parameters, and high-priority escalation trees.</p>
+                    <div class="card-meta">
+                        <span>File: pdf.pdf</span>
+                        <span>Pages: 12 | ~2.48 MB</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-view-doc" onclick="openDocumentViewer('pdf.pdf')">📖 View File in Website</button>
+                        <a href="/api/v1/files/raw/pdf.pdf" target="_blank" class="btn btn-raw-link">Raw PDF ↗</a>
+                    </div>
+                </div>
+
+                <!-- Source 9: roaming_passport_travel_rates.xml -->
+                <div class="policy-card" data-format="XML" data-lang="EN">
+                    <div class="card-top">
+                        <span class="badge badge-xml">📊 XML (2.20 MB)</span>
+                        <span class="badge badge-lang">🇬🇧 English</span>
+                    </div>
+                    <h4>Global Roaming Passport, Travel Zones & Data Bundles</h4>
+                    <p>Structured XML rate cards, Tier 1/2 travel zones, fair use data thresholds, and partner carrier roaming agreements.</p>
+                    <div class="card-meta">
+                        <span>File: roaming_passport_travel_rates.xml</span>
+                        <span>Size: ~2.20 MB</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-view-doc" onclick="openDocumentViewer('roaming_passport_travel_rates.xml')">📖 View File in Website</button>
+                        <a href="/api/v1/files/raw/roaming_passport_travel_rates.xml" target="_blank" class="btn btn-raw-link">Raw XML ↗</a>
+                    </div>
+                </div>
+
+                <!-- Source 10: arabic_enterprise_sla_contracts.xml -->
+                <div class="policy-card" data-format="XML" data-lang="AR">
+                    <div class="card-top">
+                        <span class="badge badge-xml">📊 XML (2.20 MB)</span>
+                        <span class="badge badge-lang">🇪🇬 العربية</span>
+                    </div>
+                    <h4>اتفاقيات مستوى الخدمة وعقود المؤسسات والشركات B2B</h4>
+                    <p>معايير الضمان الماسي والذهبي، جداول التعويضات المالية عن انقطاع خطوط الربط المخصصة، والتصعيد الهندسي.</p>
+                    <div class="card-meta">
+                        <span>File: arabic_enterprise_sla_contracts.xml</span>
+                        <span>Size: ~2.20 MB</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-view-doc" onclick="openDocumentViewer('arabic_enterprise_sla_contracts.xml')">📖 View File in Website</button>
+                        <a href="/api/v1/files/raw/arabic_enterprise_sla_contracts.xml" target="_blank" class="btn btn-raw-link">Raw XML ↗</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- IN-PAGE DOCUMENT VIEWER MODAL (OPENS ALL DATA SOURCES ON THE WEBSITE ITSELF) -->
+    <div class="doc-modal-backdrop" id="docModalBackdrop" onclick="closeDocumentViewer(event)">
+        <div class="doc-modal-window" id="docModalWindow" onclick="event.stopPropagation()">
+            <div class="doc-modal-header">
+                <div class="modal-file-info">
+                    <span class="modal-icon" id="modalFileIcon">📄</span>
+                    <div>
+                        <h3 id="modalFileTitle">Document Viewer</h3>
+                        <small id="modalFileMeta">Official Telecom Ground Truth Source</small>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-icon" title="Toggle Fullscreen" onclick="toggleModalFullscreen()">🗖</button>
+                    <a id="modalRawLink" href="#" target="_blank" class="btn btn-icon" title="Open in New Tab">↗</a>
+                    <button class="btn btn-close-modal" title="Close Viewer" onclick="closeDocumentViewer()">✕</button>
+                </div>
+            </div>
+            <div class="doc-modal-body">
+                <div class="modal-loader" id="modalLoader">
+                    <div class="spinner"></div>
+                    <p>Loading document directly from server...</p>
+                </div>
+                <iframe id="docFrame" class="doc-frame" onload="handleFrameLoaded()"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- CSR AGENT ASSIST COPILOT DRAWER -->
     <div class="chat-widget" id="chatWidget">
         <div class="chat-header">
             <div class="header-title">
-                <span>🤖</span>
+                <span class="header-icon">🤖</span>
                 <div>
                     <h3>CSR Agent Copilot</h3>
-                    <small>Grounded in Scraped Website & Downloaded Policies</small>
+                    <small>Grounded in 10 Indexed Policies & te.eg Web Scrape</small>
                 </div>
             </div>
             <button class="close-btn" onclick="toggleChatbot()">✕</button>
         </div>
+
         <div class="chat-body">
             <!-- Quick Test Scenarios -->
+            <div class="scenarios-label">⚡ Quick Test Scenarios:</div>
             <div class="quick-scenarios">
                 <button onclick="loadScenario('sim')">📱 Lost SIM</button>
                 <button onclick="loadScenario('wifi')">🌐 WiFi Red Light</button>
-                <button onclick="loadScenario('billing')">💳 $15 Late Fee</button>
-                <button onclick="loadScenario('te_eg')">⚡ WE Egypt Plans</button>
+                <button onclick="loadScenario('billing')">💳 Fee Waiver</button>
+                <button onclick="loadScenario('roaming')">🌍 Roaming XML</button>
+                <button onclick="loadScenario('ftth')">🛠️ FTTH Drop</button>
+                <button onclick="loadScenario('sla_b2b')">🏢 B2B SLA</button>
+                <button onclick="loadScenario('fraud')">🛡️ Anti-Fraud</button>
+                <button onclick="loadScenario('router_ar')">📡 Router Scan</button>
+                <button onclick="loadScenario('te_eg')">⚡ WE Egypt</button>
             </div>
 
             <div class="chat-input-box">
-                <label>Customer Problem Query:</label>
-                <textarea id="customerQuery" rows="3" placeholder="Enter customer inquiry (e.g. My WiFi has a red light and internet is down)..."></textarea>
-                <button id="solveBtn" class="btn btn-primary btn-block" onclick="solveProblem()">✨ Solve & Generate Reply</button>
+                <label for="customerQuery">Customer Problem Query:</label>
+                <textarea id="customerQuery" rows="3" placeholder="Enter customer inquiry (e.g. My router has a red LOS light and my fiber internet is down)..."></textarea>
+                <button id="solveBtn" class="btn btn-red btn-block" onclick="solveProblem()">✨ Solve & Generate Reply</button>
             </div>
 
             <div id="solutionBody" class="solution-container">
                 <div class="empty-state">
-                    <p>Enter a query above or click a scenario to generate a verified CSR reply with source citations.</p>
+                    <p>Enter a query above or click a scenario to generate a verified CSR reply with interactive source citations.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Floating Toggle Button -->
+    <!-- FLOATING CHAT BUTTON -->
     <button class="floating-chat-toggle" onclick="toggleChatbot()">
-        <span>💬 Ask Copilot</span>
+        <span class="floating-pulse"></span>
+        <span>💬 CSR Copilot</span>
     </button>
 
-    <script src="js/agent_assist.js"></script>
+    <!-- FOOTER -->
+    <footer class="main-footer">
+        <div class="section-container footer-content">
+            <div class="footer-col">
+                <div class="footer-brand">
+                    <span class="logo-tick">✓</span>
+                    <span class="logo-name">telecom</span>
+                </div>
+                <p>Enterprise AI Telecom Customer Portal with integrated hybrid vector search (Qdrant), Cohere reranking, Gemini synthesis, and Langfuse tracing.</p>
+            </div>
+            <div class="footer-col">
+                <h5>Navigation</h5>
+                <a href="#network">Why Telecom</a>
+                <a href="#policies">Knowledge Base & Policies</a>
+                <a href="javascript:void(0)" onclick="toggleChatbot()">Open CSR Copilot</a>
+            </div>
+            <div class="footer-col">
+                <h5>Ground Truth Policies</h5>
+                <a href="javascript:void(0)" onclick="openDocumentViewer('sim_replacement_policy.html')">SIM & eSIM Policy</a>
+                <a href="javascript:void(0)" onclick="openDocumentViewer('billing_refund_policy.docx')">Billing Disputes</a>
+                <a href="javascript:void(0)" onclick="openDocumentViewer('arabic_router_diagnostics_scan.pdf')">WiFi Diagnostics</a>
+                <a href="javascript:void(0)" onclick="openDocumentViewer('roaming_passport_travel_rates.xml')">Roaming XML Rates</a>
+            </div>
+            <div class="footer-col">
+                <h5>System & External</h5>
+                <a href="https://www.te.eg/" target="_blank">Telecom Egypt (te.eg) ↗</a>
+                <a href="/api/v1/policies" target="_blank">API Policies JSON</a>
+                <a href="/docs" target="_blank">FastAPI Swagger UI ↗</a>
+                <a href="http://localhost:6333/dashboard" target="_blank">Qdrant Dashboard ↗</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="section-container">
+                <p>&copy; 2026 Telecom Customer Service Assist. Grounded in live company policies.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/agent_assist.js?v=2"></script>
 </body>
 </html>

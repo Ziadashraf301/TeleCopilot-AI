@@ -22,10 +22,10 @@ class SingletonsManager:
         """Get or initialize singleton QdrantClient."""
         if cls._qdrant_client is None:
             logger.info(f"Initializing Qdrant Client ({settings.QDRANT_HOST}:{settings.QDRANT_PORT})")
+            api_key = settings.QDRANT_API_KEY.strip() if (settings.QDRANT_API_KEY and settings.QDRANT_API_KEY.strip()) else None
             cls._qdrant_client = QdrantClient(
-                host=settings.QDRANT_HOST,
-                port=settings.QDRANT_PORT,
-                api_key=settings.QDRANT_API_KEY,
+                url=f"http://{settings.QDRANT_HOST}:{settings.QDRANT_PORT}",
+                api_key=api_key,
                 timeout=10.0,
             )
         return cls._qdrant_client

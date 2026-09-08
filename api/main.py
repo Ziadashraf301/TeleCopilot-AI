@@ -34,8 +34,14 @@ async def lifespan(app: FastAPI):
         ingestion_svc = IngestionService(repo, cohere_svc)
 
         logger.info("Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...")
-        results = ingestion_svc.ingest_all_default_policies()
-        logger.info(f"Website & policy ingestion finished: {len(results)} sources indexed in Qdrant.")
+        
+        if repo.count() > 0:
+            logger.info(
+                "Qdrant collection already populated. Skipping startup ingestion."
+            )
+        else:
+            results = ingestion_svc.ingest_all_default_policies()
+            logger.info(f"Website & policy ingestion finished: {len(results)} sources indexed in Qdrant.")
     except Exception as e:
         logger.warning(f"Startup website scraping notice: {e}")
     yield

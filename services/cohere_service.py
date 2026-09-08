@@ -25,26 +25,42 @@ class CohereService:
         embeddings = self.get_embeddings_batch([text], input_type=input_type)
         return embeddings[0]
 
-    def get_embeddings_batch(self, texts: List[str], input_type: str = "search_document") -> List[List[float]]:
-        """Batch generate dense embeddings using embed-multilingual-v3.0."""
+    def get_embeddings_batch(
+        self,
+        texts: List[str],
+        input_type: str = "search_document",
+        batch_size: int = 96,
+    ) -> List[List[float]]:
+        """Batch generate dense embeddings using embed-multilingual-v3.0,
+
+        automatically chunking requests to stay within Cohere's 96-text limit.
+        """
         if not texts:
             return []
 
         if self.client:
             try:
-                response = self.client.embed(
-                    texts=texts,
-                    model=self.model,
-                    input_type=input_type,
-                    embedding_types=["float"]
-                )
-                return response.embeddings.float
+                all_embeddings: List[List[float]] = []
+
+                for i in range(0, len(texts), batch_size):
+                    batch = texts[i : i + batch_size]
+                    response = self.client.embed(
+                        texts=batch,
+                        model=self.model,
+                        input_type=input_type,
+                        embedding_types=["float"],
+                    )
+                    all_embeddings.extend(response.embeddings.float)
+
+                return all_embeddings
             except Exception as e:
-                logger.error(f"Cohere embedding failed: {e}. Falling back to deterministic pseudo-embeddings.")
+                logger.error(
+                    f"Cohere embedding failed: {e}. Falling back to deterministic pseudo-embeddings."
+                )
 
         # Fallback deterministic embedding
         return [self._generate_fallback_embedding(t) for t in texts]
-
+        
     def rerank(self, query: str, documents: List[str], top_n: int = 3) -> List[dict]:
         """Rerank candidate document texts using rerank-v3.5."""
         if not documents:

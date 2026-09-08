@@ -10,7 +10,7 @@ class DocxExtractor(BaseExtractor):
     """
     Extracts structured policy rules, heading hierarchies, tables, and clauses
     from Word (.docx) documents.
-    Ideal for Billing Dispute and Fee Refund Policies.
+    Supports Billing Dispute policies and FTTH Installation Guides.
     """
 
     def extract(self, file_path: str) -> ExtractedDocument:
@@ -18,10 +18,13 @@ class DocxExtractor(BaseExtractor):
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file_path}")
 
+        base_name = os.path.splitext(os.path.basename(file_path))[0]
         doc = Document(file_path)
         sections = []
-        current_title = "Billing Dispute & Refund Policy"
+        default_title = base_name.replace("_", " ").title()
+        current_title = default_title
         current_paragraphs = []
+        first_heading_seen = None
 
         # Process paragraphs
         for p in doc.paragraphs:
@@ -30,6 +33,8 @@ class DocxExtractor(BaseExtractor):
                 continue
 
             if p.style.name.startswith("Heading"):
+                if not first_heading_seen:
+                    first_heading_seen = text
                 if current_paragraphs:
                     sections.append({
                         "section_title": current_title,
@@ -56,19 +61,20 @@ class DocxExtractor(BaseExtractor):
                 table_rows.append(" | ".join(row_cells))
             table_text = "\n".join(table_rows)
             sections.append({
-                "section_title": f"Policy Refund Schedule Table {idx + 1}",
+                "section_title": f"Technical Data & Schedule Table {idx + 1}",
                 "content": table_text,
                 "page_number": 1
             })
 
         full_text = "\n\n".join([f"### {s['section_title']}\n{s['content']}" for s in sections])
+        final_title = first_heading_seen if first_heading_seen else default_title
 
         return ExtractedDocument(
             document_id=f"doc_docx_{os.path.basename(file_path)}",
             source_path=file_path,
-            title="Billing Fee Refund & Courtesy Credit Policy",
+            title=final_title,
             raw_text=full_text,
-            policy_type="billing_refund",
+            policy_type=base_name,
             sections=sections,
             metadata={"format": "docx", "total_sections": len(sections)}
         )
