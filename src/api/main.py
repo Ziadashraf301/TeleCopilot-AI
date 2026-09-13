@@ -1,5 +1,15 @@
 import os
+import sys
+from pathlib import Path
 from contextlib import asynccontextmanager
+
+# Automatically inject 'src' and project root to sys.path
+_SRC_DIR = Path(__file__).resolve().parent.parent
+_ROOT_DIR = _SRC_DIR.parent
+for _p in [str(_SRC_DIR), str(_ROOT_DIR)]:
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -71,10 +81,14 @@ app.include_router(health_router)
 app.include_router(scraper_router)
 app.include_router(download_router)
 
-# Mount Static UI Files
-if os.path.exists("static"):
-    app.mount("/", StaticFiles(directory="static", html=True), name="static")
+# Mount Static UI Files (resolving project root static directory)
+static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "static"))
+if not os.path.exists(static_dir):
+    static_dir = os.path.abspath("static")
+
+if os.path.exists(static_dir):
+    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("api.main:app", host=settings.HOST, port=settings.PORT, reload=True)
+    uvicorn.run("src.api.main:app", host=settings.HOST, port=settings.PORT, reload=True)

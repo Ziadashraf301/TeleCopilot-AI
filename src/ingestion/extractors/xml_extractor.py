@@ -32,12 +32,10 @@ class XMLExtractor(BaseExtractor):
             doc_title = root.attrib.get("title") or root.attrib.get("name") or root.tag.replace("_", " ").title()
             policy_type = root.attrib.get("type") or os.path.splitext(filename)[0]
 
-            # Iterate over first-level children (such as <policy>, <zone>, <sla_contract>, <section>)
             for child in root:
                 sec_id = child.attrib.get("id") or child.attrib.get("code") or child.tag
                 sec_title = child.attrib.get("title") or child.attrib.get("name") or f"{child.tag.capitalize()} ({sec_id})"
                 
-                # Gather text from child and all descendants
                 child_lines = []
                 for elem in child.iter():
                     if elem.text and elem.text.strip():

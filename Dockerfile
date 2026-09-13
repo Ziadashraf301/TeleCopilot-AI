@@ -3,7 +3,8 @@ FROM python:3.11-slim as base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    APP_ENV=production
+    APP_ENV=production \
+    PYTHONPATH="/app/src:/app"
 
 WORKDIR /app
 
@@ -25,4 +26,4 @@ RUN python data/make_docx.py || true
 
 EXPOSE 8000
 
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]

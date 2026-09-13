@@ -34,15 +34,12 @@ class GeminiOCRExtractor(BaseExtractor):
             page_num = page_idx + 1
             page = doc.load_page(page_idx)
 
-            # Extract native text first
             native_text = page.get_text().strip()
 
             if len(native_text) > 80:
-                # Authentic text PDF page
                 page_text = native_text
                 ocr_used = False
             else:
-                # Scanned image-only PDF page: invoke Gemini Multimodal Vision OCR
                 ocr_used = True
                 page_text = native_text
 

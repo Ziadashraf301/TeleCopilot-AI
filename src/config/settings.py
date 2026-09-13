@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     )
 
     # App Info
-    APP_NAME: str = "Telecom Customer Service Agent Assist"
+    APP_NAME: str = "TeleCopilot AI"
     APP_ENV: str = "development"
     LOG_LEVEL: str = "INFO"
     HOST: str = "0.0.0.0"

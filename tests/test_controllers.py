@@ -27,3 +27,18 @@ def test_agent_assist_solve_endpoint():
     assert "actionable_agent_steps" in data
     assert "policy_citations" in data
     assert len(data["policy_citations"]) > 0
+
+
+def test_agent_assist_solve_stream_endpoint():
+    """Test /api/agent-assist/solve/stream returns Server-Sent Events (SSE) stream."""
+    payload = {
+        "customer_query": "I lost my phone today and need a replacement SIM card right away.",
+        "policy_filter": "sim_replacement"
+    }
+    response = client.post("/api/agent-assist/solve/stream", json=payload)
+    assert response.status_code == 200
+    assert "text/event-stream" in response.headers.get("content-type", "")
+    content = response.text
+    assert "event: context_ready" in content
+    assert "event: token" in content
+    assert "event: done" in content

@@ -1,5 +1,5 @@
 /**
- * TELECOM CONNECT - AGENT ASSIST & IN-PAGE DOCUMENT VIEWER
+ * TELECOPILOT AI - AGENT ASSIST &amp; IN-PAGE DOCUMENT VIEWER
  * Handles AI CSR query solving, in-page document reading, and interactive filtering.
  */
 
@@ -170,7 +170,7 @@ async function solveProblem(intentFilter = null) {
     }
 
     solveBtn.disabled = true;
-    solveBtn.innerHTML = "<span>⏳ Retrieving & Synthesizing...</span>";
+    solveBtn.innerHTML = "<span>⚡ Streaming Tokens...</span>";
 
     solutionBody.innerHTML = `
         <div class="empty-state">
@@ -180,7 +180,7 @@ async function solveProblem(intentFilter = null) {
     `;
 
     try {
-        const response = await fetch('/api/agent-assist/solve', {
+        const response = await fetch('/api/agent-assist/solve/stream', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -190,13 +190,77 @@ async function solveProblem(intentFilter = null) {
         });
 
         if (!response.ok) {
-            throw new Error(`Server returned ${response.status}: ${await response.text()}`);
+            // Parse the error body from the backend and surface it visibly
+            let errDetail = `HTTP ${response.status}`;
+            try {
+                const errBody = await response.json();
+                errDetail = errBody.detail || errDetail;
+            } catch (_) {
+                errDetail = await response.text() || errDetail;
+            }
+            throw new Error(errDetail);
         }
 
-        const data = await response.json();
-        renderSolution(data);
+        if (!response.body) {
+            throw new Error('Browser does not support ReadableStream. Use a modern browser.');
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+        let replyContainer = null;
+        let streamedReplyText = '';
+        let contextMeta = null;
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const events = buffer.split('\n\n');
+            buffer = events.pop();
+
+            for (const eventBlock of events) {
+                if (!eventBlock.trim()) continue;
+
+                let eventType = 'message';
+                let dataStr = '';
+
+                for (const line of eventBlock.split('\n')) {
+                    if (line.startsWith('event:')) {
+                        eventType = line.replace('event:', '').trim();
+                    } else if (line.startsWith('data:')) {
+                        dataStr = line.replace('data:', '').trim();
+                    }
+                }
+
+                if (!dataStr) continue;
+
+                try {
+                    const parsedData = JSON.parse(dataStr);
+
+                    if (eventType === 'context_ready') {
+                        contextMeta = parsedData;
+                        renderStreamingLayout(parsedData);
+                        replyContainer = document.getElementById('streamedReplyText');
+                        if (!replyContainer) throw new Error('SSE layout render failed: #streamedReplyText not found.');
+                    } else if (eventType === 'token') {
+                        const token = parsedData.token || '';
+                        streamedReplyText += token;
+                        replyContainer.textContent = streamedReplyText;
+                    } else if (eventType === 'done') {
+                        // Ensure the full reply is shown even if last token was empty
+                        if (replyContainer) replyContainer.textContent = streamedReplyText;
+                        finalizeStreamingMetrics(parsedData, contextMeta);
+                    }
+                } catch (pe) {
+                    console.error("Error parsing SSE chunk:", pe);
+                }
+            }
+        }
+
     } catch (err) {
-        console.error(err);
+        console.error("Agent assist solve error:", err);
         solutionBody.innerHTML = `
             <div style="color: #ef4444; font-size: 0.85rem; padding: 12px; background: #fee2e2; border-radius: 8px;">
                 <strong>⚠️ Error:</strong> ${err.message}
@@ -205,22 +269,22 @@ async function solveProblem(intentFilter = null) {
     } finally {
         solveBtn.disabled = false;
         solveBtn.innerHTML = "✨ Solve & Generate Reply";
+        const cursor = document.getElementById('streamCursor');
+        if (cursor) cursor.remove();
     }
 }
 
-function renderSolution(data) {
+function renderStreamingLayout(data) {
     const solutionBody = document.getElementById('solutionBody');
 
     const stepsHtml = (data.actionable_agent_steps || [])
         .map(step => `<li>${step}</li>`)
         .join('');
 
-    // RENDER INTERACTIVE CLICKABLE CITATIONS THAT OPEN FILES DIRECTLY IN THE WEBSITE
     const citationsHtml = (data.policy_citations || []).map(cit => {
         const docName = cit.document || 'Policy Document';
         const sectionName = cit.section || 'General Policy';
         const modality = cit.source_modality || 'DOCUMENT';
-        // Normalize backslashes to forward slashes (Windows paths) and escape quotes for onclick
         const safeDoc = docName.replace(/\\/g, '/').replace(/'/g, "\\'");
         const safeSec = sectionName.replace(/\\/g, '/').replace(/'/g, "\\'");
 
@@ -238,27 +302,21 @@ function renderSolution(data) {
         `;
     }).join('');
 
-    // Latency metrics — use correct field names from backend response
-    const lat = data.latency_breakdown || {};
-    const totalSec = data.execution_time_seconds ? data.execution_time_seconds.toFixed(3) : '0.000';
-    const embMs = lat.query_embedding_seconds ? (lat.query_embedding_seconds * 1000).toFixed(0) : '0';
-    const qdrantMs = lat.qdrant_hybrid_search_seconds ? (lat.qdrant_hybrid_search_seconds * 1000).toFixed(0) : '0';
-    const rerankMs = lat.cohere_rerank_seconds ? (lat.cohere_rerank_seconds * 1000).toFixed(0) : '0';
-    const llmMs = lat.gemini_llm_synthesis_seconds ? (lat.gemini_llm_synthesis_seconds * 1000).toFixed(0) : '0';
-
     solutionBody.innerHTML = `
         <div class="solution-box">
             <div class="solution-meta-bar">
-                <span class="intent-tag">🎯 ${data.detected_intent}</span>
-                <span class="status-tag">Status: ${data.resolution_status}</span>
+                <span class="intent-tag">🎯 ${data.detected_intent || 'GENERAL'}</span>
+                <span class="status-tag">Status: ${data.resolution_status || 'APPROVED'}</span>
             </div>
 
             <div class="reply-card">
                 <div class="reply-header">
-                    <span class="reply-title">💬 SUGGESTED CSR REPLY</span>
+                    <span class="reply-title">💬 SUGGESTED CSR REPLY <span style="font-size: 0.7rem; color: #10B981; font-weight: 600; margin-left: 6px;">● LIVE STREAMING</span></span>
                     <button class="copy-btn" onclick="copyReply()">📋 Copy Reply</button>
                 </div>
-                <div id="replyText" class="reply-content">${data.suggested_customer_reply}</div>
+                <div id="replyText" class="reply-content">
+                    <span id="streamedReplyText"></span><span id="streamCursor" style="display:inline-block;margin-left:2px;color:#ED0000;font-weight:900;">▌</span>
+                </div>
             </div>
 
             <div class="steps-box">
@@ -276,35 +334,66 @@ function renderSolution(data) {
                 ${citationsHtml || '<p style="color: #6b7280; font-size: 0.78rem;">No explicit citations returned.</p>'}
             </div>
 
-            <div class="latency-box">
+            <div id="streamingMetricsContainer" class="latency-box">
                 <div class="latency-header">
-                    <span>⚡ Service Latency Breakdown:</span>
-                    <span style="color: #34D399; font-weight: 800;">⏱️ ${totalSec}s Total</span>
-                </div>
-                <div class="latency-grid">
-                    <div class="latency-item">
-                        <span>Cohere Embed:</span>
-                        <strong>${embMs}ms</strong>
-                    </div>
-                    <div class="latency-item">
-                        <span>Qdrant Search:</span>
-                        <strong>${qdrantMs}ms</strong>
-                    </div>
-                    <div class="latency-item">
-                        <span>Cohere Rerank:</span>
-                        <strong>${rerankMs}ms</strong>
-                    </div>
-                    <div class="latency-item">
-                        <span>Gemini Flash:</span>
-                        <strong>${llmMs}ms</strong>
-                    </div>
-                </div>
-                <div style="font-size: 0.68rem; color: #9CA3AF; margin-top: 6px; text-align: right;">
-                    ${data.retrieved_chunks_count || 0} chunks • ${data.total_tokens || 0} tokens
+                    <span>⚡ Streaming Generation:</span>
+                    <span style="color: #34D399; font-weight: 800;">⏱️ Receiving Tokens...</span>
                 </div>
             </div>
         </div>
     `;
+}
+
+function finalizeStreamingMetrics(metrics, contextMeta) {
+    const cursor = document.getElementById('streamCursor');
+    if (cursor) cursor.remove();
+
+    const container = document.getElementById('streamingMetricsContainer');
+    if (!container) return;
+
+    const lat = metrics.latency_breakdown || {};
+    const totalSec = metrics.execution_time_seconds ? metrics.execution_time_seconds.toFixed(3) : '0.000';
+    const embMs = lat.query_embedding_seconds ? (lat.query_embedding_seconds * 1000).toFixed(0) : '0';
+    const qdrantMs = lat.qdrant_hybrid_search_seconds ? (lat.qdrant_hybrid_search_seconds * 1000).toFixed(0) : '0';
+    const rerankMs = lat.cohere_rerank_seconds ? (lat.cohere_rerank_seconds * 1000).toFixed(0) : '0';
+    const llmMs = lat.gemini_llm_synthesis_seconds ? (lat.gemini_llm_synthesis_seconds * 1000).toFixed(0) : '0';
+
+    container.innerHTML = `
+        <div class="latency-header">
+            <span>⚡ Service Latency Breakdown:</span>
+            <span style="color: #34D399; font-weight: 800;">⏱️ ${totalSec}s Total</span>
+        </div>
+        <div class="latency-grid">
+            <div class="latency-item">
+                <span>Cohere Embed:</span>
+                <strong>${embMs}ms</strong>
+            </div>
+            <div class="latency-item">
+                <span>Qdrant Search:</span>
+                <strong>${qdrantMs}ms</strong>
+            </div>
+            <div class="latency-item">
+                <span>Cohere Rerank:</span>
+                <strong>${rerankMs}ms</strong>
+            </div>
+            <div class="latency-item">
+                <span>Gemini Stream:</span>
+                <strong>${llmMs}ms</strong>
+            </div>
+        </div>
+        <div style="font-size: 0.68rem; color: #9CA3AF; margin-top: 6px; text-align: right;">
+            ${metrics.retrieved_chunks_count || 0} chunks • ${metrics.total_tokens || 0} tokens • Est. Cost: $${(metrics.estimated_cost_usd || 0).toFixed(6)}
+        </div>
+    `;
+}
+
+function renderSolution(data) {
+    renderStreamingLayout(data);
+    const replyContainer = document.getElementById('streamedReplyText');
+    if (replyContainer) {
+        replyContainer.textContent = data.suggested_customer_reply || '';
+    }
+    finalizeStreamingMetrics(data, data);
 }
 
 function copyReply() {

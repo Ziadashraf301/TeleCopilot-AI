@@ -1,3 +1,5 @@
+import os
+import glob
 from typing import List, Dict, Any
 from core.logger import get_logger
 from ingestion.factories import ExtractorFactory, ChunkerFactory
@@ -103,11 +105,12 @@ class IngestionService:
     def ingest_all_default_policies(self, url_list: List[str] = None) -> List[Dict[str, Any]]:
         """Ingests all 10 policy modalities (HTML, XML, DOCX, PDF, Scanned Image PDF) and live Web URLs into Qdrant."""
         results = []
-        import os
-        import glob
 
         # 1. Dynamically discover and ingest all files in data/raw/
-        raw_dir = "data/raw"
+        raw_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "raw"))
+        if not os.path.exists(raw_dir):
+            raw_dir = "data/raw"
+
         supported_exts = [".html", ".xml", ".docx", ".pdf"]
         local_files = []
 
@@ -145,4 +148,3 @@ class IngestionService:
                     "status": "FAILED"
                 })
         return results
-

@@ -32,7 +32,6 @@ class CohereService:
         batch_size: int = 96,
     ) -> List[List[float]]:
         """Batch generate dense embeddings using embed-multilingual-v3.0,
-
         automatically chunking requests to stay within Cohere's 96-text limit.
         """
         if not texts:

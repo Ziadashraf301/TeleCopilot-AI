@@ -66,7 +66,6 @@ class SIMPolicyChunker(BaseChunker):
         intent = get_intent_for_policy(document.policy_type)
         doc_tag = os.path.basename(document.source_path).replace(".", "_")
 
-        # 1. First split by HTML header hierarchy if raw HTML is available
         try:
             html_header_docs = self.html_splitter.split_text(document.raw_text)
         except Exception:
@@ -98,7 +97,6 @@ class SIMPolicyChunker(BaseChunker):
                     )
                     chunk_idx += 1
         else:
-            # Fallback per section
             for sec in document.sections:
                 splits = self.text_splitter.split_text(sec.get("content", ""))
                 for part in splits:
@@ -156,7 +154,6 @@ class WifiPolicyChunker(BaseChunker):
         doc_tag = os.path.basename(document.source_path).replace(".", "_")
         intent = get_intent_for_policy(document.policy_type)
 
-        # 1. Split Markdown OCR output by headers
         try:
             md_header_docs = self.md_splitter.split_text(document.raw_text)
         except Exception:

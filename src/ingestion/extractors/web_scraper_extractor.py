@@ -75,7 +75,6 @@ class WebScraperExtractor(BaseExtractor):
                     })
 
         if not sections:
-            # Fallback if no clean headings
             text_blocks = [p.get_text().strip() for p in soup.find_all("p") if len(p.get_text().strip()) > 20]
             if text_blocks:
                 sections.append({

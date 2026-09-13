@@ -50,7 +50,6 @@ class HTMLExtractor(BaseExtractor):
                         "page_number": 1
                     })
         else:
-            # Fallback
             sections.append({
                 "section_title": title,
                 "content": soup.get_text(separator="\n").strip(),

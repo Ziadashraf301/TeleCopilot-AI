@@ -174,8 +174,6 @@ class QdrantVectorRepository(BaseVectorRepository):
 
                 # 3. Single-Roundtrip Native Query + Fusion
                 if len(prefetches) > 1:
-                    # Qdrant client >= 1.16 supports models.RrfQuery(rrf=models.Rrf(k=60))
-                    # For compatibility across versions >= 1.10, models.FusionQuery works as well:
                     try:
                         fusion_query = qmodels.FusionQuery(
                             fusion=qmodels.Fusion.RRF
@@ -193,7 +191,6 @@ class QdrantVectorRepository(BaseVectorRepository):
                         with_payload=True,
                     )
                 else:
-                    # If sparse vector is absent, run dense directly
                     response = self.client.query_points(
                         collection_name=self.collection_name,
                         query=query_dense_vector,

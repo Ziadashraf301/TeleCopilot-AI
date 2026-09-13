@@ -1,6 +1,6 @@
-# ⚡ Telecom Customer Service Agent Assist - Pure Live Web Ingestion System
+# ⚡ TeleCopilot AI - Telecom Customer Service Agent Assist & Ingestion System
 
-An enterprise-grade, containerized AI **Customer Service Copilot** operating **100% in-memory with zero local data files required**. All data is scraped live directly from online websites (e.g. [**https://www.te.eg/**](https://www.te.eg/)), parsed, and indexed directly into **Qdrant Vector DB** with Dense (Cohere) + Sparse (BM25) hybrid vectors.
+**TeleCopilot AI** is an enterprise-grade, containerized AI **Customer Service Copilot** operating **100% in-memory with zero local data files required**. All data is scraped live directly from online websites (e.g. [**https://www.te.eg/**](https://www.te.eg/)), parsed, and indexed directly into **Qdrant Vector DB** with Dense (Cohere) + Sparse (BM25) hybrid vectors. Features real-time **Server-Sent Events (SSE) token streaming** for instant CSR response generation.
 
 ---
 
@@ -74,7 +74,7 @@ LANGFUSE_SECRET_KEY=your_langfuse_secret_key
 
 ### 3. Run FastAPI Application
 ```bash
-uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
 # or with Docker
 docker-compose up --build
 ```
