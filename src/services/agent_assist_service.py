@@ -282,31 +282,15 @@ class AgentAssistService:
             # ── event: context_ready ─────────────────────────────────────
             yield f"event: context_ready\ndata: {json.dumps(context_meta)}\n\n"
 
-            # 5. Stream tokens from Gemini  (sync iterator → run in thread, yield here)
+            # 5. Stream tokens live from Gemini using native async streaming.
+            #    generate_reply_stream_async() uses generate_content_async(stream=True)
+            #    so each token arrives the instant Gemini produces it — zero buffering.
             gen_start = time.time()
             accumulated_text = ""
 
-            # Run the entire synchronous streaming iterator inside a thread executor
-            # so we never block the event loop. We read one token at a time by
-            # wrapping the generator in a queue-based async bridge.
-            loop = asyncio.get_event_loop()
-            token_queue: asyncio.Queue = asyncio.Queue()
-
-            def _stream_into_queue():
-                """Push tokens from Gemini sync generator into the async queue."""
-                try:
-                    for token in self.gemini_service.generate_reply_stream(customer_query, top_contexts):
-                        loop.call_soon_threadsafe(token_queue.put_nowait, token)
-                finally:
-                    loop.call_soon_threadsafe(token_queue.put_nowait, None)  # sentinel
-
-            # Run the blocking generator in a thread
-            asyncio.get_event_loop().run_in_executor(None, _stream_into_queue)
-
-            while True:
-                token = await token_queue.get()
-                if token is None:  # sentinel — stream finished
-                    break
+            async for token in self.gemini_service.generate_reply_stream_async(
+                customer_query, top_contexts
+            ):
                 accumulated_text += token
                 # ── event: token ─────────────────────────────────────────
                 yield f"event: token\ndata: {json.dumps({'token': token})}\n\n"

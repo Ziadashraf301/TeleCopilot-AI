@@ -1,5 +1,5 @@
 import json
-from typing import Iterator, List, Dict, Any
+from typing import AsyncIterator, Iterator, List, Dict, Any
 from config.settings import get_settings
 from core.logger import get_logger
 from core.singletons import SingletonsManager
@@ -12,10 +12,13 @@ class GeminiService:
     """
     Service for orchestrating Google Gemini LLM synthesis.
     Model configured via settings.LLM_MODEL.
-    Builds grounded prompts with strict policy source citations and drafts polite CSR responses.
-    Supports both structured batch generation (JSON mode) and real-time SSE token streaming.
 
-    Fail-fast: no fallback logic. Any error from the Gemini API propagates immediately.
+    Methods:
+      generate_agent_solution()       — sync, JSON mode, returns full structured dict
+      generate_reply_stream()         — sync iterator, used by batch endpoint only
+      generate_reply_stream_async()   — ASYNC generator, true token-by-token SSE streaming
+
+    Fail-fast: no fallback logic. Any error propagates immediately.
     """
 
     def __init__(self):
@@ -47,8 +50,23 @@ class GeminiService:
             )
         return "".join(parts)
 
+    @staticmethod
+    def _build_stream_prompt(customer_query: str, context_str: str) -> str:
+        return (
+            "You are an expert AI Telecom Customer Support Copilot assisting a human "
+            "Customer Service Representative (CSR).\n"
+            "Analyze the customer problem and verified policies below, and generate a polite, "
+            "empathetic, and professional message ready to send directly to the customer "
+            "explaining the resolution and actionable steps.\n\n"
+            f"CUSTOMER PROBLEM:\n\"{customer_query}\"\n\n"
+            f"VERIFIED COMPANY POLICIES:\n{context_str}\n\n"
+            "Respond with ONLY the polite, empathetic message ready to send to the customer. "
+            "Do NOT include markdown code blocks, JSON tags, or introductory remarks like "
+            "'Here is the reply:'."
+        )
+
     # ------------------------------------------------------------------
-    # Batch JSON synthesis
+    # Batch JSON synthesis  (sync — used by both endpoints via to_thread)
     # ------------------------------------------------------------------
 
     def generate_agent_solution(
@@ -58,10 +76,6 @@ class GeminiService:
     ) -> Dict[str, Any]:
         """
         Call Gemini in JSON mode to synthesise a fully structured CSR solution.
-        Returns a dict with: customer_issue_summary, policy_applied,
-        resolution_status, actionable_agent_steps, suggested_customer_reply,
-        policy_citations, sla_or_credit_details.
-
         Raises on any Gemini API error — no fallback.
         """
         context_str = self._build_context_str(retrieved_contexts)
@@ -79,21 +93,12 @@ VERIFIED COMPANY POLICIES:
 Respond STRICTLY in valid JSON format with the following keys:
 {{
   "customer_issue_summary": "Short 1-sentence summary of what the customer is asking",
-  "policy_applied": "Exact name of policy applied (e.g. Lost SIM Policy / WiFi Troubleshooting Policy / Courtesy Late Fee Waiver Policy)",
+  "policy_applied": "Exact name of policy applied",
   "resolution_status": "APPROVED / IN_PROGRESS / REQUIRES_VERIFICATION / ESCALATE",
-  "actionable_agent_steps": [
-    "Step 1 for the agent to take in CRM",
-    "Step 2 for the agent"
-  ],
-  "suggested_customer_reply": "Polite, empathetic, and professional message ready to send directly to the customer explaining the resolution",
-  "policy_citations": [
-    {{
-      "document": "Document name or source",
-      "section": "Section title",
-      "clause_summary": "Brief rule summary"
-    }}
-  ],
-  "sla_or_credit_details": "Details on fee waivers, delivery times, or dispatch SLAs"
+  "actionable_agent_steps": ["Step 1 for the agent", "Step 2 for the agent"],
+  "suggested_customer_reply": "Polite, empathetic message ready to send to the customer",
+  "policy_citations": [{{"document": "...", "section": "...", "clause_summary": "..."}}],
+  "sla_or_credit_details": "Details on fee waivers, delivery times, or SLAs"
 }}
 """
         response = self.client.generate_content(
@@ -105,7 +110,7 @@ Respond STRICTLY in valid JSON format with the following keys:
         return parsed
 
     # ------------------------------------------------------------------
-    # Streaming reply
+    # Sync streaming  (kept for reference — NOT used by SSE endpoint)
     # ------------------------------------------------------------------
 
     def generate_reply_stream(
@@ -113,28 +118,35 @@ Respond STRICTLY in valid JSON format with the following keys:
         customer_query: str,
         retrieved_contexts: List[Dict[str, Any]],
     ) -> Iterator[str]:
+        """Sync streaming — only use in non-async contexts. Prefer generate_reply_stream_async."""
+        context_str = self._build_context_str(retrieved_contexts)
+        prompt = self._build_stream_prompt(customer_query, context_str)
+        response = self.client.generate_content(prompt, stream=True)
+        for chunk in response:
+            if chunk.text:
+                yield chunk.text
+
+    # ------------------------------------------------------------------
+    # TRUE async streaming  (used by SSE endpoint — real token-by-token)
+    # ------------------------------------------------------------------
+
+    async def generate_reply_stream_async(
+        self,
+        customer_query: str,
+        retrieved_contexts: List[Dict[str, Any]],
+    ) -> AsyncIterator[str]:
         """
-        Stream a conversational CSR draft reply token-by-token using Gemini.
-        Yields raw text chunks as the model generates them.
+        Async generator that streams CSR reply tokens directly from Gemini.
+        Uses generate_content_async(stream=True) so each token is yielded
+        the instant Gemini produces it — no buffering, no thread pool.
 
         Raises on any Gemini API error — no fallback.
         """
         context_str = self._build_context_str(retrieved_contexts)
+        prompt = self._build_stream_prompt(customer_query, context_str)
 
-        prompt = f"""You are an expert AI Telecom Customer Support Copilot assisting a human Customer Service Representative (CSR).
-Analyze the customer problem and verified policies below, and generate a polite, empathetic, and professional message \
-ready to send directly to the customer explaining the resolution and actionable steps.
-
-CUSTOMER PROBLEM:
-"{customer_query}"
-
-VERIFIED COMPANY POLICIES:
-{context_str}
-
-Respond with ONLY the polite, empathetic message ready to send to the customer. \
-Do NOT include markdown code blocks, JSON tags, or introductory remarks like 'Here is the reply:'.
-"""
-        response = self.client.generate_content(prompt, stream=True)
-        for chunk in response:
+        # Native async Gemini streaming — event loop is never blocked
+        response = await self.client.generate_content_async(prompt, stream=True)
+        async for chunk in response:
             if chunk.text:
                 yield chunk.text
