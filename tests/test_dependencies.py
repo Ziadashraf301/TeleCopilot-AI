@@ -15,7 +15,14 @@ from services.ingestion_service import IngestionService
 from services.agent_assist_service import AgentAssistService
 
 
-def test_dependency_injection_singletons():
+@pytest.fixture
+def fake_gemini_client(monkeypatch):
+    """CI has no GEMINI_API_KEY: give GeminiService a stand-in client so wiring can be tested offline."""
+    from core.singletons import SingletonsManager
+    monkeypatch.setattr(SingletonsManager, "get_gemini_client", classmethod(lambda cls: object()))
+
+
+def test_dependency_injection_singletons(fake_gemini_client):
     """Verify dependencies module instantiates and caches singleton instances."""
     repo1 = get_vector_repository()
     repo2 = get_vector_repository()
