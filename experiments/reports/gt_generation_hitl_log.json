@@ -1,0 +1,134 @@
+{
+  "generated_at": "2026-09-14T22:23:01.268607",
+  "total_reviews": 10,
+  "reviews": [
+    {
+      "file_name": "5g_network_device_troubleshooting.html",
+      "file_type": "html",
+      "timestamp": "2026-09-14T22:20:20.856238",
+      "action": "FLAG",
+      "human_score": null,
+      "comment": "Flagged for manual inspection",
+      "flagged_issues": [
+        "Low character coverage: 0.43% (min 10%)"
+      ],
+      "auto_score": 0.0,
+      "verdict": ""
+    },
+    {
+      "file_name": "arabic_enterprise_sla_contracts.xml",
+      "file_type": "xml",
+      "timestamp": "2026-09-14T22:20:20.864239",
+      "action": "FLAG",
+      "human_score": null,
+      "comment": "Flagged for manual inspection",
+      "flagged_issues": [
+        "Low character coverage: 2.48% (min 8%)"
+      ],
+      "auto_score": 0.0,
+      "verdict": ""
+    },
+    {
+      "file_name": "arabic_family_bundles_migration.pdf",
+      "file_type": "pdf",
+      "timestamp": "2026-09-14T22:20:20.866229",
+      "action": "FLAG",
+      "human_score": null,
+      "comment": "Flagged for manual inspection",
+      "flagged_issues": [
+        "Low character coverage: 1.99% (min 2%)"
+      ],
+      "auto_score": 0.0,
+      "verdict": ""
+    },
+    {
+      "file_name": "arabic_router_diagnostics_scan.pdf",
+      "file_type": "pdf",
+      "timestamp": "2026-09-14T22:20:20.868228",
+      "action": "FLAG",
+      "human_score": null,
+      "comment": "Flagged for manual inspection",
+      "flagged_issues": [
+        "Low character coverage: 0.99% (min 2%)"
+      ],
+      "auto_score": 0.0,
+      "verdict": ""
+    },
+    {
+      "file_name": "billing_refund_policy.docx",
+      "file_type": "docx",
+      "timestamp": "2026-09-14T22:20:20.870241",
+      "action": "FLAG",
+      "human_score": null,
+      "comment": "Flagged for manual inspection",
+      "flagged_issues": [
+        "Low character coverage: 0.78% (min 5%)"
+      ],
+      "auto_score": 0.0,
+      "verdict": ""
+    },
+    {
+      "file_name": "cybersecurity_account_fraud_prevention.pdf",
+      "file_type": "pdf",
+      "timestamp": "2026-09-14T22:20:20.873245",
+      "action": "APPROVE",
+      "human_score": null,
+      "comment": "Auto-reviewed based on validation checks",
+      "flagged_issues": [],
+      "auto_score": 0.0,
+      "verdict": ""
+    },
+    {
+      "file_name": "fiber_optic_ftth_installation_guide.docx",
+      "file_type": "docx",
+      "timestamp": "2026-09-14T22:20:20.877242",
+      "action": "FLAG",
+      "human_score": null,
+      "comment": "Flagged for manual inspection",
+      "flagged_issues": [
+        "Low character coverage: 1.11% (min 5%)"
+      ],
+      "auto_score": 0.0,
+      "verdict": ""
+    },
+    {
+      "file_name": "pdf.pdf",
+      "file_type": "pdf",
+      "timestamp": "2026-09-14T22:20:20.879230",
+      "action": "FLAG",
+      "human_score": null,
+      "comment": "Flagged for manual inspection",
+      "flagged_issues": [
+        "Low character coverage: 1.05% (min 2%)"
+      ],
+      "auto_score": 0.0,
+      "verdict": ""
+    },
+    {
+      "file_name": "roaming_passport_travel_rates.xml",
+      "file_type": "xml",
+      "timestamp": "2026-09-14T22:20:20.880229",
+      "action": "FLAG",
+      "human_score": null,
+      "comment": "Flagged for manual inspection",
+      "flagged_issues": [
+        "Low character coverage: 2.84% (min 8%)"
+      ],
+      "auto_score": 0.0,
+      "verdict": ""
+    },
+    {
+      "file_name": "sim_replacement_policy.html",
+      "file_type": "html",
+      "timestamp": "2026-09-14T22:20:20.881229",
+      "action": "FLAG",
+      "human_score": null,
+      "comment": "Flagged for manual inspection",
+      "flagged_issues": [
+        "Low character coverage: 0.68% (min 10%)"
+      ],
+      "auto_score": 0.0,
+      "verdict": ""
+    }
+  ]
+}
