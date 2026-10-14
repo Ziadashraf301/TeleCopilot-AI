@@ -8,6 +8,16 @@ reply to the customer, and citations to the exact sources. It also reports laten
 > The policy documents in `data/raw/` are sample telecom documents (Arabic and English) built for this project.
 > Live pages are scraped from https://www.te.eg/.
 
+![CSR Copilot answering a lost-SIM case](docs/screenshots/03_csr_copilot_answer.png)
+
+---
+
+## Demo
+
+| CSR Copilot: action steps, citations and latency | Knowledge base: indexed sources (Arabic and English) |
+|---|---|
+| ![Action steps, citations and latency breakdown](docs/screenshots/04_csr_copilot_citations.png) | ![Knowledge base sources](docs/screenshots/02_knowledge_base.png) |
+
 ---
 
 ## What it does
@@ -188,9 +198,44 @@ GitHub Actions runs the test suite and builds the Docker image on every push and
 
 ---
 
+## Evaluation (RAGAS)
+
+`experiments/03_rag_evaluation_ragas.ipynb` runs the production pipeline on 13 CSR questions (10 English, 3 Arabic)
+across 8 intents. Every reference answer is taken from the human-verified ground truth in `data/ground_truth/`.
+The notebook uses an embedded Qdrant instance, so the real hybrid RRF search is evaluated.
+
+| Metric | Score |
+|---|---|
+| Source hit rate @3 (correct document in the reranked top 3) | **1.00** |
+| Intent accuracy | **1.00** |
+| Context recall | **0.87** |
+| Answer relevancy | 0.72 |
+| Context precision | 0.69 |
+| Faithfulness | 0.61 |
+| Factual correctness (recall) | 0.61 |
+| Median end-to-end latency | 3.9 s |
+
+![RAGAS scores](experiments/reports/ragas_scores.png)
+
+**What the results show**
+
+- **Retrieval is strong.** The right policy document reached the top 3 for every question, in English and Arabic.
+- **Answers are the weak point.** The suggested reply mixes customer-friendly wording and generic agent steps that are
+  not in the retrieved policy, which lowers faithfulness; some answers also leave out details (for example, not all
+  approval tiers). Faithfulness is lower for Arabic questions (0.43 vs 0.65).
+- **One retrieval miss:** for the bank-OTP-after-SIM-swap question, the chunk with the 24-hour OTP quarantine rule
+  (SEC-88) was not in the top 3, so the answer gave generic troubleshooting.
+
+Judge: `gemini-3.1-flash-lite-preview` (the same model as the app, so scores may be slightly generous), with Cohere
+`embed-multilingual-v3.0` embeddings. Per-question scores are in `experiments/reports/ragas_results.csv`.
+
+---
+
 ## Roadmap
 
+- **Improve answer faithfulness:** a stricter grounding prompt (state only facts from the context, include every
+  fee and threshold found), and a stronger judge model.
+- **Improve retrieval for long scanned PDFs:** chunk by policy rule instead of by page, and test rerank top 5.
 - **Extraction quality evaluation (in progress):** human-verified ground truth for all 10 documents, scored with
   word-level F1, ROUGE-L, entity and number retention, section order (Kendall's tau) and a Gemini LLM-as-a-judge,
   with Arabic normalization.
-- Retrieval and answer evaluation (hit rate, answer relevancy) on a set of real CSR questions.

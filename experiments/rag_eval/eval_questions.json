@@ -1,0 +1,106 @@
+[
+  {
+    "id": "Q01",
+    "language": "en",
+    "intent": "SIM_MANAGEMENT",
+    "source": "sim_replacement_policy.html",
+    "question": "A customer says their phone was just stolen. What must the agent do first, and how is the caller verified before the line is fully suspended?",
+    "reference": "The agent must immediately suspend outgoing calls and data in CRM BSS (Subscriber Services -> Emergency Actions -> Suspend Outgoing (OG) Calls & Data) to prevent fraud and OTP interception. The caller is then authenticated with the full 14-digit Egyptian National ID or passport number registered on the account, the last top-up or bill payment amount and channel (Fawry, WE Pay, credit card), and three frequently dialed numbers or the primary package name. After verification, the line is upgraded to Two-Way Full Barring, and line validity is preserved for 90 days with no recurring package fees."
+  },
+  {
+    "id": "Q02",
+    "language": "en",
+    "intent": "SIM_MANAGEMENT",
+    "source": "sim_replacement_policy.html",
+    "question": "How much does a replacement SIM cost for a lost or stolen line, and can the fee be waived?",
+    "reference": "A lost or stolen SIM replacement costs 50 EGP. The fee can be waived for VIP Indigo Gold and Platinum customers. The customer needs the original National ID of the line owner, and the SIM is activated within 30 minutes."
+  },
+  {
+    "id": "Q03",
+    "language": "en",
+    "intent": "SIM_MANAGEMENT",
+    "source": "sim_replacement_policy.html",
+    "question": "A customer's SIM card burned out two months after it was issued. Do they have to pay for a new one?",
+    "reference": "No. A defective or burned SIM within 90 days of issue is replaced for free (0 EGP), auto-approved after store testing. The customer brings the old physical SIM and their National ID, and activation is instant (within 15 minutes)."
+  },
+  {
+    "id": "Q04",
+    "language": "en",
+    "intent": "SIM_MANAGEMENT",
+    "source": "sim_replacement_policy.html",
+    "question": "Which devices are eligible for eSIM, and what must the agent check before migrating a customer to eSIM?",
+    "reference": "The agent must confirm that the device EID (the 32-digit Embedded Identity Document) is whitelisted in WE BSS. Supported models include iPhone XS and later, Samsung Galaxy S20 and later, and Google Pixel 4 and later."
+  },
+  {
+    "id": "Q05",
+    "language": "en",
+    "intent": "BILLING_AND_PAYMENTS",
+    "source": "billing_refund_policy.docx",
+    "question": "Can I waive a customer's late payment fee, and what are the conditions?",
+    "reference": "Yes. Customers get a one-time courtesy waiver of the late payment fee (15 EGP for home internet or 25 EGP for postpaid mobile) once every 12 rolling months, if the account has been active for at least 6 consecutive months, no more than 1 late fee waiver was applied in the prior 365 days, and the past-due balance is paid in full at the time of the waiver. The CSR applies it directly in CRM with reason code COURTESY_ANNUAL_WAIVER_LATE_FEE, without escalation."
+  },
+  {
+    "id": "Q06",
+    "language": "en",
+    "intent": "BILLING_AND_PAYMENTS",
+    "source": "billing_refund_policy.docx",
+    "question": "A customer paid their bill through Fawry and was charged twice. What should the agent do?",
+    "reference": "Automated gateway settlement happens within 24 hours. If the customer provides the bank transaction reference or SMS receipt, the agent must issue an immediate temporary service extension token for 72 hours to prevent line disconnection while reconciliation finishes. Card debits are refunded to the issuing bank card within 5 to 14 business days."
+  },
+  {
+    "id": "Q07",
+    "language": "en",
+    "intent": "BILLING_AND_PAYMENTS",
+    "source": "billing_refund_policy.docx",
+    "question": "What is the maximum billing credit a frontline CSR can approve, and who approves larger amounts?",
+    "reference": "A frontline CSR can approve up to 100 EGP per transaction. A Senior CSR or Team Leader can approve up to 350 EGP, an Operations Supervisor up to 1,000 EGP, and a Branch or Regional Operations Manager above 1,000 EGP with audit documentation."
+  },
+  {
+    "id": "Q08",
+    "language": "en",
+    "intent": "BROADBAND_INSTALLATION",
+    "source": "fiber_optic_ftth_installation_guide.docx",
+    "question": "During a fiber installation the technician measured -26 dBm. Is that acceptable, and what are the optical power thresholds?",
+    "reference": "-26 dBm is in the acceptable but marginal range (-24.1 to -27.0 dBm, yellow status), which requires cable inspection. The optimal range is -15.0 to -24.0 dBm (green). Worse than -27.1 dBm is defective (red) and needs immediate FAT box re-splicing. Signal stronger than -8.0 dBm risks damaging the ONT receiver. Power is measured with an optical power meter at 1490 nm downstream and 1310 nm upstream."
+  },
+  {
+    "id": "Q09",
+    "language": "ar",
+    "intent": "NETWORK_TECHNICAL_SUPPORT",
+    "source": "5g_network_device_troubleshooting.html",
+    "question": "العميل فعّل الخط لكن الإنترنت لا يعمل على الموبايل. ما هي إعدادات نقطة الوصول APN الصحيحة؟",
+    "reference": "يجب إدخال إعدادات APN يدوياً: الاسم WE Internet، و APN هو we.internet، و Proxy و Port غير محددين، و MCC هو 602، و MNC هو 04، ونوع المصادقة None أو PAP، ونوع APN هو default,supl، والبروتوكول IPv4/IPv6، وبروتوكول التجوال IPv4."
+  },
+  {
+    "id": "Q10",
+    "language": "en",
+    "intent": "ROAMING_AND_INTERNATIONAL",
+    "source": "roaming_passport_travel_rates.xml",
+    "question": "A postpaid customer wants to activate international roaming. What are the requirements?",
+    "reference": "Postpaid consumer accounts need a minimum active tenure of 3 months or a 1,000 EGP refundable deposit to activate international roaming. VIP Indigo Gold and Platinum customers get instant zero-deposit activation."
+  },
+  {
+    "id": "Q11",
+    "language": "en",
+    "intent": "ROAMING_AND_INTERNATIONAL",
+    "source": "roaming_passport_travel_rates.xml",
+    "question": "Is there a limit on data roaming charges if the customer has no Roaming Passport bundle?",
+    "reference": "Yes. Under NTRA consumer protection rules, data roaming without an active Roaming Passport bundle is hard-capped at 250 EGP per billing day, unless the customer explicitly opts in by SMS to continue at pay-as-you-go rates."
+  },
+  {
+    "id": "Q12",
+    "language": "ar",
+    "intent": "ENTERPRISE_B2B_SUPPORT",
+    "source": "arabic_enterprise_sla_contracts.xml",
+    "question": "شركة لديها خط ربط مؤسسي كانت نسبة التشغيل الشهرية له 99.2%. ما نسبة الخصم المستحقة من الفاتورة؟",
+    "reference": "نسبة التشغيل 99.2% تقع في الشريحة أقل من 99.5% وحتى 99.0%، ونسبة الخصم المستحقة هي 25% من القيمة الإيجارية الشهرية."
+  },
+  {
+    "id": "Q13",
+    "language": "en",
+    "intent": "FRAUD_AND_SECURITY",
+    "source": "cybersecurity_account_fraud_prevention.pdf",
+    "question": "After a SIM replacement, why is the customer not receiving bank OTP messages?",
+    "reference": "Under policy rule SEC-88, after any SIM replacement (physical or eSIM), all financial SMS notifications and banking OTPs are held in a mandatory 24-hour quarantine, while voice calls work immediately. The customer also receives a security SMS alert and has a 2-hour window to freeze the line by replying FREEZE if the replacement was unauthorized."
+  }
+]

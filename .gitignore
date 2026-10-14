@@ -2,3 +2,5 @@
 *.pyc
 logs/
 Sprint_2.md
+# Local evaluation run logs
+experiments/reports/*.log

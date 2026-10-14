@@ -1,0 +1,86 @@
+﻿id,language,intent,user_input,response,reference,faithfulness,answer_relevancy,llm_context_precision_with_reference,context_recall,factual_correctness(mode=recall)
+Q01,en,SIM_MANAGEMENT,"A customer says their phone was just stolen. What must the agent do first, and how is the caller verified before the line is fully suspended?","I am very sorry to hear your phone was stolen. I have initiated the emergency suspension of outgoing calls and data to prevent any unauthorized activity. For your security, could you please provide three pieces of verification information so I can fully secure the account for you?
+
+Agent steps:
+- Navigate to CRM BSS -> Subscriber Services -> Emergency Actions and select 'Suspend Outgoing (OG) Calls & Data' immediately.
+- Verify the caller's identity by requesting at least 3 mandatory security checkpoints as per security protocols.","The agent must immediately suspend outgoing calls and data in CRM BSS (Subscriber Services -> Emergency Actions -> Suspend Outgoing (OG) Calls & Data) to prevent fraud and OTP interception. The caller is then authenticated with the full 14-digit Egyptian National ID or passport number registered on the account, the last top-up or bill payment amount and channel (Fawry, WE Pay, credit card), and three frequently dialed numbers or the primary package name. After verification, the line is upgraded to Two-Way Full Barring, and line validity is preserved for 90 days with no recurring package fees.",0.8,0.6288017060936258,0.0,0.3333333333333333,0.36
+Q02,en,SIM_MANAGEMENT,"How much does a replacement SIM cost for a lost or stolen line, and can the fee be waived?","I am sorry to hear that your SIM card was lost or stolen. The replacement fee for a lost or stolen SIM card is 50 EGP. However, this fee can be waived if you are a VIP Indigo Gold or Platinum subscriber. To assist you further, I will need to verify your account details—could you please confirm your National ID number and the last payment details made on the line?
+
+Agent steps:
+- Verify the customer's identity using their 14-digit National ID or passport number.
+- Confirm the customer's subscription tier (e.g., Indigo Gold or Platinum) to check for waiver eligibility.
+- Perform the line suspension protocol if not already completed.
+- Collect the required account details (last payment amount, channel, or frequent contacts) for security validation.","A lost or stolen SIM replacement costs 50 EGP. The fee can be waived for VIP Indigo Gold and Platinum customers. The customer needs the original National ID of the line owner, and the SIM is activated within 30 minutes.",0.75,0.7977945355104002,0.9999999999,1.0,0.6
+Q03,en,SIM_MANAGEMENT,A customer's SIM card burned out two months after it was issued. Do they have to pay for a new one?,"I am sorry to hear your SIM card has stopped working. Since your SIM card was issued less than 90 days ago and is defective, you are eligible for a free replacement. Please visit any official WE store with your National ID and the old SIM card, and our team will be happy to assist you with an instant replacement.
+
+Agent steps:
+- Verify the customer's identity using their National ID.
+- Request the old physical SIM card for store testing.
+- Confirm the issue date was within the last 90 days to process the replacement free of charge.
+- Issue a new Triple-Cut SIM card to the customer.","No. A defective or burned SIM within 90 days of issue is replaced for free (0 EGP), auto-approved after store testing. The customer brings the old physical SIM and their National ID, and activation is instant (within 15 minutes).",0.16666666666666666,0.6721673196168426,0.9999999999,1.0,0.6
+Q04,en,SIM_MANAGEMENT,"Which devices are eligible for eSIM, and what must the agent check before migrating a customer to eSIM?","Thank you for reaching out! To check if your device is eligible for an eSIM, we simply need to verify your device's 32-digit EID against our system. Supported models include iPhone XS and later, Samsung S20 and later, and Google Pixel 4 and later. Once confirmed, we can process your migration for a 100 EGP fee and send your secure QR code via encrypted email after a quick SMS verification.
+
+Agent steps:
+- Verify the customer's device EID (32-digit Embedded Identity Document) in the WE BSS whitelist.
+- Confirm the device model is supported (iPhone XS+, Samsung Galaxy S20+, or Google Pixel 4+).
+- Inform the customer of the 100 EGP issuance fee.
+- Perform SMS 2FA verification before sending the QR code via encrypted PDF or providing a printed voucher.","The agent must confirm that the device EID (the 32-digit Embedded Identity Document) is whitelisted in WE BSS. Supported models include iPhone XS and later, Samsung Galaxy S20 and later, and Google Pixel 4 and later.",0.75,0.7093656612986546,0.9999999999,1.0,1.0
+Q05,en,BILLING_AND_PAYMENTS,"Can I waive a customer's late payment fee, and what are the conditions?","I understand that unexpected fees can be frustrating, and I would be happy to help you with that. We offer a one-time annual courtesy waiver for late fees for our loyal customers. To process this, we just need to ensure your account has been active for at least six months, no similar waiver has been applied in the last year, and your past-due balance is currently paid in full. If you meet these criteria, I can apply that waiver for you right now.
+
+Agent steps:
+- Verify that the customer account has been active for at least 6 consecutive months.
+- Confirm that no other late fee waiver has been applied in the last 365 calendar days.
+- Ensure the customer's past-due balance is paid in full before applying the waiver.
+- Apply the credit in the CRM using the reason code 'COURTESY_ANNUAL_WAIVER_LATE_FEE'.","Yes. Customers get a one-time courtesy waiver of the late payment fee (15 EGP for home internet or 25 EGP for postpaid mobile) once every 12 rolling months, if the account has been active for at least 6 consecutive months, no more than 1 late fee waiver was applied in the prior 365 days, and the past-due balance is paid in full at the time of the waiver. The CSR applies it directly in CRM with reason code COURTESY_ANNUAL_WAIVER_LATE_FEE, without escalation.",0.9090909090909091,0.7049254104015376,0.0,1.0,0.7
+Q06,en,BILLING_AND_PAYMENTS,A customer paid their bill through Fawry and was charged twice. What should the agent do?,"I am very sorry to hear about the double charge you experienced while paying through Fawry. Please provide me with your bank transaction reference or the SMS receipt for this payment. I will immediately issue a 72-hour service extension to your account to ensure your service remains active while the system processes the automated reconciliation. Please note that the reconciliation process completes within 24 hours, and any necessary refunds to your bank card will be finalized within 5 to 14 business days.
+
+Agent steps:
+- Verify the customer's payment proof (bank transaction reference or SMS receipt).
+- Issue an immediate temporary service extension token for 72 hours if the customer's service is at risk of disconnection.
+- Inform the customer that the payment gateway reconciliation process will automatically settle the double-charge within 24 hours.
+- Advise the customer that refunds for card-based payments typically take 5 to 14 business days to reflect on the issuing bank card.","Automated gateway settlement happens within 24 hours. If the customer provides the bank transaction reference or SMS receipt, the agent must issue an immediate temporary service extension token for 72 hours to prevent line disconnection while reconciliation finishes. Card debits are refunded to the issuing bank card within 5 to 14 business days.",0.7,0.7902288662207353,0.0,1.0,0.86
+Q07,en,BILLING_AND_PAYMENTS,"What is the maximum billing credit a frontline CSR can approve, and who approves larger amounts?","Thank you for your inquiry. As a frontline representative, I am authorized to approve billing credits up to 100 EGP per transaction. For any amounts exceeding this, we have a structured escalation process: requests up to 350 EGP can be approved by a Team Leader, up to 1,000 EGP by an Operations Supervisor, and amounts above 1,000 EGP are handled by our Branch or Regional Operations Manager. Please let me know the details of your specific billing concern, and I will be happy to assist you or initiate the necessary escalation.
+
+Agent steps:
+- Inform the customer that the frontline CSR approval limit is 100 EGP per transaction.
+- Explain that amounts exceeding 100 EGP must be escalated to the appropriate higher-level management based on the specific amount.
+- Provide the breakdown of escalation thresholds: Senior CSR/Team Leader (up to 350 EGP), Operations Supervisor (up to 1,000 EGP), and Branch/Regional Operations Manager (above 1,000 EGP).","A frontline CSR can approve up to 100 EGP per transaction. A Senior CSR or Team Leader can approve up to 350 EGP, an Operations Supervisor up to 1,000 EGP, and a Branch or Regional Operations Manager above 1,000 EGP with audit documentation.",1.0,0.7286435474476364,0.9999999999,1.0,0.67
+Q08,en,BROADBAND_INSTALLATION,"During a fiber installation the technician measured -26 dBm. Is that acceptable, and what are the optical power thresholds?","Thank you for reaching out. Regarding your fiber installation, a measurement of -26 dBm is classified as an 'Acceptable' signal, though it is considered marginal. Our guidelines recommend that technicians perform a thorough cable inspection when readings fall in this range to ensure your connection remains stable and avoid potential dropouts. Please confirm if your technician has completed a physical inspection of the fiber line or if you are experiencing any service interruptions.
+
+Agent steps:
+- Inform the customer that -26 dBm falls within the 'Acceptable' (Yellow Status) range.
+- Advise the customer that while this range works, it is considered marginal and requires a physical cable inspection to ensure there are no sharp bends or damage to the fiber line.
+- Verify if the technician has performed the necessary cable inspection to optimize the signal.","-26 dBm is in the acceptable but marginal range (-24.1 to -27.0 dBm, yellow status), which requires cable inspection. The optimal range is -15.0 to -24.0 dBm (green). Worse than -27.1 dBm is defective (red) and needs immediate FAT box re-splicing. Signal stronger than -8.0 dBm risks damaging the ONT receiver. Power is measured with an optical power meter at 1490 nm downstream and 1310 nm upstream.",0.25,0.7657267817201597,0.9999999999,1.0,0.23
+Q09,ar,NETWORK_TECHNICAL_SUPPORT,العميل فعّل الخط لكن الإنترنت لا يعمل على الموبايل. ما هي إعدادات نقطة الوصول APN الصحيحة؟,"أهلاً بك، يسعدني مساعدتك في ضبط إعدادات الإنترنت. يرجى الدخول إلى إعدادات شبكة الهاتف وإضافة نقطة وصول (APN) جديدة بالبيانات التالية: الاسم (WE Internet)، ونقطة الوصول (we.internet)، مع ضبط MCC على 602 و MNC على 04، ونوع الـ APN على (default,supl). بعد حفظ الإعدادات، يرجى إعادة تشغيل هاتفك وستعمل الخدمة معك فوراً.
+
+Agent steps:
+- إرشاد العميل للدخول إلى إعدادات الهاتف (نقطة الوصول APN).
+- تزويد العميل بالبيانات الرسمية لشركة WE (Name: WE Internet, APN: we.internet).
+- التأكد من ضبط الحقول الإضافية (MCC: 602, MNC: 04, APN Type: default,supl).
+- الطلب من العميل حفظ الإعدادات وإعادة تشغيل الهاتف.","يجب إدخال إعدادات APN يدوياً: الاسم WE Internet، و APN هو we.internet، و Proxy و Port غير محددين، و MCC هو 602، و MNC هو 04، ونوع المصادقة None أو PAP، ونوع APN هو default,supl، والبروتوكول IPv4/IPv6، وبروتوكول التجوال IPv4.",0.7142857142857143,0.6012130099016346,0.9999999999,1.0,0.56
+Q10,en,ROAMING_AND_INTERNATIONAL,A postpaid customer wants to activate international roaming. What are the requirements?,"Thank you for reaching out! To activate international roaming, your postpaid account requires a minimum tenure of 3 months or a 1,000 EGP refundable deposit. However, if you are a VIP Indigo Gold or Platinum member, you can enjoy instant activation with no deposit required. Once eligible, you can easily activate your roaming passport bundle by dialing *202# or using the My WE App before or during your trip.
+
+Agent steps:
+- Verify if the customer has been with the company for at least 3 months.
+- Check if the customer belongs to the VIP Indigo Gold or Platinum tiers for instant activation.
+- If the customer does not meet the tenure or VIP criteria, inform them of the 1,000 EGP refundable deposit requirement.
+- Advise the customer to activate roaming via *202# or the My WE App once eligibility is confirmed.","Postpaid consumer accounts need a minimum active tenure of 3 months or a 1,000 EGP refundable deposit to activate international roaming. VIP Indigo Gold and Platinum customers get instant zero-deposit activation.",0.5833333333333334,0.8490844583460152,0.9999999999,1.0,1.0
+Q11,en,ROAMING_AND_INTERNATIONAL,Is there a limit on data roaming charges if the customer has no Roaming Passport bundle?,"Yes, we have bill shock protection in place. If you do not have a Roaming Passport bundle, your data roaming usage is automatically hard-capped at 250 EGP per billing day. Once this limit is reached, your data will pause unless you explicitly opt-in via SMS to continue at standard pay-as-you-go rates. To avoid unexpected charges, we recommend checking our Roaming Passport bundles by dialing *202# or using the My WE App before you travel.
+
+Agent steps:
+- Inform the customer about the 250 EGP hard cap per billing day for data roaming without a bundle.
+- Explain that data usage will pause automatically upon reaching this limit unless they opt-in via SMS to continue at standard pay-as-you-go rates.
+- Recommend subscribing to a Roaming Passport bundle via *202# or the My WE App for more cost-effective options.","Yes. Under NTRA consumer protection rules, data roaming without an active Roaming Passport bundle is hard-capped at 250 EGP per billing day, unless the customer explicitly opts in by SMS to continue at pay-as-you-go rates.",0.5,0.6168581647047077,0.9999999999,1.0,0.8
+Q12,ar,ENTERPRISE_B2B_SUPPORT,شركة لديها خط ربط مؤسسي كانت نسبة التشغيل الشهرية له 99.2%. ما نسبة الخصم المستحقة من الفاتورة؟,"عزيزي العميل، نشكر تواصلكم معنا. بخصوص استفساركم عن نسبة التشغيل الشهرية لخط الربط (99.2%)، نود إعلامكم أنه وفقاً لاتفاقية مستوى الخدمة الخاصة بكم، تستحقون خصماً بنسبة 25% من القيمة الإيجارية الشهرية. سنقوم بتطبيق هذا الخصم على فاتورتكم القادمة فوراً.
+
+Agent steps:
+- التحقق من فاتورة العميل الحالية للتأكد من القيمة الإيجارية الشهرية.
+- تطبيق خصم بنسبة 25% من القيمة الإيجارية الشهرية بناءً على سياسة مستوى الخدمة.
+- إبلاغ العميل بتعديل الفاتورة وتوضيح سبب الخصم وفقاً لنسبة التشغيل المسجلة.",نسبة التشغيل 99.2% تقع في الشريحة أقل من 99.5% وحتى 99.0%، ونسبة الخصم المستحقة هي 25% من القيمة الإيجارية الشهرية.,0.14285714285714285,0.6552153784348271,0.9999999999,1.0,0.5
+Q13,en,FRAUD_AND_SECURITY,"After a SIM replacement, why is the customer not receiving bank OTP messages?","I understand how important it is to receive your banking OTPs, and I apologize for the inconvenience. Please try toggling Airplane Mode on your phone for 30 seconds, or perform a hard reboot. If you are still not receiving these messages after one hour, please let us know so we can perform a network re-synchronization to ensure your new SIM is fully active.
+
+Agent steps:
+- Verify the HLR/HSS status in the network diagnostics tool to ensure the SIM is correctly provisioned.
+- Confirm that the IMSI mapping matches the ICCID printed on the new SIM card.
+- Instruct the customer to toggle Airplane Mode for 30 seconds or perform a full hard reboot of the device.
+- If the issue persists after 1 hour of provisioning, trigger an automated HLR re-synchronization via the CSR Portal.","Under policy rule SEC-88, after any SIM replacement (physical or eSIM), all financial SMS notifications and banking OTPs are held in a mandatory 24-hour quarantine, while voice calls work immediately. The customer also receives a security SMS alert and has a 2-hour window to freeze the line by replying FREEZE if the replacement was unauthorized.",0.7,0.7761588175816996,0.0,0.0,0.0

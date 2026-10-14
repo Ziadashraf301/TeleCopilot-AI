@@ -1,0 +1,13 @@
+{
+  "questions": 13,
+  "source_hit_rate_at_3": 1.0,
+  "intent_accuracy": 1.0,
+  "median_latency_s": 3.87,
+  "faithfulness": 0.613,
+  "answer_relevancy": 0.715,
+  "llm_context_precision_with_reference": 0.692,
+  "context_recall": 0.872,
+  "factual_correctness(mode=recall)": 0.606,
+  "judge_model": "gemini-3.1-flash-lite-preview",
+  "pipeline": "embed-multilingual-v3.0 + BM25 -> Qdrant RRF top5 -> rerank-v3.5 top3 -> gemini-3.1-flash-lite-preview"
+}

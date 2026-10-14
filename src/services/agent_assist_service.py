@@ -1,3 +1,4 @@
+import os
 import time
 import json
 import asyncio
@@ -99,9 +100,15 @@ class AgentAssistService:
     @staticmethod
     def _build_citations(top_contexts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Build citation list from the top 3 reranked chunks."""
+        def display_source(source: str) -> str:
+            # Show only the file name for local documents (never the server's absolute path); keep URLs as-is
+            if source.startswith(("http://", "https://")):
+                return source
+            return os.path.basename(source.replace("\\", "/"))
+
         return [
             {
-                "document": c.get("source", ""),
+                "document": display_source(c.get("source", "")),
                 "source_modality": c.get("source_modality", "LOCAL"),
                 "intent_category": c.get("intent_category", "GENERAL"),
                 "section": c.get("section_title", ""),
