@@ -1,8 +1,9 @@
 import io
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import httpx
 from bs4 import BeautifulSoup
 from pydantic import BaseModel, Field
+from config.settings import get_settings
 from core.logger import get_logger
 from ingestion.base import BaseExtractor, ExtractedDocument
 
@@ -17,8 +18,9 @@ class WebScraperExtractor(BaseExtractor):
     without writing any files to disk.
     """
 
-    def __init__(self, timeout: float = 30.0):
+    def __init__(self, timeout: float = 30.0, verify_ssl: Optional[bool] = None):
         self.timeout = timeout
+        self.verify_ssl = get_settings().SCRAPER_VERIFY_SSL if verify_ssl is None else verify_ssl
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
             "Accept-Language": "ar,en-US;q=0.9,en;q=0.8",
@@ -29,7 +31,7 @@ class WebScraperExtractor(BaseExtractor):
         """Fetches URL and parses content directly in memory."""
         logger.info(f"WebScraper fetching live URL in-memory: {url}")
         try:
-            with httpx.Client(timeout=self.timeout, follow_redirects=True, headers=self.headers, verify=False) as client:
+            with httpx.Client(timeout=self.timeout, follow_redirects=True, headers=self.headers, verify=self.verify_ssl) as client:
                 response = client.get(url)
                 response.raise_for_status()
                 html_content = response.text

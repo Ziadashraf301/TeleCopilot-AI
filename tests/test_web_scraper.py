@@ -20,10 +20,10 @@ def test_web_scraper_html_parsing():
     </html>
     """
     scraper = WebScraperExtractor()
-    doc = scraper._parse_html(html_sample, source_url="https://telecom.com/roaming-faq")
+    doc = scraper._parse_html_in_memory(html_sample, source_url="https://telecom.com/roaming-faq")
 
     assert doc.title == "5G Roaming Support FAQ"
-    assert doc.policy_type == "web_scraped_policy"
+    assert doc.policy_type == "telecom_egypt_web"
     assert len(doc.sections) >= 2
     # Ensure nav and footer were stripped
     assert "Home | Contact" not in doc.raw_text
@@ -34,4 +34,5 @@ def test_web_scraper_html_parsing():
 
     assert len(chunks) >= 2
     assert "https://telecom.com/roaming-faq" in chunks[0].content
-    assert chunks[0].policy_type == "web_scraped_policy"
+    assert chunks[0].policy_type == "telecom_egypt_web"
+    assert chunks[0].intent_category == "PLANS_AND_OFFERS"

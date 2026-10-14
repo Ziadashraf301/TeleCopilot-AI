@@ -48,6 +48,9 @@ class Settings(BaseSettings):
     def langfuse_host_url(self) -> str:
         return self.LANGFUSE_BASE_URL or self.LANGFUSE_HOST or "https://cloud.langfuse.com"
 
+    # Web Scraper
+    SCRAPER_VERIFY_SSL: bool = True
+
     # RAG Tuning Parameters
     RETRIEVAL_TOP_K: int = 5
     RERANK_TOP_N: int = 3

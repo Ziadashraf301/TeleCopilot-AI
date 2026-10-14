@@ -5,7 +5,11 @@ from ingestion.chunkers.policy_chunkers import SIMPolicyChunker
 
 
 def test_html_extractor_and_sim_chunker(tmp_path):
-    """Test HTML policy parsing and chunking workflow."""
+    """Test HTML policy parsing and chunking workflow.
+
+    HTMLExtractor derives policy_type from the file name, so the fixture is
+    named like the real data/raw policy files.
+    """
     html_content = """
     <html>
         <head><title>SIM Replacement Test Policy</title></head>
@@ -18,7 +22,7 @@ def test_html_extractor_and_sim_chunker(tmp_path):
         </body>
     </html>
     """
-    test_file = tmp_path / "test_sim.html"
+    test_file = tmp_path / "sim_replacement.html"
     test_file.write_text(html_content, encoding="utf-8")
 
     extractor = HTMLExtractor()

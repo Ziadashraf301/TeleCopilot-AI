@@ -13,7 +13,8 @@ def test_sparse_embedding_model():
     assert isinstance(sparse_vec, SparseVector)
     assert len(sparse_vec.indices) > 0
     assert len(sparse_vec.values) == len(sparse_vec.indices)
-    assert all(0.0 <= v <= 1.0 for v in sparse_vec.values)
+    # Okapi BM25 TF weights are positive and bounded by (k1 + 1), not by 1.0
+    assert all(0.0 < v <= model.k1 + 1.0 for v in sparse_vec.values)
     # Verify indices are sorted for Qdrant compatibility
     assert sparse_vec.indices == sorted(sparse_vec.indices)
 

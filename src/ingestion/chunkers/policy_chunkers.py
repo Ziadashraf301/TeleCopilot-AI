@@ -1,4 +1,5 @@
 import os
+import re
 from typing import List, Dict, Any
 from langchain_text_splitters import (
     MarkdownHeaderTextSplitter,
@@ -10,6 +11,8 @@ from models.document_models import ExtractedDocument, DocumentChunk
 from core.logger import get_logger
 
 logger = get_logger()
+
+_HTML_HEADER_RE = re.compile(r"<h[1-6][\s>]", re.IGNORECASE)
 
 
 def get_intent_for_policy(policy_type: str) -> str:
@@ -66,10 +69,15 @@ class SIMPolicyChunker(BaseChunker):
         intent = get_intent_for_policy(document.policy_type)
         doc_tag = os.path.basename(document.source_path).replace(".", "_")
 
-        try:
-            html_header_docs = self.html_splitter.split_text(document.raw_text)
-        except Exception:
-            html_header_docs = []
+        # HTMLHeaderTextSplitter only makes sense on real HTML markup. Extractors usually
+        # hand over already-stripped plain text, in which case the structured sections
+        # from the extractor must be used instead (otherwise all headings are lost).
+        html_header_docs = []
+        if _HTML_HEADER_RE.search(document.raw_text or ""):
+            try:
+                html_header_docs = self.html_splitter.split_text(document.raw_text)
+            except Exception:
+                html_header_docs = []
 
         if html_header_docs:
             for doc in html_header_docs:

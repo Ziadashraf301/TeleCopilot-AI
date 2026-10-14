@@ -8,7 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install system dependencies for OCR & PyMuPDF
+# Install build tools needed by some Python dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
@@ -19,10 +19,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application source code
 COPY . .
-
-# Generate sample documents if not present
-RUN python data/make_pdf.py || true
-RUN python data/make_docx.py || true
 
 EXPOSE 8000
 
