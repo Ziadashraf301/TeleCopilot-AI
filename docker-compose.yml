@@ -1,3 +1,5 @@
+# Pinned to the project name Docker derived from the folder before the rename, so existing volumes/containers still match.
+name: telecopilot-ai
 version: '3.8'
 
 services:
