@@ -28,10 +28,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS middleware
+# Browsers may call the API only from the configured origins (was "*", which with credentials is unsafe).
+# The v1 UI is served from this app (same origin) and needs no CORS entry.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
