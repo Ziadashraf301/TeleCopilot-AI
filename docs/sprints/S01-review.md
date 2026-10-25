@@ -88,3 +88,37 @@ gives `[18954, 20557, 76511]` in one process and `[22140, 23136, 44453]` in the 
 process never match queries from another, so BM25 silently contributes noise after any API restart in v1, and on
 **every** query once S01-07 moves ingestion to its own CLI process. Proposal: a stable hash (e.g. `zlib.crc32` or
 `hashlib.blake2b` of the UTF-8 token) + re-index. Changes stored indices only; weights stay the same.
+
+### S01-03 — `experiments/` → `evals/` — ✅ done
+**What changed**
+- `evals/notebooks/` (3 notebooks), `evals/extraction/` (ground truth builder, metrics, LLM judge, HITL),
+  `evals/rag/` (`build_notebook.py`, `eval_questions.json`), `evals/reports/kb/v1/` (HITL log) and
+  `evals/reports/generation/v1/` (RAGAS csv/json/png). `.gitignore` log rule follows the move.
+- Notebook setup cells: `os.chdir(<repo root>)` instead of three `sys.path.insert` calls; `telecopilot` comes from
+  the installed package, `evals` from the repo root. Old imports (`from ingestion…`, `from services…`,
+  `from extraction_eval…`) rewritten; notebook 03 uses the S01-02 constructors (`HybridRetriever`, `sparse_model`).
+- `build_notebook.py` (the generator of notebook 03) got the same edits and now writes into `evals/notebooks/`.
+- `HITLReviewer` default report dir, module docstrings, README and CLAUDE.md point at the new paths.
+
+**Why**
+- *Edit source cells in place, not regenerate*: regenerating notebook 03 with `build_notebook.py` would wipe the
+  saved outputs (the published RAGAS run). I edited only `source` fields via JSON and checked first that a
+  load/save round-trip is byte-identical, so the diff shows only real changes.
+- *chdir instead of sys.path*: the notebooks need the repo root as working directory anyway (`data/`, `.env`), and
+  Jupyter resolves imports from the working directory, so `import evals` works with no path edits (D10).
+- *Reports under `<service>/v1/`*: PLAN.md's `evals/reports/<service>/<stage>/` rule; `v1` marks them as the
+  pre-v2 baseline so Stage A reports won't overwrite them.
+
+**Evidence**
+- `nbformat.validate` passes for all 3 notebooks (they open).
+- Real Jupyter kernels started in `evals/notebooks/` ran the setup + import cells of every notebook: all `ok`
+  (01: cells 2–4; 02: cells 2–3; 03: cell 2 + the import lines of cell 4; cells that call Gemini/Cohere or run
+  ingestion were not executed). In each kernel `os.getcwd()` = repo root and `telecopilot` resolves to `src/telecopilot`.
+- No `experiments` path, `sys.path` edit or old-style import left in the notebooks or eval code (grep).
+- `pytest` 25 passed; ruff clean.
+
+**Behaviour change**: none for the app. Eval reports are now written to `evals/reports/...`.
+
+**Found: no `.dockerignore`** — `COPY . .` copies `.env` (API keys), `.git`, `data/ground_truth`, notebooks and
+local logs into the image. Fixing it in S01-08 (image size is that ticket's criterion; keeping secrets out of the
+image is a hard rule).
