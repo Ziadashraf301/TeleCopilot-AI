@@ -43,3 +43,48 @@ Status: **in progress** (filled ticket by ticket; finalised in S01-09).
 - **Not yet verified**: `docker build` (Docker Desktop not running) — verified in S01-05.
 
 **Behaviour change**: none.
+
+### S01-02 — group into `api / agent / kb / llm` + approved clean-ups — ✅ done
+**What changed** (8 commits, each green on its own)
+1. *Contract tests first* (`tests/test_v1_contract.py` + `tests/golden/*.json`), generated from the code **before**
+   any refactor: the full OpenAPI spec (all 12 endpoints and every request/response schema), the `/solve` JSON, the
+   SSE event sequence, and the outputs of `ingest_file` / `ingest_url` (result dict + every chunk's metadata).
+   Shared fakes moved from `test_controllers.py` to `tests/fakes.py` and a `conftest.py` fixture.
+2. *Moves* (`git mv`): `controllers/` → `api/routers/{assist,ingest,scraper,documents,health}.py`,
+   `dependencies/` → `api/dependencies.py`, `api_models` → `api/schemas.py`; `ingestion/`, `repositories/`,
+   BM25, ingestion service, document models → `kb/`; Cohere/Gemini → `llm/`; `AgentAssistService` →
+   `agent/assist_service.py`. Re-export `__init__.py` files became plain package markers. `tests/test_layers.py`
+   enforces the approved arrows.
+3. *D4.1* `kb/retrieval.py` `HybridRetriever` (embed query, hybrid search, rerank) extracted from `AgentAssistService`.
+4. *D4.2* `IngestionService._index_source`: one extract → chunk → embed → upsert path for URLs and files.
+5. *D4.3* `SparseVectorData` is the only sparse vector type (pinned-weights test committed first).
+6. Deleted the unused sync `GeminiService.generate_reply_stream`.
+
+**Why**
+- *Golden files instead of hand-written asserts*: they compare **everything** (every field, every chunk), so a
+  refactor that silently changes one value fails. Timing fields and absolute paths are excluded (they differ per
+  run/machine). Rejected: relying on the existing controller tests, which only check a few keys.
+- *Empty `__init__.py`*: the re-exports were pass-through code, and importing `kb.models` loaded every extractor
+  (PyMuPDF, clients). Direct imports are explicit and cheap.
+- *Retriever exposes three public steps, not one `retrieve()`*: the service times and traces each step separately
+  (latency breakdown in the JSON). A combined method would have no caller yet (YAGNI); M3's retrieval eval can add it.
+- *Retriever and ingestion take the BM25 model as a constructor argument*: they now share the DI singleton instead
+  of each building its own (dependency inversion; tests can pass any model).
+- *Layer test with `ast`* instead of `import-linter`: ~40 lines, no new dependency. Verified it fails on a planted
+  `kb → api` import.
+- Diagram correction: `api → llm` (DI wiring builds the clients) and `* → config` were real edges missing from the
+  section 3 drawing; added to the design pack.
+
+**Evidence**: `pytest` 25 passed; `ruff check` / `ruff format --check` clean. Golden files unchanged across all
+S01-02 commits (no golden file was regenerated after commit 1). EMPTY-branch test also run against the old
+`IngestionService`: same dicts.
+
+**Behaviour change**: none. (Internal constructor signatures changed: `AgentAssistService(retriever, gemini_service)`,
+`IngestionService(vector_repo, cohere_service, sparse_model)`; the eval notebook call sites are fixed in S01-03.)
+
+**Found: BM25 indices are not stable across processes** (not fixed, needs a decision). `SparseEmbeddingModel` maps
+tokens with Python's built-in `hash()`, which is randomised per process (`PYTHONHASHSEED`). Verified: the same text
+gives `[18954, 20557, 76511]` in one process and `[22140, 23136, 44453]` in the next. Sparse vectors stored by one
+process never match queries from another, so BM25 silently contributes noise after any API restart in v1, and on
+**every** query once S01-07 moves ingestion to its own CLI process. Proposal: a stable hash (e.g. `zlib.crc32` or
+`hashlib.blake2b` of the UTF-8 token) + re-index. Changes stored indices only; weights stay the same.

@@ -66,7 +66,7 @@ Rough calendar: ~48 weeks part-time. Re-plan at every milestone review.
 |---|---|---|---|
 | S01-00 | **Design pack M0**: current vs target folder/package diagram, dependency direction between layers, migration steps, risks | 3 | `docs/design/M0-foundation.md` approved by Ziad |
 | ✅ S01-01 | Add `pyproject.toml` (Python ≥ 3.11), move `src/*` → `src/telecopilot/*`, rewrite imports to `telecopilot.*`, drop `sys.path` hacks | 6 | `pip install -e .` works; `uvicorn telecopilot.api.main:app` serves; all tests green; Dockerfile + CI updated |
-| S01-02 | Group modules: `kb/` (ingestion, chunkers, repositories, retrieval), `llm/` (current Cohere/Gemini services, unchanged), `core/`, `config/`, `api/` | 4 | Same endpoints and JSON shapes; tests green |
+| ✅ S01-02 | Group modules: `kb/` (ingestion, chunkers, repositories, retrieval), `llm/` (current Cohere/Gemini services, unchanged), `core/`, `config/`, `api/` | 4 | Same endpoints and JSON shapes; tests green |
 | S01-03 | Move `experiments/` → `evals/` (notebooks under `evals/notebooks/`, reusable code under `evals/<area>/`) | 2 | Notebooks still open; paths fixed |
 | S01-04 | Settings v2: Postgres/Redis URLs, timeouts, CORS origins; placeholders for provider selection (values keep today's Cohere/Gemini) | 3 | Settings unit tests; `.env.example` updated |
 | S01-05 | `deploy/compose/`: Qdrant, Postgres 16-alpine, Redis 7-alpine, app; root `docker-compose.yml` delegates | 4 | `docker compose up` works as today; image sizes listed in review |
