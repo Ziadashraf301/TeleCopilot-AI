@@ -1,0 +1,22 @@
+# Secrets never enter the image; settings come from the environment at runtime
+.env
+.env.*
+!.env.example
+secrets/
+*.pem
+
+# Not needed to run the app
+.git/
+.github/
+.claude/
+docs/
+evals/
+tests/
+logs/
+data/ground_truth/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.venv/
+*.egg-info/
