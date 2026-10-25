@@ -180,8 +180,10 @@ QDRANT_PORT=6333
 docker compose up --build
 ```
 
-This starts Qdrant (v1.13.0) and the app. On first start, the app ingests all local documents and live pages into
-Qdrant, then serves the dashboard at http://localhost:8000.
+This starts Qdrant (v1.13.0), Postgres 16, Redis 7 and the app (services in `deploy/compose/`). On first start, the
+app ingests all local documents and live pages into Qdrant, then serves the dashboard at http://localhost:8000.
+API keys are read from `.env` at runtime and never copied into the image. If another project already uses a port,
+move ours, e.g. `QDRANT_HOST_PORT=6343 docker compose up` (also `APP_HOST_PORT`, `POSTGRES_HOST_PORT`, `REDIS_HOST_PORT`).
 
 ### 3. Or run locally
 

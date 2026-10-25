@@ -1,0 +1,74 @@
+# Local stack: Qdrant (vectors), Postgres (CRM, tickets, audit), Redis (sessions, pub/sub, jobs), app.
+# Started from the repo root through ../../docker-compose.yml, so paths here are relative to this folder.
+# Host ports can be moved with *_HOST_PORT variables when another project already uses the default.
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.13.0
+    container_name: telco_qdrant
+    ports:
+      - "${QDRANT_HOST_PORT:-6333}:6333"
+      - "${QDRANT_GRPC_HOST_PORT:-6334}:6334"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: telco_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-telecopilot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-telecopilot}
+      POSTGRES_DB: ${POSTGRES_DB:-telecopilot}
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5432}:5432"  # localhost only: for Alembic and the CLI on the host
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: telco_redis
+    ports:
+      - "127.0.0.1:${REDIS_HOST_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  app:
+    build:
+      context: ../..
+    container_name: telco_agent_assist
+    ports:
+      - "${APP_HOST_PORT:-8000}:8000"
+    env_file:
+      - path: ../../.env  # API keys at runtime; never copied into the image (.dockerignore)
+        required: false
+    environment:
+      # Service addresses inside the compose network override whatever .env says for local runs
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: 6333
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-telecopilot}:${POSTGRES_PASSWORD:-telecopilot}@postgres:5432/${POSTGRES_DB:-telecopilot}
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      qdrant:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  qdrant_storage:
+  postgres_data:
