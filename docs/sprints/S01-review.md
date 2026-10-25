@@ -150,3 +150,59 @@ mask a wrong default. `/` (static UI), `/api/v1/policies` (all 10 files found) a
 `pytest` 31 passed; ruff clean.
 
 **Behaviour change**: none (all defaults equal the old hard-coded values).
+
+### S01-08 (dependency part, pulled forward) — pins, extras, `.dockerignore`
+Done before the first image build of the sprint; the rest of S01-08 (CORS, ruff in CI) stays in S01-08.
+- **Why pull it forward**: measured before building. Unpinned, the image would have installed **cohere 7, langfuse 5
+  and pymupdf 2** (major versions the code was never tested with; pymupdf 2 also pulls `onnxruntime`) and
+  downloaded 189 MB. Building now and pinning later would have downloaded most of it twice.
+- Direct deps pinned with `==` to the laptop's tested versions. **Python 3.11 support verified** by resolving the full
+  runtime and dev+eval sets inside `python:3.11-slim` (Linux, 3.11) with `pip install --dry-run --report`: both
+  resolve (a cross-platform dry-run on Windows gives a false `pywin32` conflict, so the check runs on Linux).
+- Removed unused `google-genai`, full `langchain` (only `langchain-text-splitters` is imported) and
+  `python-multipart` (no forms/uploads). Added the S01-06/07 DB deps now (`sqlalchemy`, `alembic`, `psycopg[binary]`,
+  `redis`) so the image is built once this sprint.
+- Extras: `dev` (pytest, pytest-asyncio, ruff), `eval` (ragas, langchain-openai/cohere, pandas, matplotlib,
+  nbformat, ipykernel, python-dotenv, pyyaml).
+- `.dockerignore` keeps `.env`, `.git`, docs, evals, tests and ground truth out of the image.
+- Dockerfile: no apt step at all; all 104 runtime packages ship manylinux wheels (checked: 0 source-only packages).
+- Trade-off: only **direct** deps are pinned; transitive versions can still move. A full lock file (pip-tools/uv)
+  is a proposal for later, not needed at this scale.
+
+### S01-05 — `deploy/compose/` with Postgres + Redis — ✅ done
+**What changed**: `deploy/compose/docker-compose.yml` (qdrant, postgres, redis, app) and a root
+`docker-compose.yml` with `name: telecopilot-ai` + `include:`. README Docker section updated.
+
+**Why**
+- *Same container names, volume and project name for Qdrant*: the existing `telecopilot-ai_qdrant_storage` volume
+  (651 chunks) is picked up unchanged, so `docker compose up` behaves as before (no re-ingestion, no API calls).
+- *Postgres/Redis bound to `127.0.0.1`*: reachable from the laptop (Alembic, CLI) but not from the network.
+- *Healthchecks + `depends_on: service_healthy`*: the app starts only when Postgres and Redis accept connections.
+- *API keys via `env_file` at runtime*: with `.dockerignore` the image holds no secrets; `environment:` overrides
+  service hosts so a `.env` written for local runs (`localhost`) still works in compose.
+- *Host ports as `${X_HOST_PORT:-default}`*: another project on this laptop (`crm_docker`, `restart=always`) holds
+  6333/6334. Rather than stopping someone else's containers, our host ports can be moved per run; defaults are
+  unchanged. Rejected: hard-coding new ports (changes "as today" for everyone).
+- *No Redis volume yet*: Redis holds only short-lived data until M5 (sessions, pub/sub); add persistence with the
+  job queue if it needs it.
+
+**Evidence** (run with `QDRANT_HOST_PORT=6343 QDRANT_GRPC_HOST_PORT=6344` because of the port clash)
+- `docker compose config` valid; volumes resolve to `telecopilot-ai_qdrant_storage` / `telecopilot-ai_postgres_data`.
+- `docker compose up`: postgres + redis healthy; app `/api/health` 200 after 9 s with `live_connection: true`,
+  651 chunks, startup ingestion skipped; UI 200; `/api/v1/policies` finds all 10 files.
+- Inside the container: no `.env`, `telecopilot` imported from site-packages.
+
+**Images** (uncompressed sizes as reported by Docker)
+| Image | Size | Downloaded this sprint |
+|---|---|---|
+| `qdrant/qdrant:v1.13.0` | 189 MB | no (cached; 77 MB compressed if pulled) |
+| `postgres:16-alpine` | 294 MB | no (cached) |
+| `redis:7-alpine` | 39 MB | no (cached) |
+| `python:3.11-slim` (base) | 125 MB | no (cached) |
+| `telecopilot-ai-app` (new) | **709 MB** | 132 MB of wheels (pip) |
+| `telecom-agent-assist:latest` (old v1 image, for comparison) | 977 MB | — |
+
+**Found**: before S01-10, `test_sparse_hybrid.py` / `test_dependencies.py` talk to whatever Qdrant listens on
+`localhost:6333`. On this laptop that is `crm_docker`'s Qdrant, which now contains a `telecom_customer_policies`
+collection with 1 test point. S01-10 makes the tests use in-memory/fake stores; removing that stray collection is
+left to Ziad (it is in another project's database).
