@@ -288,3 +288,23 @@ left to Ziad (it is in another project's database).
 - *Client/server mismatch*: `qdrant-client 1.19.0` warns it is incompatible with server `v1.13.0` (pre-existing:
   the laptop had 1.19 before this sprint). Proposal: move the server to a matching version when M3 touches
   retrieval (one image pull, ~80 MB, needs Ziad's OK), or pin the client to 1.13.x.
+
+### S01-08 — CORS, requirements split, pins, ruff in CI — ✅ done
+The dependency half (pins, extras, unused deps removed, `.dockerignore`, no apt step) was done before the first
+build — see "S01-08 (dependency part, pulled forward)" above. This part:
+- `CORSMiddleware(allow_origins=settings.CORS_ORIGINS)` instead of `"*"`. **Why**: `*` with
+  `allow_credentials=True` lets any website a CSR visits call the API from the CSR's browser. The v1 UI is served by
+  the same app (same origin) and needs no entry; the Reflex app (M1) adds its origin in `.env`.
+- CI: `ruff check .` and `ruff format --check .` before pytest; `setup-python` pip cache keyed on `pyproject.toml`
+  (its default key is `requirements*.txt`, which no longer exists, so the cache step would fail).
+
+**Evidence**
+- `tests/test_cors.py`: preflight from the configured origin → 200 with `access-control-allow-origin`; from another
+  origin → 400 without it.
+- **CI simulated on Python 3.11** (CI itself only runs on push/PR to master, which needs Ziad's OK): in the app image
+  (Python 3.11.17, Linux) with the repo copied in **without `.env`** and no Qdrant reachable: `ruff check` passed,
+  `ruff format --check` 98 files formatted, `pytest` **48 passed**. Downloads: pytest, pytest-asyncio, ruff into the
+  throwaway container (~15 MB).
+- Image: **709 MB vs 977 MB** before (criterion "not larger than before" met).
+
+**Behaviour change**: cross-origin browser requests from origins not in `CORS_ORIGINS` are now refused.
