@@ -122,3 +122,31 @@ process never match queries from another, so BM25 silently contributes noise aft
 **Found: no `.dockerignore`** — `COPY . .` copies `.env` (API keys), `.git`, `data/ground_truth`, notebooks and
 local logs into the image. Fixing it in S01-08 (image size is that ticket's criterion; keeping secrets out of the
 image is a hard rule).
+
+### S01-04 — Settings v2 — ✅ done
+**What changed** (`config/settings.py`, `.env.example`, `tests/test_settings.py`)
+- New: `DATABASE_URL`, `DB_TIMEOUT_S` (5 s), `REDIS_URL`, `REDIS_TIMEOUT_S` (2 s), `CORS_ORIGINS`,
+  `LLM_PROVIDER` / `EMBED_PROVIDER` / `RERANK_PROVIDER`, `DATA_RAW_DIR`, `STATIC_DIR`, `QDRANT_TIMEOUT_S`,
+  `SCRAPER_TIMEOUT_S`.
+- Wired now: Qdrant client timeout, scraper timeout, the three data/static path lookups (`api/main.py`,
+  `api/routers/documents.py`, `kb/ingestion_service.py`). DB/Redis settings are used from S01-06/07, CORS in S01-08.
+
+**Why**
+- *Providers as `Literal["gemini"]` / `Literal["cohere"]`*: a placeholder that accepts any string would let
+  `LLM_PROVIDER=llamacpp` start the app and silently still use Gemini — a hidden fallback. With a `Literal`, an
+  unimplemented or misspelled provider fails at startup; M3 widens the `Literal` when it adds the classes.
+  Rejected: an `Enum` (more code for the same check) and plain `str` (no validation).
+- *Paths relative to the working directory*: the old code looked for `static/` and `data/raw/` next to the source
+  file and fell back to the working directory. In an installed package the first guess points into
+  site-packages, so the fallback was what actually ran. Making that the only rule removes the guesswork and works
+  the same locally (repo root) and in Docker (`/app`).
+- *Suffix `_S` on timeouts*: the unit is in the name, so `5` can't be misread as milliseconds.
+- *Dev credentials in the default `DATABASE_URL`*: they match the local compose Postgres only (no data, not
+  exposed beyond localhost); any real deployment sets `DATABASE_URL` in `.env`. Trade-off noted for the M8
+  security pass.
+
+**Evidence**: settings tests (7) run with `_env_file=None` and a cleaned environment, so the developer `.env` can't
+mask a wrong default. `/` (static UI), `/api/v1/policies` (all 10 files found) and a raw file download return 200.
+`pytest` 31 passed; ruff clean.
+
+**Behaviour change**: none (all defaults equal the old hard-coded values).
