@@ -59,7 +59,9 @@ def get_agent_assist_service() -> AgentAssistService:
 def get_readiness_checks() -> dict[str, ReadinessCheck]:
     """Dependencies /api/ready verifies: every service in the compose stack."""
     return {
-        "qdrant": get_vector_repository().ping,
+        "qdrant": lambda: (
+            get_vector_repository().ping()
+        ),  # built inside the check: a down Qdrant must give 503, not 500
         "postgres": db_session.ping,
         "redis": SingletonsManager.get_redis_client().ping,
     }

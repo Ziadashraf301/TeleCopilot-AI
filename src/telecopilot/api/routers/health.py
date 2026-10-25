@@ -21,7 +21,7 @@ async def health_check(repo: BaseVectorRepository = Depends(get_vector_repositor
         "vector_store": {
             "collection": settings.QDRANT_COLLECTION,
             "indexed_chunks_count": vector_count,
-            "live_connection": getattr(repo, "_is_live", False),
+            "live_connection": True,  # the repository raises when Qdrant is unreachable, so reaching here means live
         },
         "providers": {
             "cohere": bool(settings.COHERE_API_KEY),

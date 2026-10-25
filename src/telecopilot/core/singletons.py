@@ -59,7 +59,7 @@ class SingletonsManager:
                     cls._cohere_client = cohere.ClientV2(api_key=settings.COHERE_API_KEY)
                     logger.info("Cohere Client initialized successfully.")
                 else:
-                    logger.warning("COHERE_API_KEY not set. Fallback mode will be active.")
+                    logger.warning("COHERE_API_KEY not set: Cohere embedding and rerank are unavailable.")
             except Exception as e:
                 logger.error(f"Failed to initialize Cohere client: {e}")
         return cls._cohere_client
@@ -76,7 +76,7 @@ class SingletonsManager:
                     cls._gemini_client = genai.GenerativeModel(settings.LLM_MODEL)
                     logger.info(f"Google Gemini Client initialized with model: {settings.LLM_MODEL}")
                 else:
-                    logger.warning("GEMINI_API_KEY not set. Fallback response generator will be active.")
+                    logger.warning("GEMINI_API_KEY not set: Gemini generation and OCR are unavailable.")
             except Exception as e:
                 logger.error(f"Failed to initialize Gemini client: {e}")
         return cls._gemini_client

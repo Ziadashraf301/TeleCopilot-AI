@@ -1,11 +1,10 @@
-import hashlib
-
 from telecopilot.config.settings import get_settings
-from telecopilot.core.logger import get_logger
 from telecopilot.core.singletons import SingletonsManager
 
-logger = get_logger()
 settings = get_settings()
+
+# Cohere's embed endpoint accepts at most 96 texts per request.
+COHERE_EMBED_BATCH_LIMIT = 96
 
 
 class CohereService:
@@ -13,10 +12,17 @@ class CohereService:
     Service responsible for:
     1. Generating dense embeddings via Cohere API (DENSE_EMBEDDING_MODEL = 'embed-multilingual-v3.0').
     2. Reranking retrieved candidate chunks via Cohere Rerank (RERANK_MODEL = 'rerank-v3.5').
+
+    Fail-fast: any Cohere error propagates. There are no pseudo-embeddings or fake rerank scores, because those
+    would be written into Qdrant (ingestion) or shown to a CSR (rerank) as if they were real.
     """
 
     def __init__(self):
         self.client = SingletonsManager.get_cohere_client()
+        if not self.client:
+            raise RuntimeError(
+                "Cohere client could not be initialised. Ensure COHERE_API_KEY is set correctly in your .env file."
+            )
         self.model = settings.DENSE_EMBEDDING_MODEL
         self.rerank_model = settings.RERANK_MODEL
 
@@ -29,63 +35,25 @@ class CohereService:
         self,
         texts: list[str],
         input_type: str = "search_document",
-        batch_size: int = 96,
+        batch_size: int = COHERE_EMBED_BATCH_LIMIT,
     ) -> list[list[float]]:
-        """Batch generate dense embeddings using embed-multilingual-v3.0,
-        automatically chunking requests to stay within Cohere's 96-text limit.
-        """
-        if not texts:
-            return []
-
-        if self.client:
-            try:
-                all_embeddings: list[list[float]] = []
-
-                for i in range(0, len(texts), batch_size):
-                    batch = texts[i : i + batch_size]
-                    response = self.client.embed(
-                        texts=batch,
-                        model=self.model,
-                        input_type=input_type,
-                        embedding_types=["float"],
-                    )
-                    all_embeddings.extend(response.embeddings.float)
-
-                return all_embeddings
-            except Exception as e:
-                logger.error(f"Cohere embedding failed: {e}. Falling back to deterministic pseudo-embeddings.")
-
-        # Fallback deterministic embedding
-        return [self._generate_fallback_embedding(t) for t in texts]
+        """Batch generate dense embeddings, chunking requests to stay within Cohere's per-request limit."""
+        all_embeddings: list[list[float]] = []
+        for i in range(0, len(texts), batch_size):
+            response = self.client.embed(
+                texts=texts[i : i + batch_size],
+                model=self.model,
+                input_type=input_type,
+                embedding_types=["float"],
+            )
+            all_embeddings.extend(response.embeddings.float)
+        return all_embeddings
 
     def rerank(self, query: str, documents: list[str], top_n: int = 3) -> list[dict]:
         """Rerank candidate document texts using rerank-v3.5."""
         if not documents:
             return []
-
-        if self.client:
-            try:
-                response = self.client.rerank(
-                    model=self.rerank_model, query=query, documents=documents, top_n=min(top_n, len(documents))
-                )
-                results = []
-                for item in response.results:
-                    results.append({"index": item.index, "relevance_score": item.relevance_score})
-                return results
-            except Exception as e:
-                logger.error(f"Cohere rerank failed: {e}. Defaulting to original score ranking.")
-
-        # Fallback ranking
-        return [{"index": i, "relevance_score": 1.0 - (i * 0.1)} for i in range(min(top_n, len(documents)))]
-
-    def _generate_fallback_embedding(self, text: str) -> list[float]:
-        """Creates normalized deterministic 1024-dim vector from text hash."""
-        dim = settings.VECTOR_DIMENSION
-        hash_digest = hashlib.sha256(text.encode("utf-8")).digest()
-        vector = []
-        for i in range(dim):
-            byte_val = hash_digest[i % len(hash_digest)]
-            val = (byte_val / 255.0) - 0.5
-            vector.append(float(val))
-        norm = sum(x**2 for x in vector) ** 0.5
-        return [x / (norm or 1.0) for x in vector]
+        response = self.client.rerank(
+            model=self.rerank_model, query=query, documents=documents, top_n=min(top_n, len(documents))
+        )
+        return [{"index": item.index, "relevance_score": item.relevance_score} for item in response.results]

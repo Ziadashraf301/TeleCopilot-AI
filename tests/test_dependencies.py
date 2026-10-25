@@ -19,14 +19,15 @@ from telecopilot.llm.gemini import GeminiService
 
 
 @pytest.fixture
-def fake_gemini_client(monkeypatch):
-    """CI has no GEMINI_API_KEY: give GeminiService a stand-in client so wiring can be tested offline."""
+def fake_api_clients(monkeypatch):
+    """CI has no API keys: give the Gemini and Cohere services stand-in clients so wiring can be tested offline."""
     from telecopilot.core.singletons import SingletonsManager
 
     monkeypatch.setattr(SingletonsManager, "get_gemini_client", classmethod(lambda cls: object()))
+    monkeypatch.setattr(SingletonsManager, "get_cohere_client", classmethod(lambda cls: object()))
 
 
-def test_dependency_injection_singletons(fake_gemini_client):
+def test_dependency_injection_singletons(fake_api_clients):
     """Verify dependencies module instantiates and caches singleton instances."""
     repo1 = get_vector_repository()
     repo2 = get_vector_repository()
