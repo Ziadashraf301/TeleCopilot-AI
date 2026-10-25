@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from telecopilot.api.routers import assist, documents, health, ingest, scraper
 from telecopilot.config.settings import get_settings
-from telecopilot.core.logger import get_logger
+from telecopilot.core.logger import configure_logging, get_logger
 
 logger = get_logger()
 settings = get_settings()
@@ -14,26 +14,9 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Bootstrap application lifecycle:
-    Scrapes the live website pages and ingests all documents into Qdrant.
-    """
+    """Start-up only configures logging; indexing runs separately (python -m telecopilot.kb.ingest --all)."""
+    configure_logging()
     logger.info(f"Starting {settings.APP_NAME} in {settings.APP_ENV} mode...")
-    try:
-        from telecopilot.api.dependencies import get_ingestion_service, get_vector_repository
-
-        repo = get_vector_repository()
-        ingestion_svc = get_ingestion_service()
-
-        logger.info("Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...")
-
-        if repo.count() > 0:
-            logger.info("Qdrant collection already populated. Skipping startup ingestion.")
-        else:
-            results = ingestion_svc.ingest_all_default_policies()
-            logger.info(f"Website & policy ingestion finished: {len(results)} sources indexed in Qdrant.")
-    except Exception as e:
-        logger.warning(f"Startup website scraping notice: {e}")
     yield
     logger.info("Shutting down application...")
 
