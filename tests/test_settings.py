@@ -9,6 +9,7 @@ V2_KEYS = [
     "CORS_ORIGINS",
     "DATA_RAW_DIR",
     "STATIC_DIR",
+    "LOG_DIR",
     "QDRANT_TIMEOUT_S",
     "DATABASE_URL",
     "DB_TIMEOUT_S",
@@ -40,6 +41,7 @@ def test_defaults_keep_v1_behaviour(clean_env):
     assert settings.SCRAPER_TIMEOUT_S == 30.0  # was the scraper's default argument
     assert settings.DATA_RAW_DIR == Path("data/raw")
     assert settings.STATIC_DIR == Path("static")
+    assert settings.LOG_DIR == Path("logs")  # was hard-coded in the logger
 
 
 def test_defaults_point_at_local_compose_services(clean_env):

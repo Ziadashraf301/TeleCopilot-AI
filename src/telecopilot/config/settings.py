@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     # Paths, relative to the working directory (repo root locally, /app in Docker)
     DATA_RAW_DIR: Path = Path("data/raw")
     STATIC_DIR: Path = Path("static")
+    LOG_DIR: Path = Path("logs")
 
     # Qdrant Vector DB
     QDRANT_HOST: str = "localhost"
