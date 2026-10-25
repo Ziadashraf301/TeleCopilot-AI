@@ -1,0 +1,52 @@
+{
+  "result": {
+    "source_url": "https://www.te.eg/test-page",
+    "document_title": "WE Internet",
+    "policy_type": "telecom_egypt_web",
+    "intent_category": "PLANS_AND_OFFERS",
+    "chunks_count": 2,
+    "vector_types": [
+      "dense_cohere_1024",
+      "sparse_bm25_lexical"
+    ],
+    "status": "SUCCESS"
+  },
+  "chunks": [
+    {
+      "chunk_id": "web_chunk_1",
+      "content": "[SOURCE: LIVE_WEB_SCRAPED] [INTENT: PLANS_AND_OFFERS]\nURL: https://www.te.eg/test-page\nPAGE: WE Internet\nOFFER / PACKAGE DETAILS: Home Internet\nCONTENT:\nSuper Speed 140 Mbps plan costs 650 EGP per month with 400 GB quota.",
+      "source": "https://www.te.eg/test-page",
+      "source_modality": "LIVE_WEB_SCRAPED",
+      "policy_type": "telecom_egypt_web",
+      "intent_category": "PLANS_AND_OFFERS",
+      "section_title": "Home Internet",
+      "page_number": 1,
+      "metadata": {
+        "format": "web_scraped",
+        "intent": "PLANS_AND_OFFERS",
+        "splitter": "LangChain_WebSemanticSplitter",
+        "url": "https://www.te.eg/test-page"
+      },
+      "dense_dim": 1024,
+      "has_sparse": true
+    },
+    {
+      "chunk_id": "web_chunk_2",
+      "content": "[SOURCE: LIVE_WEB_SCRAPED] [INTENT: PLANS_AND_OFFERS]\nURL: https://www.te.eg/test-page\nPAGE: WE Internet\nOFFER / PACKAGE DETAILS: Router\nCONTENT:\nFree VDSL router delivery within 3 working days for new lines.",
+      "source": "https://www.te.eg/test-page",
+      "source_modality": "LIVE_WEB_SCRAPED",
+      "policy_type": "telecom_egypt_web",
+      "intent_category": "PLANS_AND_OFFERS",
+      "section_title": "Router",
+      "page_number": 1,
+      "metadata": {
+        "format": "web_scraped",
+        "intent": "PLANS_AND_OFFERS",
+        "splitter": "LangChain_WebSemanticSplitter",
+        "url": "https://www.te.eg/test-page"
+      },
+      "dense_dim": 1024,
+      "has_sparse": true
+    }
+  ]
+}

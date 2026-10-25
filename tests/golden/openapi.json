@@ -1,0 +1,632 @@
+{
+  "paths": {
+    "/api/agent-assist/solve": {
+      "post": {
+        "tags": [
+          "Agent Assist"
+        ],
+        "summary": "Solve Problem",
+        "description": "Batch RAG endpoint — returns a complete structured JSON solution after the\nfull pipeline (embed → search → rerank → Gemini JSON) completes.\n\nRaises HTTP 500 on any pipeline failure (no silent fallback).",
+        "operationId": "solve_problem_api_agent_assist_solve_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerQueryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentSolutionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/agent-assist/solve/stream": {
+      "post": {
+        "tags": [
+          "Agent Assist"
+        ],
+        "summary": "Solve Problem Stream",
+        "description": "SSE streaming endpoint — yields three event types over text/event-stream:\n\n  event: context_ready  — structured Gemini JSON metadata (action steps, intent, status)\n  event: token          — one text chunk per Gemini streaming token\n  event: done           — final telemetry (latency breakdown, tokens, cost)\n\nHeaders set to prevent any proxy or browser from buffering the stream.\nRaises HTTP 500 on any pipeline failure (no silent fallback).",
+        "operationId": "solve_problem_stream_api_agent_assist_solve_stream_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerQueryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ingest/all": {
+      "post": {
+        "tags": [
+          "Ingestion"
+        ],
+        "summary": "Ingest All Policies",
+        "description": "Triggers in-memory scraping and indexing of all default online Telecom Egypt web pages.",
+        "operationId": "ingest_all_policies_api_ingest_all_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ingest/scrape-url": {
+      "post": {
+        "tags": [
+          "Ingestion"
+        ],
+        "summary": "Scrape And Ingest Url",
+        "description": "Live in-memory Web Scraper endpoint:\nFetches real-time web pages directly over HTTP, chunks content in-memory,\nand indexes into Qdrant vector database (Zero local files created).",
+        "operationId": "scrape_and_ingest_url_api_ingest_scrape_url_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScrapeUrlRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health Check",
+        "description": "System health check verifying API and Vector DB status.",
+        "operationId": "health_check_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/scraper/run": {
+      "post": {
+        "tags": [
+          "Manual Scraper"
+        ],
+        "summary": "Run Manual Scraper",
+        "description": "Manually triggers in-memory scraping of any URL (such as https://www.te.eg/),\nand indexes all sections into Qdrant directly without writing to disk.",
+        "operationId": "run_manual_scraper_api_scraper_run_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManualScrapeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/policies": {
+      "get": {
+        "tags": [
+          "Document Files & Policies"
+        ],
+        "summary": "List Policies",
+        "description": "Return catalog of all 10 raw policy documents with file sizes, formats, and URLs.",
+        "operationId": "list_policies_api_v1_policies_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/raw/{filename}": {
+      "get": {
+        "tags": [
+          "Document Files & Policies"
+        ],
+        "summary": "Get Raw File",
+        "description": "Serve any raw file from data/raw directly with inline Content-Disposition.",
+        "operationId": "get_raw_file_api_v1_files_raw__filename__get",
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Filename"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/preview/{filename}": {
+      "get": {
+        "tags": [
+          "Document Files & Policies"
+        ],
+        "summary": "Get File Preview",
+        "description": "Render document preview as rich HTML for seamless in-page display.\nSupports DOCX (converted to styled HTML), XML (syntax highlighted),\nPDF (embedded viewer wrapper), and HTML (styled iframe content).",
+        "operationId": "get_file_preview_api_v1_files_preview__filename__get",
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Filename"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/download/sim-policy": {
+      "get": {
+        "tags": [
+          "Document Files & Policies"
+        ],
+        "summary": "Get Sim Policy Html",
+        "operationId": "get_sim_policy_html_download_sim_policy_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/download/wifi-policy": {
+      "get": {
+        "tags": [
+          "Document Files & Policies"
+        ],
+        "summary": "Download Wifi Policy Pdf",
+        "operationId": "download_wifi_policy_pdf_download_wifi_policy_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/download/billing-policy": {
+      "get": {
+        "tags": [
+          "Document Files & Policies"
+        ],
+        "summary": "Download Billing Policy Docx",
+        "operationId": "download_billing_policy_docx_download_billing_policy_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AgentSolutionResponse": {
+        "properties": {
+          "customer_issue_summary": {
+            "type": "string",
+            "title": "Customer Issue Summary"
+          },
+          "detected_intent": {
+            "type": "string",
+            "title": "Detected Intent"
+          },
+          "primary_source_modality": {
+            "type": "string",
+            "title": "Primary Source Modality"
+          },
+          "policy_applied": {
+            "type": "string",
+            "title": "Policy Applied"
+          },
+          "resolution_status": {
+            "type": "string",
+            "title": "Resolution Status"
+          },
+          "actionable_agent_steps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Actionable Agent Steps"
+          },
+          "suggested_customer_reply": {
+            "type": "string",
+            "title": "Suggested Customer Reply"
+          },
+          "policy_citations": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyCitation"
+            },
+            "type": "array",
+            "title": "Policy Citations"
+          },
+          "sla_or_credit_details": {
+            "type": "string",
+            "title": "Sla Or Credit Details"
+          },
+          "execution_time_seconds": {
+            "type": "number",
+            "title": "Execution Time Seconds"
+          },
+          "retrieved_chunks_count": {
+            "type": "integer",
+            "title": "Retrieved Chunks Count"
+          },
+          "total_tokens": {
+            "type": "integer",
+            "title": "Total Tokens",
+            "description": "Total prompt and completion tokens processed",
+            "default": 0
+          },
+          "estimated_cost_usd": {
+            "type": "number",
+            "title": "Estimated Cost Usd",
+            "description": "Estimated total execution cost in USD",
+            "default": 0.0
+          },
+          "latency_breakdown": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latency Breakdown",
+            "description": "Execution time breakdown per service in seconds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "customer_issue_summary",
+          "detected_intent",
+          "primary_source_modality",
+          "policy_applied",
+          "resolution_status",
+          "actionable_agent_steps",
+          "suggested_customer_reply",
+          "policy_citations",
+          "sla_or_credit_details",
+          "execution_time_seconds",
+          "retrieved_chunks_count"
+        ],
+        "title": "AgentSolutionResponse",
+        "description": "Structured response synthesized for the Customer Service Representative."
+      },
+      "CustomerQueryRequest": {
+        "properties": {
+          "customer_query": {
+            "type": "string",
+            "minLength": 3,
+            "title": "Customer Query",
+            "description": "Customer's problem or inquiry message"
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id",
+            "description": "Optional CSR session identifier"
+          },
+          "policy_filter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Filter",
+            "description": "Optional policy filter (sim_replacement, wifi_troubleshooting, billing_refund, telecom_egypt_web)"
+          },
+          "intent_filter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intent Filter",
+            "description": "Optional intent filter (SIM_MANAGEMENT, WIFI_TECHNICAL_SUPPORT, BILLING_AND_PAYMENTS, PLANS_AND_OFFERS)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "customer_query"
+        ],
+        "title": "CustomerQueryRequest",
+        "description": "Request payload for CSR problem resolution."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ManualScrapeRequest": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "Web URL to manually scrape and ingest as a data source",
+            "default": "https://www.te.eg/"
+          }
+        },
+        "type": "object",
+        "title": "ManualScrapeRequest",
+        "description": "Request payload for manual URL scraping."
+      },
+      "PolicyCitation": {
+        "properties": {
+          "document": {
+            "type": "string",
+            "title": "Document"
+          },
+          "source_modality": {
+            "type": "string",
+            "title": "Source Modality"
+          },
+          "intent_category": {
+            "type": "string",
+            "title": "Intent Category"
+          },
+          "section": {
+            "type": "string",
+            "title": "Section"
+          },
+          "clause_summary": {
+            "type": "string",
+            "title": "Clause Summary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "document",
+          "source_modality",
+          "intent_category",
+          "section",
+          "clause_summary"
+        ],
+        "title": "PolicyCitation",
+        "description": "Citation metadata identifying source, section, and intent category."
+      },
+      "ScrapeUrlRequest": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "minLength": 8,
+            "title": "Url",
+            "description": "Target website URL to scrape in-memory and index"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "ScrapeUrlRequest",
+        "description": "Request payload for scraping an online URL."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
