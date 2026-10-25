@@ -1,6 +1,7 @@
 # S01 review — M0 Restructure & foundation
 
-Status: **done, waiting for Ziad's review.** Branch `sprint/01-foundation` (not pushed, not merged).
+Status: **done — awaiting merge.** Review accepted by Ziad with one condition (S01-11 + live smoke test), now met.
+Branch `sprint/01-foundation` (not pushed, not merged; Ziad pushes and merges).
 v1 behaviour on success paths is unchanged (golden contract tests: same 12 endpoints, same JSON); behaviour changes
 only on errors (S01-10) and in start-up (ingestion is a separate job, S01-07). M0 exit criteria: new package layout ✅,
 config ✅, Postgres/Redis/Alembic ✅, ingestion as a job ✅, CI ✅ (simulated on 3.11; runs for real on the first PR).
@@ -18,17 +19,16 @@ config ✅, Postgres/Redis/Alembic ✅, ingestion as a job ✅, CI ✅ (simulate
 | S01-07 ingestion CLI + `/api/ready` + logger | ✅ | API start-up never ingests (test + real run on an empty collection); `/api/ready` 200 → 503 (Redis stopped) → 200 |
 | S01-08 CORS, deps split, pins, ruff in CI | ✅ | CORS tests; CI steps; simulated CI on Python 3.11.17 without `.env`: ruff clean, 48 passed |
 | S01-10 remove silent fallbacks | ✅ | Cohere/Qdrant raise; autouse embedded Qdrant in tests; real run with Qdrant down: health 500, ready 503, solve 500 |
+| S01-11 FastEmbed `Qdrant/bm25` + re-index + smoke test | ✅ | indices identical across processes (and Windows vs Linux); IDF collection; keyword ranking tests; language choice measured; re-index 653 points; live AR + EN `/solve` correct |
 | S01-09 review | ✅ | this file; Status table in `docs/SPRINTS.md` |
 
-**Final state**: `pytest` **56 passed in ~10 s** (sprint start: 16 passed in 42 s) · `ruff check` clean ·
-`ruff format --check` 99 files formatted · 35 commits, every message starts with its ticket ID · no secrets,
+**Final state**: `pytest` **66 passed** (also with Hugging Face forced offline and empty caches; sprint start: 16 passed
+in 42 s) · `ruff check` clean · `ruff format --check` clean · every commit message starts with its ticket ID · no secrets,
 `.env` or local absolute paths committed (checked with grep over the sprint diff).
 
 **Not done / not verified**
 - GitHub CI has not run (it runs only on push/PR, which needs Ziad's OK); simulated locally on Python 3.11 instead.
-- `python -m telecopilot.kb.ingest --all` was not run end to end: it calls Gemini OCR + Cohere with live keys and the
-  651 chunks are already indexed. Its logic is unit-tested and it runs in the container (`--help`, exit codes).
-- No live `/solve` call against Gemini/Cohere (cost); covered by the contract tests with fakes.
+- RAGAS was not re-run with the new BM25 (belongs to M3, S09-01).
 
 ## Decisions taken during the sprint
 1. **Golden-file contract tests before refactoring** (S01-02): every field of the v1 responses and ingestion
@@ -57,14 +57,21 @@ config ✅, Postgres/Redis/Alembic ✅, ingestion as a job ✅, CI ✅ (simulate
 | Package metadata for dry-run resolutions, PyPI HEAD requests, registry manifests | — | a few MB |
 | te.eg pages fetched by the S01-01 smoke run (start-up ingestion, before S01-07) | — | < 1 MB |
 | Docker images pulled | — | **none** (qdrant v1.13.0, postgres:16-alpine, redis:7-alpine, python:3.11-slim were cached) |
-| Model weights | — | none (as required) |
+| fastembed 0.9.1 + mmh3 + py-rust-stemmers (laptop; onnxruntime, tokenizers, hf-hub already installed) | laptop | 0.4 MB |
+| Same for the image: fastembed, onnxruntime 1.31 (23.8 MB), huggingface-hub, mmh3, py-rust-stemmers, flatbuffers | Docker pip cache | **25.3 MB** |
+| `Qdrant/bm25` files (stopword lists; downloaded once on the laptop to inspect, then 3 files vendored, 7 KB) | laptop | 30 KB |
+| Model weights | — | none (as required; `Qdrant/bm25` has no weights) |
 
-Image sizes: app **709 MB** (old v1 image 977 MB) · qdrant 189 MB · postgres 294 MB · redis 39 MB · base 125 MB.
+Image sizes: app **780 MB** after S01-11 (709 MB before fastembed/onnxruntime; old v1 image 977 MB) · qdrant 189 MB · postgres 294 MB · redis 39 MB · base 125 MB.
 
 ## Risks found
 | # | Risk | Impact | Status |
 |---|---|---|---|
-| 1 | **BM25 indices use Python's per-process `hash()`** (verified: same text, different indices per process) | Sparse half of hybrid search is noise after any restart and for every CLI-ingested chunk; may explain part of faithfulness 0.61 | **open, needs a decision** (P1) |
+| 1 | BM25 indices used Python's per-process `hash()`, no IDF, TF-weighted queries | Sparse half of hybrid search was noise across processes | **fixed in S01-11** (FastEmbed `Qdrant/bm25`, Qdrant IDF, re-indexed) |
+| 1b | **v1 RAGAS scores (faithfulness 0.61 etc.) were measured with the broken BM25** | v1 numbers understate hybrid retrieval; not comparable with later runs | re-run in M3 (S09-01) on the new index |
+| 1c | Two files named `arabic_*.pdf` (family bundles, router diagnostics) contain **English** text (0% Arabic letters in index and ground truth) while the catalogue lists them as AR with Arabic titles | Arabic coverage is smaller than it looks (only the SLA XML is Arabic); AR/EN eval slices are skewed | M2 (S05-01 source registry: language from content, not file name) |
+| 1d | One Gemini OCR call failed with `SSL: CERTIFICATE_VERIFY_FAILED` (self-signed certificate in chain); retry succeeded | Possible TLS interception on the network (antivirus/proxy); ingestion runs can fail randomly | watch; the CLI exit code made it visible |
+| 1e | Gemini OCR output is not deterministic (router PDF: 69 chunks before, 61 after re-index) | Index content changes between runs | M2 (S05-01 versioning, S06-03 quality checks) |
 | 2 | qdrant-client 1.19 vs server v1.13 (client warns "incompatible") | Subtle API mismatches | open (P4) |
 | 3 | Other quiet degradations: Gemini OCR keeps partial pages, chunker/XML parser fallbacks, singletons swallow client-init errors | Content missing from the index without a failure | open (P3) |
 | 4 | Any image built **before** this sprint contains `.env` (no `.dockerignore` existed) | API keys inside old local images | rotate keys if such an image was ever pushed/shared; consider deleting old images |
@@ -75,10 +82,10 @@ Image sizes: app **709 MB** (old v1 image 977 MB) · qdrant 189 MB · postgres 2
 | 9 | Default `DATABASE_URL` carries local dev credentials | Fine for the local stack only | M8 security pass |
 
 ## Proposals (not built)
-- **P1 — Stable BM25 hash** (`zlib.crc32` of the UTF-8 token) + one re-index. Small and high-value; suggested as the
-  first ticket of S02, or in M2 before any retrieval eval. Changes stored sparse indices only, not weights.
-- **P2 — Run the ingestion CLI once for real** after P1 so the index is consistent, then re-run RAGAS to see whether
-  faithfulness moves.
+- ~~P1 — stable BM25 hash~~ → done properly in S01-11 (FastEmbed `Qdrant/bm25` instead of a patched hash).
+- **P2 — Re-run RAGAS on the new index in M3** (S09-01), next to the v1 numbers, to see how much BM25 changed.
+- **P8 — Arabic normalisation in M2 (S06-02)** for both indexing and queries (alef forms, diacritics, tatweel): the
+  Arabic stemmer maps `إلغاء` and hamza-less `الغاء` to different stems; no measurable effect on today's corpus.
 - **P3 — Fail-loud extraction in M2 (S06-01 / S06-03)**: per-page OCR failures, chunker fallbacks and the XML fallback
   become counted data-quality records instead of warnings; singletons re-raise client-init errors.
 - **P4 — Align Qdrant client and server** in M3 (server image pull ~80 MB, needs Ziad's OK) or pin the client to 1.13.x.
@@ -91,6 +98,8 @@ Image sizes: app **709 MB** (old v1 image 977 MB) · qdrant 189 MB · postgres 2
 ## Local environment notes
 - Our compose stack is still running (`telco_qdrant` on host ports 6343/6344 for this run, `telco_postgres`,
   `telco_redis`, `telco_agent_assist` on 8000). `docker compose stop` stops it; the Qdrant/Postgres volumes are kept.
+- Before the drop, the old collection was saved as a Qdrant snapshot inside our volume
+  (`telecom_customer_policies-3172527913023941-2026-10-25-12-03-19.snapshot`, 7.7 MB); delete it once the merge is final.
 - Other projects' containers (`crm_docker`, `real_estate`) start with Docker Desktop (`restart=always`) and hold
   6333/6334; start ours with `QDRANT_HOST_PORT=6343 QDRANT_GRPC_HOST_PORT=6344 docker compose up` while they run.
 
@@ -445,3 +454,68 @@ partial document when a page's OCR call fails (pages can go missing from the ind
 back to other splitters, the XML extractor falls back to BeautifulSoup, and `core/singletons.py` swallows client
 initialisation errors (the service then raises "not initialised" and the original cause is only in the log).
 Langfuse/tracing warnings are intentional (tracing must not break a request).
+
+### S01-11 — FastEmbed `Qdrant/bm25` with Qdrant-side IDF; re-index; live smoke test — ✅ done
+**What changed**
+- `kb/sparse.py` is now a thin wrapper around FastEmbed `SparseTextEmbedding("Qdrant/bm25")`:
+  `embed_documents(texts)` (BM25 TF weights, k=1.2, b=0.75) for indexing and `embed_query(text)` (weight 1 per unique
+  term) for search. The hand-written model is deleted. Callers: `IngestionService` and `HybridRetriever` (one line each).
+- The Qdrant sparse vector is created with `modifier=IDF`, so Qdrant computes IDF from the collection at query time.
+- Stopword files vendored in `kb/bm25_model/` (from `Qdrant/bm25`, Apache-2.0, revision `22b8d2af`, attribution in its
+  README) and loaded with `specific_model_path`: no Hugging Face download in tests, CI, Docker or at runtime.
+- `fastembed==0.9.1` pinned in runtime deps; `bm25_model/*` shipped as package data.
+- Collection dropped (after a snapshot) and recreated; full re-index with `python -m telecopilot.kb.ingest --all`.
+
+**Why**
+- *Three bugs in the old model*: Python `hash()` is randomised per process (index and queries never matched across
+  processes); no IDF at all despite the docstring; queries weighted like documents. FastEmbed uses murmur3 (stable),
+  sends TF only, and lets Qdrant apply IDF — the standard Qdrant BM25 setup.
+- *IDF in Qdrant, not in Python*: it is computed from the live collection, so it stays correct as documents are added
+  or removed, with no statistics to store or rebuild.
+- *Vendored stopwords*: 7 KB, licence allows it, and it keeps tests offline (hard rule) and the vectors reproducible
+  (a changed upstream stopword list would silently change every sparse vector).
+- *Language setting = "bilingual"* (Arabic Snowball stemmer for Arabic-script tokens, English for the rest, both
+  stopword lists), chosen by measurement — full method and numbers in `evals/reports/kb/s01/bm25_language_choice.md`:
+
+  | Config | All queries hit@1 / hit@3 (34) | EN hit@1 (19) | Arabic chunk found when `ال` toggled (60) |
+  |---|---|---|---|
+  | english | 23 / 25 | 17 | **1** |
+  | arabic | 23 / 24 | **16** | 8 |
+  | **bilingual** | **24 / 25** | 17 | 8 |
+
+  `english` fails on Arabic morphology, `arabic` on English inflections; bilingual matches the better one on every
+  slice. Alef normalisation added nothing measurable here → left to M2 (P8). FastEmbed's tokenizer splits words at
+  **mid-word** diacritics, but the corpus has none (122 chunks have only word-final diacritics, which are dropped).
+- Rejected: patching the old model with a stable hash (still no IDF, still TF-weighted queries, more code to own);
+  BGE-M3 sparse (ADR-4: only if an M3 experiment shows it is clearly better and servable).
+
+**Evidence**
+- Tests (`test_bm25.py`, `test_sparse_hybrid.py`): document and query indices identical in **two separate processes**
+  and in-process (also identical between the laptop and the Linux container); Arabic, English and mixed texts give
+  non-empty vectors (queries weight 1.0); stopwords of both languages dropped; per-script stemming; the collection's
+  sparse vector has `modifier=idf`; keyword queries rank the right chunk first in the embedded Qdrant (`eSIM`,
+  `late fee waiver`, `red LOS light on the router`, the plan name `WE Mix` inside Arabic text, `الباقات العائلية`,
+  `تعويض اتفاقية مستوى الخدمة`); hybrid search follows the sparse leg when dense vectors tie.
+- Full suite: **66 passed**, also with `HF_HUB_OFFLINE=1` and empty HF/FastEmbed caches. ruff clean.
+- Re-index (in the container, Ziad's keys): 14 sources, 13 succeeded on the first run; `arabic_router_diagnostics_scan.pdf`
+  failed with `SSL: CERTIFICATE_VERIFY_FAILED` on a Gemini OCR call, so the CLI exited **1** (fail-loud working);
+  re-running that file succeeded (61 chunks). Collection: **653 points**, sparse `modifier: idf`. Duration ~10 min + 4 min.
+
+**Live smoke test** (compose stack, real Cohere + Gemini, port 8000)
+- `GET /api/ready` → **200** `ready` (qdrant 24 ms, postgres 17 ms, redis 1 ms).
+- **English** — "A customer says their phone was stolen an hour ago and they need a replacement SIM today. What should
+  I do?" → HTTP 200 in 32.2 s (Gemini 26.6 s); intent `SIM_MANAGEMENT`; first step "Suspend Outgoing (OG) Calls & Data"
+  in CRM BSS → Emergency Actions, then identity verification; reply mentions the 50 EGP fee and the VIP waiver.
+  Citations: `sim_replacement_policy.html` §2 (stolen-line suspension), §3 (replacement fees), §7. Matches the verified
+  reference for eval question Q01 (suspend first, then authenticate).
+- **Arabic** — "شركة لديها خط ربط مؤسسي وانخفضت نسبة التشغيل الشهرية إلى 99.2%. ما هو التعويض المستحق…؟" →
+  HTTP 200 in 6.5 s; intent `ENTERPRISE_B2B_SUPPORT`; answer in Arabic: the 99.2% band (below 99.5% down to 99.0%) gives
+  a **25%** discount on the monthly rental, applied in the next billing cycle. Citations: `arabic_enterprise_sla_contracts.xml`
+  (compensation table, contracts table). Matches the verified reference for eval question Q12 exactly.
+- The 26.6 s Gemini time on the English call is far above the 4 s p95 target; Gemini latency is measured properly in M4.
+
+**Behaviour change**: sparse vectors and their scores change (that is the fix); the API, JSON shapes and dense
+retrieval are unchanged. **v1 RAGAS scores were measured with the broken BM25**; re-running RAGAS belongs to M3.
+
+**Downloads**: laptop 0.4 MB (fastembed, mmh3, py-rust-stemmers) + 30 KB (`Qdrant/bm25` files, once); image +25.3 MB
+(onnxruntime 23.8 MB). Measured before installing; image 709 → 780 MB.
