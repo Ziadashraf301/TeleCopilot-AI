@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<title>TeleCopilot v2 Feasibility</title>
+<style>
+@page { size: A4; margin: 13mm 13mm 13mm 13mm; }
+:root { --ink:#1b2430; --muted:#5b6675; --accent:#0b6e6e; --accent2:#c2410c; --line:#d9e0e6; --soft:#f2f6f7; --ok:#15803d; --warn:#b45309; --bad:#b91c1c; }
+* { box-sizing: border-box; }
+body { font-family: "Segoe UI", Tahoma, Arial, sans-serif; color: var(--ink); font-size: 9.7pt; line-height: 1.45; margin:0; background:#fff; }
+.ar { direction: rtl; text-align: right; }
+.en { direction: ltr; text-align: left; }
+h1,h2,h3 { margin: 0 0 6px; line-height:1.25; }
+h2 { font-size: 16pt; color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 4px; margin-top: 4px; }
+h2 .en-t { float:left; font-size: 11pt; color: var(--muted); font-weight: 500; padding-top:6px; }
+h3 { font-size: 11.5pt; color: var(--ink); margin-top: 12px; }
+p { margin: 4px 0 8px; }
+section { page-break-before: always; }
+section.first { page-break-before: auto; }
+.cover { height: 260mm; display:flex; flex-direction:column; justify-content:space-between; }
+.cover .band { background: linear-gradient(135deg,#0b6e6e,#0e4f63); color:#fff; padding: 34px 30px; border-radius: 10px; }
+.cover h1 { font-size: 30pt; letter-spacing: .5px; }
+.cover .sub { font-size: 14pt; opacity:.92; margin-top: 6px; }
+.cover .sub-ar { font-size: 15pt; margin-top: 14px; direction: rtl; text-align:right; }
+.meta { color: var(--muted); font-size: 10pt; }
+.kpis { display:grid; grid-template-columns: repeat(4,1fr); gap:10px; margin: 10px 0 12px; }
+.kpi { border:1px solid var(--line); border-radius:8px; padding:10px; background: var(--soft); text-align:center; }
+.kpi b { display:block; font-size: 17pt; color: var(--accent); }
+.kpi span { font-size: 8.8pt; color: var(--muted); }
+table { width:100%; border-collapse: collapse; margin: 6px 0 10px; font-size: 8.6pt; page-break-inside: auto; }
+tr { page-break-inside: avoid; }
+th { background: var(--accent); color:#fff; font-weight:600; padding:5px 6px; text-align:left; }
+td { border-bottom: 1px solid var(--line); padding:3px 6px; vertical-align: top; }
+tr:nth-child(even) td { background: #fafcfc; }
+table.ar th, table.ar td { text-align:right; }
+.box { border-radius:8px; padding:10px 12px; margin: 8px 0; border:1px solid var(--line); background: var(--soft); page-break-inside: avoid; }
+.box.verdict { border-color: var(--accent); background:#e8f4f3; }
+.box.warn { border-color:#f0c48a; background:#fff7ec; }
+.tag { display:inline-block; padding:1px 7px; border-radius:10px; font-size:8.3pt; font-weight:600; color:#fff; }
+.g { background: var(--ok); } .y { background: var(--warn); } .r { background: var(--bad); } .b { background:#1d4ed8; }
+.two { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+ul { margin: 4px 0 8px; padding-inline-start: 20px; }
+li { margin: 2px 0; }
+code, .mono { font-family: Consolas, "Courier New", monospace; font-size: 8.8pt; }
+pre { font-family: Consolas, monospace; font-size: 8.4pt; background:#0f1b24; color:#d8e6ee; padding:10px; border-radius:8px; direction:ltr; text-align:left; white-space:pre; line-height:1.4; page-break-inside: avoid; }
+.wire { display:grid; grid-template-columns: 1.1fr 1.3fr 1.2fr; gap:6px; direction:ltr; font-size:8.6pt; margin:8px 0; }
+.wire .top { grid-column: 1 / 4; background:#0e4f63; color:#fff; border-radius:6px; padding:6px 10px; }
+.pane { border:1.5px solid var(--accent); border-radius:6px; padding:7px; min-height: 120px; background:#fff; }
+.pane h4 { margin:0 0 4px; font-size:9.2pt; color: var(--accent); }
+.pane .row { border-bottom:1px dashed var(--line); padding:2px 0; }
+.pane.ai { border-color: var(--accent2); background:#fff8f3; }
+.pane.ai h4 { color: var(--accent2); }
+.phase { display:grid; grid-template-columns: 70px 1fr; gap:8px; border-bottom:1px solid var(--line); padding:6px 0; page-break-inside: avoid; }
+.phase .n { background: var(--accent); color:#fff; border-radius:6px; text-align:center; padding:6px 0; font-weight:700; height: fit-content; }
+.small { font-size: 8.6pt; color: var(--muted); }
+.footer-note { font-size:8.3pt; color: var(--muted); margin-top: 8px; }
+pre{font-size:7.3pt;padding:8px}
+section.tight{font-size:8.8pt;line-height:1.38} section.tight td{padding:2px 5px} section.tight h3{margin-top:7px} section.tight .box{padding:6px 10px;margin:5px 0} section.tight .pane{min-height:100px}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="band en">
+    <div class="meta" style="color:#cfe7e7">Portfolio project · Production-ready at small scale</div>
+    <h1>TeleCopilot AI v2</h1>
+    <div class="sub">Feasibility Study &amp; Execution Plan<br>From a RAG demo to an open-source, omnichannel CSR agent-assist product</div>
+    <div class="sub-ar">دراسة جدوى وخطة تنفيذ: من RAG demo لمنتج Agent Assist حقيقي لموظفي خدمة العملاء، بموديلات Open-Source</div>
+  </div>
+  <div class="ar">
+    <h3>محتويات التقرير</h3>
+    <table class="ar">
+            <tr><td>1</td><td>الملخص التنفيذي</td></tr>
+<tr><td>2</td><td>تقييم المشروع الحالي</td></tr>
+<tr><td>3</td><td>المشكلة من ناحية البيزنس</td></tr>
+<tr><td>4</td><td>المنافسين: المميزات والأسعار</td></tr>
+<tr><td>5</td><td>الخطوة 1: القنوات وشاشة الموظف</td></tr>
+<tr><td>6</td><td>الخطوة 2: قاعدة المعرفة من بيانات حقيقية</td></tr>
+<tr><td>7</td><td>الخطوة 3: مسار المهارات</td></tr>
+<tr><td>8</td><td>الموديلات والهاردوير والتكلفة: Local أولًا</td></tr>
+<tr><td>9</td><td>القياس: جودة كل خدمة + KPIs + Load Testing</td></tr>
+<tr><td>10</td><td>المعمارية وهيكلة المشروع</td></tr>
+<tr><td>11</td><td>الجاهزية للإنتاج</td></tr>
+<tr><td>12</td><td>طريقة الشغل</td></tr>
+<tr><td>13</td><td>الـ Milestones والمخاطر</td></tr>
+    </table>
+  </div>
+  <div class="meta en">Prepared October 2026 · v3 (25 Oct 2026: milestone order, 5 models, design-first, code quality, bilingual UI) · Learning + portfolio project (telecom) · Author: Ziad Ashraf · Repo: TeleCopilotAi (branch master, commit 5a3b0e7)</div>
+</div>
+
+<!-- 1 SUMMARY -->
+<section>
+  <h2 class="ar">1. الملخص التنفيذي <span class="en-t">Executive Summary</span></h2>
+  <div class="ar">
+    <p>الفكرة بتحل مشكلة حقيقية وموجودة في السوق: منتجات زي Google CCAI Agent Assist وSalesforce Einstein وZendesk AI Copilot وMicrosoft Copilot for Service بتتباع لنفس الهدف. شركات الاتصالات بتقيس النجاح بـ <b>AHT</b> (متوسط وقت المكالمة)، و<b>FCR</b> (حل المشكلة من أول تواصل)، ووقت تدريب الموظف الجديد، وأخطاء الـ compliance.</p>
+    <p>المشروع الحالي <b>RAG knowledge assistant</b> قوي في الـ retrieval، لكنه لسه مش <b>agent-assist product</b>: الموظف بيكتب المشكلة بنفسه في شاشة منفصلة، ومفيش customer context ولا memory ولا قنوات ولا tickets. الخطة دي بتقفل الفجوة دي في 3 خطوات، وكل حاجة شغالة على موديلات open-source بننشرها بنفسنا.</p>
+  </div>
+  <div class="kpis en">
+    <div class="kpi"><b>1.00</b><span>Retrieval hit@3 today</span></div>
+    <div class="kpi"><b>0.61</b><span>Faithfulness today (weak)</span></div>
+    <div class="kpi"><b>RTX 2050</b><span>Stage A runs on a 4 GB laptop GPU</span></div>
+    <div class="kpi"><b>$0 → $10</b><span>Free tiers first, $10 cap</span></div>
+  </div>
+  <div class="box ar"><b>النطاق:</b> المشروع ده للتعلّم والـ portfolio: Agent Assist لـ contact center شركة اتصالات واحدة.</div>
+  <div class="box verdict ar">
+    <b>الحكم النهائي (Verdict): المشروع ممكن تنفيذه — Feasible بنسبة عالية.</b>
+    <ul>
+      <li>تقنيًا: كل الأجزاء ليها بدائل open-source ناضجة (vLLM، BGE-M3، faster-whisper، LangGraph، MCP SDK).</li>
+      <li>العائق الأساسي هو <b>الهاردوير المحلي</b> (RTX 2050، 4GB VRAM) و<b>كوتة الإنترنت</b>. القرار: <b>Local-first</b>. كل خدمة لازم تشتغل الأول على اللابتوب بموديلات صغيرة (≤3B GGUF) ونقيس جودتها وأقصى capacity ليها، وبعد كده ننقل لـ GPUs مجانية (Kaggle/Colab) ثم بحد أقصى $10.</li>
+      <li>العائق التاني هو <b>الداتا</b>: مفيش داتا CRM أو محادثات حقيقية متاحة، فهنعمل synthetic data بجودة مراجَعة يدويًا، ونستخدم صفحات وPDFs حقيقية من مصادر عامة للـ KB.</li>
+      <li>مستوى "production صغير" (20–100 موظف، شركة واحدة) يقدر يوصل لـ ~90% من الـ checklist. الـ 10% الباقية (SSO مؤسسي، تكامل حقيقي مع Siebel/Genesys، شهادات أمان) خارج نطاق الـ portfolio.</li>
+    </ul>
+  </div>
+  <h3 class="ar">القرارات النهائية (اتاخدت 25 أكتوبر 2026)</h3>
+  <table class="en">
+    <tr><th>#</th><th>Decision</th><th>Why</th></tr>
+    <tr><td>1</td><td><b>Local-first:</b> every service works on the 4 GB laptop GPU first, with quality, business-KPI and load-test reports = the baseline. Then free cloud GPUs, then max <b>$10</b></td><td>Proof of the base solution and its max capacity before spending anything</td></tr>
+    <tr><td>2</td><td><b>Milestone order:</b> restructure → <b>UI + CRM data</b> → <b>KB &amp; data pipelines</b> → models → generation → channels → agent → speech → hardening → cloud</td><td>UI defines the data; good data before any model</td></tr>
+    <tr><td>3</td><td>UI = <b>Reflex</b> (Python full-stack) agent desktop: inbox + conversation + customer 360 + copilot panel</td><td>Whole project stays in Python; matches how CSRs work</td></tr>
+    <tr><td>4</td><td>WhatsApp <b>simulator first</b> in the exact Meta Cloud API format; real API later on the free test number</td><td>Free, testable; switching = one adapter</td></tr>
+    <tr><td>6</td><td><b>Design first:</b> each milestone starts with a design pack (architecture + sequence diagrams, ERD, explained decisions) approved by Ziad</td><td>Understand and approve before code</td></tr>
+    <tr><td>7</td><td><b>Five open models</b> (LLM, embedding, reranker, ASR, vision/OCR) from the Hugging Face Hub, chosen in M3 on Egyptian dialect / code-switching / Franco evals</td><td>Real Egyptian usage, not only leaderboards</td></tr>
+    <tr><td>8</td><td><b>Code quality:</b> SOLID, DRY, KISS/YAGNI, no anti-patterns, ruff; a report per ticket explaining what and why</td><td>Maintainable code you can read and learn from</td></tr>
+    <tr><td>9</td><td><b>Bilingual UI</b> (Arabic RTL + English), clean style from the Figma "Chat UI" reference, no emojis/robot look</td><td>Real CSR tool for Egyptian teams</td></tr>
+    <tr><td>5</td><td>Voice: <b>both</b> live calls (browser WebRTC via LiveKit, no paid numbers) and recordings / WhatsApp voice notes</td><td>Covers the highest-volume channel at $0</td></tr>
+  </table>
+</section>
+
+<!-- 2 AUDIT -->
+<section>
+  <h2 class="ar">2. تقييم المشروع الحالي <span class="en-t">Current-State Audit</span></h2>
+  <div class="ar"><p>قريت الكود كله: حوالي 3,400 سطر Python في <code>src/</code>، و11 ملف tests، و3 notebooks للـ eval، وUI ثابتة (HTML/JS/CSS ~2,100 سطر).</p></div>
+  <div class="two">
+    <div>
+      <h3 class="en">Strengths ✔</h3>
+      <ul class="en">
+        <li>Clean layering: controller → service → repository, factories, DI, singletons</li>
+        <li>Multi-format ingestion (HTML, XML, DOCX, scanned/Arabic PDF via OCR, live web)</li>
+        <li>Hybrid retrieval: dense + BM25, RRF, rerank; filters by intent/format</li>
+        <li>Structured JSON output + SSE streaming</li>
+        <li>Langfuse tracing with latency, tokens and cost</li>
+        <li>Real evaluation: ground truth, extraction metrics, RAGAS (AR + EN)</li>
+        <li>Docker Compose + GitHub Actions CI</li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="en">Gaps ✘</h3>
+      <ul class="en">
+        <li>UI is a single "type the problem" form — not how CSRs work</li>
+        <li>No customer, ticket, conversation or channel model; no database besides Qdrant</li>
+        <li>No memory (session or customer), no tools/actions, no agent loop</li>
+        <li>Fully tied to paid APIs (Cohere, Gemini); no provider abstraction</li>
+        <li>KB is 10 synthetic docs (~2 MB each, padded) + 4 scraped pages</li>
+        <li>Faithfulness 0.61, Arabic 0.43; judge = same model (biased)</li>
+        <li>No auth, PII masking, audit log, rate limits; CORS <code>*</code></li>
+        <li>Startup ingestion inside the API process; no job queue</li>
+      </ul>
+    </div>
+  </div>
+  <h3 class="en">Scorecard against a small-production bar</h3>
+  <table class="en">
+    <tr><th>Area</th><th>Today</th><th>Target v2</th><th>Note</th></tr>
+    <tr><td>Retrieval quality</td><td><span class="tag g">Good</span></td><td>Keep ≥ 0.9 hit@3 on a bigger real KB</td><td>Small KB makes 1.00 easy</td></tr>
+    <tr><td>Answer grounding</td><td><span class="tag y">Weak</span></td><td>Faithfulness ≥ 0.85</td><td>Stricter prompt, claim checking, citations per sentence</td></tr>
+    <tr><td>Product fit (CSR workflow)</td><td><span class="tag r">Missing</span></td><td>Agent desktop + channels</td><td>Biggest change</td></tr>
+    <tr><td>Agent / tools / memory</td><td><span class="tag r">Missing</span></td><td>LangGraph + 8–10 tools + 3 memory types</td><td>—</td></tr>
+    <tr><td>Speech</td><td><span class="tag r">Missing</span></td><td>Recordings + voice notes → transcript → assist</td><td>Egyptian WER measured</td></tr>
+    <tr><td>Open-source deploy</td><td><span class="tag r">Missing</span></td><td>vLLM / llama.cpp / TEI profiles</td><td>Learning goal</td></tr>
+    <tr><td>Security &amp; compliance</td><td><span class="tag r">Missing</span></td><td>Auth, roles, PII masking, audit</td><td>Must-have for any real pilot</td></tr>
+    <tr><td>Eval &amp; CI</td><td><span class="tag y">Partial</span></td><td>Harness + regression gate</td><td>Notebooks → scripts</td></tr>
+    <tr><td>Code structure</td><td><span class="tag g">Good</span></td><td>Modular packages</td><td>Restructure, don't rewrite</td></tr>
+  </table>
+</section>
+
+<!-- 3 BUSINESS -->
+<section>
+  <h2 class="ar">3. المشكلة من ناحية البيزنس <span class="en-t">How CSRs Really Work</span></h2>
+  <div class="ar">
+    <h3>يوم الموظف في الحقيقة</h3>
+    <p>الموظف بيبدأ الشيفت بـ login على الـ <b>agent desktop</b> (Genesys / Avaya / NICE / Salesforce Service Cloud / Zendesk، أو CRM داخلي زي Siebel في شركات الاتصالات المصرية). بيحط حالته "Available"، والـ <b>ACD / routing</b> بيوزّع عليه المكالمات والشاتات والتيكتس حسب المهارة واللغة. لما تواصل يوصل، بتفتح قدامه شاشة فيها بيانات العميل (customer 360): الرقم، الباقة، الرصيد، آخر فواتير، والتيكتس المفتوحة.</p>
+    <h3>الحل الأساسي اللي بيتعمل النهاردة (The naive baseline)</h3>
+  </div>
+  <table class="en">
+    <tr><th>Step</th><th>Baseline (no AI)</th><th>Typical time</th><th>With TeleCopilot v2</th></tr>
+    <tr><td>Understand problem</td><td>Listen / read, ask follow-ups</td><td>30–90 s</td><td>Live intent + summary from the transcript</td></tr>
+    <tr><td>Look up customer</td><td>Click through CRM tabs, billing system</td><td>30–60 s</td><td>Tools fetch plan, bills, outages, past tickets automatically</td></tr>
+    <tr><td>Find the policy</td><td>Keyword search KB, read a long PDF, ask a team lead</td><td>60–180 s</td><td>Grounded answer + citation + next-best-action</td></tr>
+    <tr><td>Write the reply</td><td>Type or use canned macros</td><td>30–90 s</td><td>Draft reply in the customer's dialect, one-click insert</td></tr>
+    <tr><td>Take action</td><td>Create ticket, apply credit, escalate</td><td>30–120 s</td><td>Pre-filled action, CSR approves</td></tr>
+    <tr><td>Wrap-up (ACW)</td><td>Write notes, pick disposition code</td><td>30–90 s</td><td>Auto summary + disposition, CSR confirms</td></tr>
+  </table>
+  <div class="box ar">
+    <b>القيمة المتوقعة:</b> تقليل AHT بنسبة 10–25% (أرقام منشورة من vendors زي Google وSalesforce، ومحتاجة تتأكد عندنا بالـ eval)، وأكبر توفير بييجي من الـ <b>after-call work</b> والبحث في السياسات. الموظف الجديد بيبقى productive أسرع، والـ supervisor بيشوف معدل قبول الاقتراحات (acceptance rate) كمؤشر جودة.
+  </div>
+  <h3 class="ar">ليه الـ Memory مهمة للبيزنس؟</h3>
+  <ul class="ar">
+    <li><b>Repeat contacts:</b> "دي تالت مرة العميل يشتكي من قطع الـ ADSL الشهر ده" → escalation أو تعويض بدل نفس الخطوات تاني.</li>
+    <li><b>Handover:</b> العميل كلّم على WhatsApp امبارح والنهاردة بيتصل → الموظف الجديد يشوف الملخص من غير ما يسأل من الأول.</li>
+    <li><b>CSR feedback:</b> لو الموظف عدّل الرد المقترح أو رفضه، ده بيتسجل ويتحول لداتا لتحسين الـ KB والـ prompts.</li>
+  </ul>
+  <h3 class="ar">التكلفة مقابل العائد (مثال 50 موظف)</h3>
+  <table class="en">
+    <tr><th>Item</th><th>Estimate</th></tr>
+    <tr><td>Contacts / month</td><td>50 CSRs × 60 contacts × 22 days ≈ 66,000</td></tr>
+    <tr><td>Time saved at 1 min / contact</td><td>~1,100 CSR-hours / month ≈ 6–7 full-time CSRs</td></tr>
+    <tr><td>Self-hosted inference</td><td>1× L40S/A100 in the cloud ≈ $600–1,800 / month, or on-prem one-off ≈ $10–20k</td></tr>
+    <tr><td>Conclusion</td><td>Pays back even at Egyptian salary levels if AHT drops ≥ 5–8%</td></tr>
+  </table>
+  <p class="small en">Estimates are order-of-magnitude, based on public vendor claims and typical GPU prices; validate with the AHT simulation in Phase 4.</p>
+</section>
+
+
+<!-- 4 COMPETITORS -->
+<section>
+  <h2 class="ar">4. المنافسين: المميزات والأسعار <span class="en-t">Competitors &amp; Pricing</span></h2>
+  <div class="ar"><p>الأسعار دي من بحث أكتوبر 2026. أغلبها من مقالات تسعير لطرف تالت، فهي تقريبية ولازم تتراجع على صفحة الشركة الرسمية قبل أي استخدام. أسعار Google بس هي اللي من الصفحة الرسمية.</p></div>
+  <h3 class="en">Global platforms</h3>
+  <table class="en">
+    <tr><th>Product</th><th>Pricing model</th><th>Price (approx.)</th><th>Agent-assist features</th></tr>
+    <tr><td><b>Zendesk Copilot</b></td><td>Per-agent add-on on a Suite plan</td><td><b>$50</b>/agent/mo + Suite Team $55 or Professional $115</td><td>Reply drafts, ticket summaries, next actions; the autonomous bot is billed per resolution</td></tr>
+    <tr><td><b>Salesforce Agentforce Service</b></td><td>Per user + usage credits</td><td>Editions <b>$25–550</b>/user/mo; Agentforce add-on ~$125; ~<b>$2</b>/conversation or $0.10/action</td><td>Service replies, summaries, knowledge answers, autonomous agents; data and voice cost extra</td></tr>
+    <tr><td><b>Google Agent Assist</b> (Gemini Enterprise for CX)</td><td>Pay per use</td><td>Chat <b>$0.002–0.003</b>/message, voice <b>$0.03–0.05</b>/min, summary $0.006/session</td><td>Live suggestions, knowledge assist, smart reply, summaries, transcription; you bring the contact-centre platform</td></tr>
+    <tr><td><b>Microsoft Copilot for Service</b> (Dynamics 365)</td><td>Bundled per user</td><td>~<b>$105</b>/user/mo (Enterprise); Premium ~$195; Contact Center ~$110</td><td>Copilot in the Dynamics desktop: answers, email drafts, summaries, Copilot Credits</td></tr>
+    <tr><td><b>Genesys Cloud CX</b></td><td>Per-agent tier + AI tokens</td><td><b>$75–240</b>/user/mo</td><td>Agent Copilot, voice + digital, QA, supervisor copilot</td></tr>
+  </table>
+  <h3 class="en">Arabic-first players in MENA (the real local competition)</h3>
+  <table class="en">
+    <tr><th>Company</th><th>Market</th><th>Offer</th><th>Price</th></tr>
+    <tr><td>Maqsam</td><td>Jordan, KSA, Gulf</td><td>Arabic AI contact centre: voice + WhatsApp</td><td>On request</td></tr>
+    <tr><td>Velents / Agent.sa</td><td>Egypt + KSA</td><td>Arabic-dialect AI on calls and WhatsApp; in-country data</td><td>On request</td></tr>
+    <tr><td>ZIWO</td><td>KSA (hosted in KSA)</td><td>Arabic-first AI voice agent</td><td>~$0.25/min + platform fees</td></tr>
+    <tr><td>Faheemly</td><td>KSA, Egypt, Gulf</td><td>Arabic customer-service AI</td><td>SAR 299 / 499 / 699 per month</td></tr>
+  </table>
+  <div class="box verdict ar">
+    <b>التموضع (Positioning):</b> TeleCopilot مش بديل لـ Zendesk أو Genesys. هو <b>Arabic-first, self-hosted agent-assist layer</b> بيتركب جنب أي منصة. الشركات الكبيرة تكلفتها <b>$75–240 للموظف في الشهر</b>، وتقديرنا للـ self-hosted حوالي <b>$12–36 للموظف</b> (50 موظف على GPU واحد).
+    <ul>
+      <li><b>نقط قوتنا:</b> اللهجة المصرية والـ Franco، الـ data residency والـ on-prem، مفيش platform lock-in (adapters + MCP)، وأدوات خاصة بالاتصالات (line test، outage، قواعد الباقات).</li>
+      <li><b>مميزات لازم تبقى موجودة لأن العملاء بيتوقعوها:</b> reply drafts، summaries، next-best-action، إجابات بمصادر، transcription للمكالمات، وتكلفة لكل contact.</li>
+      <li><b>مش هننافس فيه:</b> منصة contact center كاملة (routing، WFM، شهادات compliance).</li>
+    </ul>
+  </div>
+  <p class="small en">Sources: zendesk.com/sg/pricing · richpanel.com · getmacha.com · kayako.com · cosupport.ai · cloud.google.com/agent-assist/pricing · o365hq.com · ringly.io · gartner.com (Maqsam) · middleeastainews.com (Velents) · ziwo.io · capterra (Faheemly). Intercom Fin, Arabot and Widebot were not found in this search.</p>
+</section>
+
+<!-- 5 CHANNELS + UI -->
+<section class="tight">
+  <h2 class="ar">5. الخطوة 1: القنوات وشاشة الموظف <span class="en-t">Channels &amp; Agent Desktop</span></h2>
+  <div class="ar"><p>دي أول خطوة لأنها بتغير شكل المشروع كله: الـ copilot مش هيستقبل سؤال، هيستقبل <b>محادثة</b> من قناة، ومعاها عميل وتيكت.</p></div>
+  <h3 class="en">Channel options for the Egyptian market</h3>
+  <table class="en">
+    <tr><th>Channel</th><th>Share in EG telco (est.)</th><th>How we integrate</th><th>Cost to us</th><th>AI skill it unlocks</th><th>Priority</th></tr>
+    <tr><td>Tickets / Email / web form</td><td>Medium</td><td>Own ticket tables (Postgres); IMAP inbox or form on landing page</td><td>Free</td><td>Triage, intent, priority, draft, SLA</td><td><span class="tag g">P1</span></td></tr>
+    <tr><td>WhatsApp Business</td><td>High &amp; growing</td><td><b>Simulator first</b> in the exact Cloud API webhook/JSON format; later Meta's free test number (few verified recipients)</td><td>Free test tier; per-conversation fees in prod</td><td>Live assist, Franco-Arabic, voice notes (STT)</td><td><span class="tag g">P1</span></td></tr>
+    <tr><td>Web / app chat</td><td>Medium</td><td>Own widget on a sample landing page via WebSocket; bot-first then human handover</td><td>Free</td><td>Bot → human handover, live assist</td><td><span class="tag b">P2</span></td></tr>
+    <tr><td>Voice: call recordings</td><td>Highest volume</td><td>Upload WAV/MP3 → STT → diarisation → assist + summary</td><td>Free (GPU time)</td><td>Speech, summarisation, QA</td><td><span class="tag b">P2</span></td></tr>
+    <tr><td>Voice: live calls</td><td>Highest volume</td><td>Browser WebRTC softphone (self-hosted LiveKit) + streaming STT; customer simulator in a 2nd tab</td><td>Free self-hosted; harder</td><td>Real-time streaming assist</td><td><span class="tag b">P2</span></td></tr>
+    <tr><td>Facebook / Instagram DMs</td><td>Medium</td><td>Same Meta adapter as WhatsApp</td><td>Free</td><td>Reuse</td><td><span class="tag y">P3</span></td></tr>
+  </table>
+  <div class="box ar"><b>القرار:</b> نبدأ بـ Tickets + WhatsApp simulator (بنفس format الـ Cloud API، فالتحويل للـ API الحقيقي adapter واحد). في الصوت هنعمل الاتنين: voice notes وتسجيلات، ومكالمات لايف من المتصفح بـ WebRTC (LiveKit) من غير أرقام تليفون مدفوعة. حدود الـ test number المجاني لازم تتراجع وقت التنفيذ.</div>
+  <div class="box ar"><b>الواجهة:</b> عربي وإنجليزي بالكامل (Arabic RTL mirroring + English LTR، ملفات ترجمة <code>ar.json</code>/<code>en.json</code>، اختيار اللغة محفوظ لكل موظف). الستايل من Figma "Chat UI": خلفية زرقاء فاتحة، كروت بيضا، أزرق أساسي <code>#1E6FDB</code>، 3 أعمدة، من غير emojis ولا شكل روبوت. التفاصيل في <code>docs/design/ui-reference/STYLE_GUIDE.md</code>.</div>
+  <h3 class="en">Agent desktop wireframe</h3>
+  <div class="wire">
+    <div class="top">TeleCopilot Desk (Reflex) &nbsp;|&nbsp; Ziad · ● Available &nbsp;|&nbsp; Queue: 7 waiting · SLA risk 2 &nbsp;|&nbsp; AR / EN</div>
+    <div class="pane"><h4>Inbox &amp; Conversation</h4>
+      <div class="row">🟢 WhatsApp · Mona · "el net wa2ef men embare7" · 02:14</div>
+      <div class="row">📞 Call rec. · +20 10x · Billing · 05:40</div>
+      <div class="row">✉ Ticket #4821 · Router · SLA 3h</div>
+      <div class="row">💬 Web chat · Ahmed · Roaming</div>
+      <div class="row" style="margin-top:6px"><b>Mona:</b> النت واقف من امبارح والراوتر لمبة الـ LOS حمرا</div>
+      <div class="row"><b>CSR:</b> …</div>
+    </div>
+    <div class="pane"><h4>Customer 360 &amp; Ticket</h4>
+      <div class="row">Mona A. · FTTH 100 Mbps · Plan "Super 250GB"</div>
+      <div class="row">Balance OK · Last bill 450 EGP (paid)</div>
+      <div class="row">⚠ Area outage: none · Line test: LOS</div>
+      <div class="row">History: 2 tickets this month (router)</div>
+      <div class="row">Ticket: [Technical ▾] [High ▾] [Assign field visit]</div>
+      <div class="row">Memory: "Prefers WhatsApp, Egyptian Arabic, replaced ONT in Sep"</div>
+    </div>
+    <div class="pane ai"><h4>Copilot</h4>
+      <div class="row">Intent: FTTH_NO_SERVICE (0.93)</div>
+      <div class="row">⚠ Repeat contact (3rd) → offer escalation</div>
+      <div class="row">Next action: book field visit (tool: create_visit)</div>
+      <div class="row">Policy: FTTH guide §4.2 · SLA 24h [cite]</div>
+      <div class="row">Draft reply (EG Arabic): "يا أستاذة منى، آسفين جدًا…" [Insert]</div>
+      <div class="row">[Approve visit] [Edit] [Reject]</div>
+    </div>
+  </div>
+  <table class="en">
+    <tr><th>Screen</th><th>Contents</th><th>Phase</th></tr>
+    <tr><td>Login + shift</td><td>Role (CSR / supervisor / admin), status, skills, languages</td><td>1</td></tr>
+    <tr><td>Unified inbox</td><td>All channels, SLA timers, priority, filters, assignment</td><td>2</td></tr>
+    <tr><td>Workspace</td><td>3 panes above; copilot updates on every new customer message</td><td>2–4</td></tr>
+    <tr><td>Wrap-up</td><td>Auto summary, disposition code, follow-up, CSR confirms</td><td>4</td></tr>
+    <tr><td>KB admin</td><td>Sources, freshness, re-index, failed extractions</td><td>3</td></tr>
+    <tr><td>Supervisor</td><td>Queue, AHT, FCR proxy, copilot acceptance rate, eval dashboard</td><td>6</td></tr>
+  </table>
+</section>
+
+<!-- 5 KB DATA -->
+<section>
+  <h2 class="ar">6. الخطوة 2: قاعدة المعرفة من بيانات حقيقية <span class="en-t">Real KB Data (AR + EN)</span></h2>
+  <div class="ar"><p>الـ KB الحالية 10 ملفات synthetic (حجم كل واحد ~2MB لأنها padded) + 4 صفحات من te.eg. الهدف: KB أكبر من مصادر <b>عامة حقيقية</b>، بصيغ متنوعة زي اللي في الشركات فعلًا، مع تاريخ وإصدار لكل مصدر.</p></div>
+  <table class="en">
+    <tr><th>Source (public)</th><th>Language</th><th>Formats</th><th>Content</th><th>Notes</th></tr>
+    <tr><td>WE (te.eg)</td><td>AR + EN</td><td>HTML, PDF</td><td>Offers, FAQs, home internet, T&amp;Cs</td><td>Already scraped (4 pages)</td></tr>
+    <tr><td>Vodafone Egypt</td><td>AR + EN</td><td>HTML, PDF</td><td>Plans, roaming, eSIM, FAQs</td><td>Check robots.txt; JS-rendered pages</td></tr>
+    <tr><td>Orange Egypt / e&amp; Egypt</td><td>AR + EN</td><td>HTML, PDF</td><td>Plans, bundles, terms</td><td>Same</td></tr>
+    <tr><td>NTRA (regulator)</td><td>AR</td><td>PDF (text + scanned)</td><td>Consumer protection, QoS, SIM registration rules</td><td>Gives "policy" authority + scanned Arabic</td></tr>
+    <tr><td>Router/ONT manuals (Huawei, ZTE, TP-Link)</td><td>EN</td><td>PDF with tables/images</td><td>LED meanings, reset, config</td><td>Great for troubleshooting intents</td></tr>
+    <tr><td>Own internal SOPs (written by us)</td><td>AR + EN</td><td>DOCX, XLSX, XML, JSON</td><td>Refund tiers, escalation matrix, disposition codes</td><td>Mark clearly as synthetic</td></tr>
+  </table>
+  <h3 class="en">Formats to support (mirrors a real company)</h3>
+  <table class="en">
+    <tr><th>Format</th><th>Now</th><th>Add</th><th>Open-source extractor</th></tr>
+    <tr><td>HTML / live web</td><td>✔</td><td>JS rendering, change detection</td><td>httpx + BeautifulSoup; Playwright for JS pages</td></tr>
+    <tr><td>Text PDF</td><td>via Gemini OCR</td><td>Native text first, OCR only when needed</td><td>PyMuPDF, Docling</td></tr>
+    <tr><td>Scanned PDF (Arabic)</td><td>Gemini Vision</td><td>Local OCR</td><td>Vision/OCR model chosen in M3 (candidates: QARI-OCR, Qwen2.5-VL Arabic fine-tunes; Tesseract / PaddleOCR baselines)</td></tr>
+    <tr><td>DOCX / XML</td><td>✔</td><td>—</td><td>python-docx, lxml</td></tr>
+    <tr><td>XLSX price tables</td><td>✘</td><td>Row-aware chunks</td><td>openpyxl / pandas</td></tr>
+    <tr><td>FAQ JSON / CSV</td><td>✘</td><td>One Q&amp;A per chunk</td><td>stdlib</td></tr>
+    <tr><td>Audio (calls)</td><td>✘</td><td>Transcripts as conversation data, not KB</td><td>ASR model chosen in M3</td></tr>
+  </table>
+  <h3 class="en">Synthetic data we must generate</h3>
+  <table class="en">
+    <tr><th>Dataset</th><th>Size (target)</th><th>How</th><th>Quality control</th></tr>
+    <tr><td>Customers + plans + bills + usage</td><td>500 customers</td><td>Faker <code>ar_EG</code> + rules</td><td>Schema constraints</td></tr>
+    <tr><td>Ticket history</td><td>2,000 tickets</td><td>Templates + LLM</td><td>Intent distribution check</td></tr>
+    <tr><td>Conversations (EG Arabic / Franco / English / mixed)</td><td>600 conversations</td><td>LLM role-play from scenarios</td><td>Hand-check 100 → eval set</td></tr>
+    <tr><td>Call audio</td><td>40–60 short calls</td><td>Record ourselves + open TTS</td><td>Manual transcripts → WER</td></tr>
+    <tr><td>Eval Q&amp;A per KB source</td><td>150+ questions</td><td>From ground truth</td><td>Human verified (existing HITL tool)</td></tr>
+  </table>
+  <div class="box warn ar"><b>تنبيه:</b> الداتا العربية المصرية للمحادثات نادرة جدًا علنًا. الـ Franco-Arabic والـ code-switching هم أصعب اختبار للموديلات المفتوحة، فلازم eval مخصص ليهم. أي scraping لازم يحترم الـ robots.txt والشروط، ويتذكر المصدر في الـ README.</div>
+  <p class="small en">Public datasets to borrow from: Bitext customer-support (EN, partial AR), ABCD (action-based dialogues), MASSIVE (AR intents), Twitter Customer Support (EN telco brands), Common Voice / MGB-3 (Egyptian speech).</p>
+</section>
+
+<!-- 6 SKILLS -->
+<section>
+  <h2 class="ar">7. الخطوة 3: مسار المهارات <span class="en-t">Open-Source Skill Track</span></h2>
+  <div class="ar"><p>كل مهارة لازم تحل مشكلة حقيقية في المنتج، مش مجرد demo. الجدول ده بيربط كل مهارة بالمشكلة والموديل والمقياس.</p></div>
+  <table class="en">
+    <tr><th>Skill</th><th>Product problem</th><th>Open-source stack</th><th>Success metric</th></tr>
+    <tr><td><b>Speech</b></td><td>Transcribe calls and WhatsApp voice notes in Egyptian dialects with code-switching; who-said-what</td><td>ASR chosen in M3 (candidates: Cohere Transcribe Arabic, Egyptian Whisper fine-tunes, faster-whisper), VAD, diarisation</td><td>WER / CER on our recorded Egyptian calls</td></tr>
+    <tr><td><b>RAG</b></td><td>Grounded policy answers, fresh offers, AR + EN, queries in dialect / Franco</td><td>Embedding + reranker chosen in M3 (BGE-M3, Qwen3-Embedding, Arabic GATE; bge-reranker-v2-m3, Qwen3-Reranker), Qdrant hybrid</td><td>hit@3, faithfulness ≥ 0.85, freshness</td></tr>
+    <tr><td><b>Agent</b></td><td>Per turn: understand → fetch context → decide → draft</td><td>LangGraph + LLM chosen in M3 (candidates: Nile-Chat-4B for Egyptian + Franco, NileChat-3B, Qwen)</td><td>Task success on scenario set</td></tr>
+    <tr><td><b>Tool calling</b></td><td>get_customer, get_bills, check_outage, line_test, create_ticket, book_visit, apply_credit (≤ limit), escalate</td><td>vLLM with Hermes/Qwen tool parser; JSON-schema tools</td><td>Tool-selection + argument accuracy ≥ 0.9</td></tr>
+    <tr><td><b>MCP</b></td><td>Expose CRM / KB / tickets as standard servers any agent (or Claude Desktop) can use</td><td>Python MCP SDK, 3 servers</td><td>Same tool eval passes through MCP</td></tr>
+    <tr><td><b>Memory</b></td><td>Session state; per-customer long-term summary; CSR feedback</td><td>Redis (session), Postgres + pgvector (customer memory), event log</td><td>Repeat-contact detection; no stale/false memories</td></tr>
+    <tr><td><b>Context engineering</b></td><td>Fit transcript + customer + policies + memory into 8–32k tokens; keep latency low</td><td>Token budgeter, rolling summaries, prefix caching in vLLM</td><td>Tokens/turn, p95 latency</td></tr>
+    <tr><td><b>Eval</b></td><td>Know if a change made it better or worse, AR and EN separately</td><td>RAGAS, own metrics, open judge (Qwen 32B / Prometheus-2), Langfuse datasets</td><td>Dashboard + CI gate</td></tr>
+    <tr><td><b>Harness</b></td><td>Replay recorded conversations end-to-end, offline and in CI</td><td>pytest harness, recorded fixtures, simulated customer bot</td><td>Deterministic regression runs</td></tr>
+    <tr><td><b>Guardrails</b></td><td>No refunds above limit, identity check before SIM swap, PII masking</td><td>Policy rules + Presidio-style masking; LLM never writes without CSR approval</td><td>0 unsafe actions in red-team set</td></tr>
+  </table>
+  <h3 class="en">Agent loop (one customer message)</h3>
+<pre>customer msg ─► channel adapter ─► Conversation store ─► (voice? STT) ─► Copilot graph
+                                                                      │
+   ┌──────────────── context builder: transcript summary + customer 360 + memory ─┘
+   ▼
+ intent + slots ─► plan ─► tools (MCP: crm / billing / outage / kb_search / tickets)
+   ▼
+ grounded draft + next action + citations ─► guardrails ─► Copilot panel ─► CSR approves / edits
+   ▼
+ log suggestion + CSR decision ─► memory update ─► eval dataset</pre>
+</section>
+
+<!-- 8 MODELS & COST -->
+<section>
+  <h2 class="ar">8. الموديلات والهاردوير والتكلفة: Local أولًا <span class="en-t">Five Models &amp; Local-First Stages</span></h2>
+  <div class="ar"><p>محتاجين <b>5 موديلات مفتوحة</b> من <b>Hugging Face Hub</b>. الاختيار في M3 بعد شغل الداتا، على <b>test sets بتاعتنا</b>: لهجات مصرية مختلفة (قاهري، إسكندراني، صعيدي، ريفي)، وعربي مخلوط بإنجليزي (code-switching)، وFranco، ومصطلحات اتصالات.</p></div>
+  <table class="en">
+    <tr><th>Role</th><th>Used for</th><th>Starting candidates (verify in M3)</th><th>Stage A placement</th></tr>
+    <tr><td><b>LLM</b></td><td>Understand, draft grounded replies, tool calls</td><td>Nile-Chat-4B (Egyptian, Arabic + Latin script), NileChat-3B, Qwen small</td><td>llama.cpp, GPU, GGUF Q4</td></tr>
+    <tr><td><b>Embedding</b></td><td>Search vectors</td><td>BGE-M3, Qwen3-Embedding (small), Arabic GATE models</td><td>CPU</td></tr>
+    <tr><td><b>Reranker</b></td><td>Re-order top results</td><td>bge-reranker-v2-m3, Qwen3-Reranker</td><td>CPU</td></tr>
+    <tr><td><b>ASR</b></td><td>Calls, recordings, voice notes</td><td>Cohere Transcribe Arabic (top open model on the multi-dialect Arabic ASR leaderboard), Egyptian Whisper fine-tunes, faster-whisper</td><td>GPU or CPU int8</td></tr>
+    <tr><td><b>Vision / OCR</b></td><td>Scanned Arabic PDFs, tables</td><td>QARI-OCR (2B, Arabic), Qwen2.5-VL Arabic fine-tunes, Tesseract / PaddleOCR</td><td>Offline batch</td></tr>
+  </table>
+  <p class="small en">Criteria: quality on our evals → fits hardware → licence → speed and download size → community health. Evidence: model cards, OALL, Open Universal Arabic ASR Leaderboard, MTEB, papers; shortlist built with the Hugging Face MCP server. Details: docs/design/MODEL_SELECTION.md.</p>
+  <table class="en">
+    <tr><th>Stage</th><th>Hardware</th><th>Serving</th><th>Cost</th></tr>
+    <tr><td><b>A. Local baseline</b></td><td>Laptop RTX 2050 4 GB + CPU</td><td>llama.cpp (LLM), CPU embed/rerank, ASR int8, OCR as batch</td><td>$0</td></tr>
+    <tr><td><b>B. Free cloud GPU</b></td><td>Kaggle (T4×2 / P100, ~30 GPU-h/week), Colab free, Modal / Lightning credits</td><td>vLLM with larger variants (e.g. Nile-Chat-12B, Qwen 7B/14B), TEI, larger ASR</td><td>$0</td></tr>
+    <tr><td><b>C. Paid (cap)</b></td><td>RunPod / Vast spot, a few hours</td><td>Largest candidates + open judge</td><td><b>≤ $10</b></td></tr>
+    <tr><td>Fallback</td><td>—</td><td>Gemini (free tier), Cohere (trial)</td><td>$0</td></tr>
+  </table>
+  <div class="box warn ar"><b>توقع واقعي:</b> الـ 4GB هتشيل LLM صغير (3–4B بـ Q4) والـ ASR بالتناوب، والـ embeddings على الـ CPU. الـ baseline المحلي هيخدم عدد قليل من الموظفين (تقريبًا 3–10). ده الرقم اللي هنقارن بيه Stage B و C.</div>
+  <h3 class="en">Downloads (data-saver: ask before anything &gt; 200 MB)</h3>
+  <table class="en">
+    <tr><th>What</th><th>Approx. size</th><th>When</th></tr>
+    <tr><td>Shortlisted local models (LLM GGUF Q4, embedding, reranker, ASR, OCR) — int8/ONNX preferred</td><td>~0.5–3 GB each</td><td>M3 (S08-03), after Ziad approves the list</td></tr>
+    <tr><td>Larger variants, vLLM / CUDA images</td><td>5–20 GB each</td><td>Stage B/C, on the cloud box only</td></tr>
+  </table>
+</section>
+
+<!-- 9 MEASUREMENT -->
+<section>
+  <h2 class="ar">9. القياس: جودة كل خدمة + KPIs + Load Testing <span class="en-t">Measurement</span></h2>
+  <div class="ar"><p>كل خدمة بتتسلم ومعاها 3 تقارير: <b>Quality</b> و<b>Performance</b> و<b>Business KPI</b>. نفس التقارير بتتعاد في كل Stage علشان المقارنة تبقى عادلة.</p></div>
+  <table class="en">
+    <tr><th>Service</th><th>Quality</th><th>Performance</th><th>Business KPI</th></tr>
+    <tr><td>Channels (simulator, web chat, tickets)</td><td>Delivery, ordering, no loss</td><td>msgs/s, p95 delivery, WS connections</td><td>Queue wait, SLA breaches</td></tr>
+    <tr><td>KB ingestion</td><td>Extraction F1, ROUGE-L, number retention</td><td>docs/min, OCR s/page</td><td>KB freshness</td></tr>
+    <tr><td>Retrieval</td><td>hit@3, MRR, context recall/precision (AR vs EN)</td><td>p50/p95, QPS</td><td>Policy lookup time</td></tr>
+    <tr><td>LLM generation</td><td>Faithfulness, relevancy, JSON validity, dialect match</td><td>tokens/s, TTFT, concurrent streams</td><td>Draft acceptance rate</td></tr>
+    <tr><td>Agent + tools</td><td>Tool + argument accuracy, task success</td><td>Steps/turn, p95 turn latency</td><td>AHT reduction, FCR proxy</td></tr>
+    <tr><td>Memory</td><td>Correct-fact recall, false-memory rate</td><td>Lookup latency</td><td>Repeat-contact detection</td></tr>
+    <tr><td>Speech</td><td>WER / CER (Egyptian), diarisation</td><td>Real-time factor, live latency</td><td>After-call work time</td></tr>
+    <tr><td>Wrap-up summaries</td><td>Key-fact coverage, correct disposition</td><td>Latency</td><td>ACW seconds saved</td></tr>
+  </table>
+  <h3 class="en">Business KPIs (simulated, vs the "KB search only" baseline)</h3>
+  <table class="en">
+    <tr><th>KPI</th><th>How we measure it on the simulator</th></tr>
+    <tr><td>AHT</td><td>Scripted scenarios worked by a CSR with and without the copilot</td></tr>
+    <tr><td>ACW time</td><td>Time from conversation end to wrap-up saved</td></tr>
+    <tr><td>FCR proxy</td><td>Scenario resolved without a follow-up contact</td></tr>
+    <tr><td>Suggestion acceptance</td><td>Accepted / edited / rejected per suggestion (audit log)</td></tr>
+    <tr><td>Escalation &amp; SLA breach rate</td><td>From ticket state in Postgres</td></tr>
+    <tr><td>Cost per contact</td><td>GPU-hours (or $) per 1,000 contacts</td></tr>
+  </table>
+  <div class="box verdict ar"><b>Load testing:</b> بـ <b>Locust</b> وسيناريوهات موظف + عميل. لكل Stage بنعلن رقم واحد: <b>أقصى عدد موظفين في نفس الوقت</b> والـ p95 لرد الـ copilot أقل من 4 ثواني والأخطاء أقل من 1%. ده "max capacity" بتاع الـ Stage.</div>
+</section>
+
+<!-- 8 ARCHITECTURE -->
+<section>
+  <h2 class="ar">10. المعمارية وهيكلة المشروع <span class="en-t">Target Architecture &amp; Layout</span></h2>
+<pre> Channels                   Core platform (FastAPI)                         Model serving
+ ─────────                  ───────────────────────                         ─────────────
+ WhatsApp webhook ─┐        ┌ channels: normalise → Conversation/Message ┐  vLLM / llama.cpp (LLM)  
+ Web chat (WS) ────┤──────► │ crm: customers, plans, bills, tickets      │  TEI   (embed, reranker) 
+ Email / form ─────┤        │ agent: LangGraph + tools + guardrails      │◄►ASR + OCR services     
+ Call recordings ──┘        │ memory: Redis session · pgvector customer  │  llama.cpp (dev)
+                            │ kb: ingest jobs → Qdrant hybrid            │  Gemini/Cohere (fallback)
+ Agent desktop (Reflex)◄─WS─ │ auth · audit · PII mask · rate limit       │
+                            └────────────┬───────────────────────────────┘
+                                         ▼
+                     Postgres · Redis · Qdrant · Langfuse · job worker
+                     MCP servers: crm · kb · tickets (same tools, standard protocol)</pre>
+  <h3 class="en">Proposed folder layout</h3>
+<pre>TeleCopilotAi/
+├── src/telecopilot/        one installable package (ADR-1)
+│   ├── api/                FastAPI routers, schemas, websockets
+│   ├── config/ core/       settings, logging, tracing, errors, security
+│   ├── kb/                 extractors, chunkers, indexing, retrieval  (← today's ingestion + repositories)
+│   ├── llm/                providers: llamacpp, vllm, gemini; embed/rerank: local, tei, cohere
+│   ├── crm/                customers, plans, bills, tickets (Postgres)
+│   ├── channels/           whatsapp (simulator + cloud adapter), webchat, email, voice
+│   ├── speech/             ASR, VAD, diarisation, live-call bridge
+│   ├── agent/              graph, tools, memory, prompts, guardrails
+│   ├── mcp_servers/        crm, kb, tickets
+│   └── worker/             background jobs
+├── apps/web/               Reflex agent desktop (Arabic + English)
+├── evals/                  datasets, harness, metrics, Locust load tests, reports
+├── deploy/                 compose profiles, llama.cpp / vLLM / TEI configs
+├── data/                   raw KB, synthetic, ground_truth
+└── docs/                   PLAN, SPRINTS, design/ (ADRs, models, code guidelines, style guide)</pre>
+  <div class="ar"><p><b>مبدأ:</b> نعمل <b>restructure مش rewrite</b>. الكود الحالي (extractors, chunkers, Qdrant repo, hybrid search) بيتنقل لـ <code>packages/kb</code> زي ما هو، والـ tests تفضل شغالة بعد كل نقلة.</p></div>
+  <h3 class="en">Key technology decisions (ADRs)</h3>
+  <table class="en">
+    <tr><th>Decision</th><th>Choice</th><th>Alternative</th></tr>
+    <tr><td>Relational DB</td><td>Postgres + Alembic + pgvector</td><td>SQLite (dev only)</td></tr>
+    <tr><td>Agent framework</td><td>LangGraph</td><td>Plain Python state machine</td></tr>
+    <tr><td>LLM serving</td><td>vLLM (cloud), llama.cpp (local)</td><td>SGLang, TGI</td></tr>
+    <tr><td>Embeddings / rerank serving</td><td>HF TEI</td><td>sentence-transformers in-process</td></tr>
+    <tr><td>Realtime</td><td>WebSocket (FastAPI)</td><td>SSE (keep for streaming text)</td></tr>
+    <tr><td>Jobs</td><td>arq / Celery on Redis</td><td>FastAPI BackgroundTasks</td></tr>
+    <tr><td>UI</td><td>Reflex (decided)</td><td>React + Vite</td></tr>
+  </table>
+</section>
+
+<!-- 9 PROD READINESS -->
+<section>
+  <h2 class="ar">11. الجاهزية للإنتاج <span class="en-t">Production Readiness (target ≥ 90%)</span></h2>
+  <div class="ar"><p>"Production صغير" هنا معناه: شركة واحدة، 20–100 موظف، سيرفر واحد + GPU واحد، بداتا عملاء حقيقية محمية. ده الـ checklist اللي هنقيس عليه.</p></div>
+  <table class="en">
+    <tr><th>#</th><th>Requirement</th><th>Today</th><th>Phase</th><th>In scope</th></tr>
+    <tr><td>1</td><td>Authentication + roles (CSR / supervisor / admin), JWT</td><td>✘</td><td>1</td><td>✔</td></tr>
+    <tr><td>2</td><td>PII masking in logs, traces and prompts (phone, national ID)</td><td>✘</td><td>4</td><td>✔</td></tr>
+    <tr><td>3</td><td>Audit log: every AI suggestion + CSR decision</td><td>✘</td><td>4</td><td>✔</td></tr>
+    <tr><td>4</td><td>Human approval for every write action (tickets, credits)</td><td>n/a</td><td>4</td><td>✔</td></tr>
+    <tr><td>5</td><td>Postgres + migrations + backups</td><td>✘</td><td>0–1</td><td>✔</td></tr>
+    <tr><td>6</td><td>Background job queue (ingest, STT, summaries)</td><td>✘</td><td>0</td><td>✔</td></tr>
+    <tr><td>7</td><td>Health / readiness probes for all services</td><td>partial</td><td>0</td><td>✔</td></tr>
+    <tr><td>8</td><td>Timeouts, retries, model fallback (vLLM → Gemini)</td><td>✘ (fail-fast only)</td><td>0</td><td>✔</td></tr>
+    <tr><td>9</td><td>Tracing + metrics (Langfuse + Prometheus/Grafana) + alerts</td><td>partial</td><td>6</td><td>✔</td></tr>
+    <tr><td>10</td><td>Rate limiting, CORS locked down, secrets outside repo</td><td>✘</td><td>1</td><td>✔</td></tr>
+    <tr><td>11</td><td>Eval regression gate in CI (AR + EN)</td><td>✘</td><td>6</td><td>✔</td></tr>
+    <tr><td>12</td><td>KB versioning, freshness, re-crawl</td><td>✘</td><td>3</td><td>✔</td></tr>
+    <tr><td>13</td><td>Load test per stage: max concurrent CSRs at p95 &lt; 4 s, errors &lt; 1%</td><td>✘</td><td>6</td><td>✔</td></tr>
+    <tr><td>14</td><td>Runbook + deployment docs</td><td>partial</td><td>6</td><td>✔</td></tr>
+    <tr><td>15</td><td>Enterprise SSO (AD/Keycloak), real CRM/ACD integration, security certification</td><td>✘</td><td>—</td><td>✘ (out of scope)</td></tr>
+  </table>
+  <div class="box verdict ar">14 من 15 بند في النطاق → ≈ <b>90–93%</b> من الجاهزية لإنتاج صغير. البند 15 بيحتاج شركة حقيقية وبيئة حقيقية، فبنوثّقه كـ "integration points" بس (adapters جاهزة لـ Genesys/Salesforce).</div>
+</section>
+
+<!-- WORKING AGREEMENT -->
+<section>
+  <h2 class="ar">12. طريقة الشغل <span class="en-t">Working Agreement</span></h2>
+  <div class="ar"><p>Ziad = Product Owner، Claude = Tech Lead (الخطة)، وClaude Code agent بينفّذ ticket ticket. الملفات المرجعية: <code>docs/PLAN.md</code> و<code>docs/SPRINTS.md</code> و<code>docs/design/</code>.</p></div>
+  <table class="en">
+    <tr><th>Rule</th><th>What it means</th></tr>
+    <tr><td><b>Sprints</b></td><td>2 weeks, ~40 h of tickets; one branch per sprint; merge only after Ziad accepts the review</td></tr>
+    <tr><td><b>Design pack first</b></td><td>Every milestone: Mermaid architecture + sequence diagrams, ERD when there is data, options and reasons in plain language; Ziad approves before code</td></tr>
+    <tr><td><b>Ticket report</b></td><td>After each ticket: what changed, which files, why each decision (and rejected alternatives), written for learning</td></tr>
+    <tr><td><b>Code quality</b></td><td>SOLID, DRY, KISS/YAGNI, no anti-patterns (god classes, copy-paste, magic numbers, swallowed errors…), existing patterns (layered, factory, singleton, DI), type hints, ruff</td></tr>
+    <tr><td><b>Definition of done</b></td><td>Tests (no network/GPU/keys), ruff clean, docs updated, no secrets; services also need quality + performance + KPI reports</td></tr>
+    <tr><td><b>Downloads</b></td><td>Ask Ziad before anything &gt; 200 MB; prefer slim images, int8/ONNX, shared caches</td></tr>
+    <tr><td><b>ADRs</b></td><td>10 recorded decisions (package layout, provider strategy, models, BM25, Postgres/Redis, single company, Reflex, LangGraph + MCP, Locust, data before models) — docs/design/ARCHITECTURE_DECISIONS.md</td></tr>
+  </table>
+  <div class="box ar"><b>ADR</b> = Architecture Decision Record: ملاحظة قصيرة لكل قرار تقني مهم (المشكلة، البدائل، القرار، السبب، النتايج)، علشان أي حد يفهم ليه النظام معمول كده ويغيّر القرار عن قصد.</div>
+</section>
+
+<!-- 12 ROADMAP -->
+<section>
+  <h2 class="ar">13. الـ Milestones والمخاطر <span class="en-t">Milestones &amp; Risks</span></h2>
+  <div class="ar"><p>الترتيب المتفق عليه: تنظيم الكود، ثم <b>الواجهة وبيانات الـ CRM</b>، ثم <b>قاعدة المعرفة وخطوط البيانات</b> قبل أي موديل. كل milestone بيبدأ بـ design pack. التفاصيل والـ tickets في <code>docs/SPRINTS.md</code>.</p></div>
+  <table class="en">
+    <tr><th>ID</th><th>Milestone</th><th>Sprints</th><th>Exit criteria</th></tr>
+    <tr><td>M0</td><td>Restructure &amp; foundation</td><td>S01</td><td>New package layout, Postgres/Redis/Alembic, ingestion as a job; v1 unchanged</td></tr>
+    <tr><td>M1</td><td><b>Agent desktop + CRM data</b> (Reflex, AR + EN)</td><td>S02–S04</td><td>CSR works a ticket end to end in both languages on synthetic CRM data</td></tr>
+    <tr><td>M2</td><td><b>KB &amp; data pipelines</b></td><td>S05–S07</td><td>Real public sources, cleaning, data-quality checks, freshness, ≥ 150 verified questions</td></tr>
+    <tr><td>M3</td><td>Five models + retrieval baseline</td><td>S08–S09</td><td>Model study; local models running; retrieval reports</td></tr>
+    <tr><td>M4</td><td>Generation baseline</td><td>S10–S11</td><td>Faithfulness, JSON validity, capacity</td></tr>
+    <tr><td>M5</td><td>Channels</td><td>S12–S13</td><td>3 channels in one inbox</td></tr>
+    <tr><td>M6</td><td>Agent copilot</td><td>S14–S16</td><td>Tool accuracy ≥ 0.9; AHT simulation</td></tr>
+    <tr><td>M7</td><td>Speech</td><td>S17–S19</td><td>Voice notes, recordings, live calls; Egyptian WER</td></tr>
+    <tr><td>M8</td><td>MCP + hardening</td><td>S20–S21</td><td>Checklist ≥ 90%</td></tr>
+    <tr><td>M9</td><td>Stage A report</td><td>S22</td><td>Published with laptop capacity</td></tr>
+    <tr><td>M10</td><td>Stage B / C</td><td>S23–S24</td><td>Side-by-side benchmark</td></tr>
+  </table>
+  <p class="small en">About 48 weeks part-time; re-planned at every milestone review.</p>
+  <h3 class="en">Risks</h3>
+  <table class="en">
+    <tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr>
+    <tr><td>4 GB GPU: LLM + live ASR at the same time</td><td>High</td><td>Embeddings on CPU; one heavy model on GPU; measure the limit</td></tr>
+    <tr><td>Internet quota</td><td>High</td><td>Big weights only on cloud boxes; int8/ONNX; ask before &gt; 200 MB</td></tr>
+    <tr><td>Dialects, code-switching, Franco</td><td>Medium</td><td>Dedicated eval slices; Egyptian-tuned candidates (Nile-Chat, Egyptian ASR)</td></tr>
+    <tr><td>Free-tier limits change</td><td>Medium</td><td>Several providers; setup scripts; $10 reserve</td></tr>
+    <tr><td>No real CRM / conversation data</td><td>Medium</td><td>Synthetic + hand-checked eval slices</td></tr>
+    <tr><td>Scope creep / over-engineering</td><td>High</td><td>Design packs, strict exit criteria, KISS/YAGNI</td></tr>
+  </table>
+  <p class="footer-note en">Prices and limits are approximate and change often. Companion files: CLAUDE.md, docs/PLAN.md, docs/SPRINTS.md, docs/design/.</p>
+</section>
+
+</body>
+</html>

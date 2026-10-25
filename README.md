@@ -233,6 +233,12 @@ Judge: `gemini-3.1-flash-lite-preview` (the same model as the app, so scores may
 
 ## Roadmap
 
+**v2 is planned** (agent desktop in Arabic + English, knowledge-base and data pipelines, five open-source models
+chosen on Egyptian dialect evals, channels, agent with tools and memory, speech, measured local baseline).
+See [docs/PLAN.md](docs/PLAN.md), [docs/SPRINTS.md](docs/SPRINTS.md) and [docs/design/](docs/design/).
+The items below are the v1 follow-ups, folded into the v2 milestones.
+
+
 - **Improve answer faithfulness:** a stricter grounding prompt (state only facts from the context, include every
   fee and threshold found), and a stronger judge model.
 - **Improve retrieval for long scanned PDFs:** chunk by policy rule instead of by page, and test rerank top 5.
