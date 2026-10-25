@@ -1,5 +1,5 @@
 """
-experiments/extraction_eval/hitl.py
+evals/extraction/hitl.py
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Human-In-The-Loop interactive review toolkit for Jupyter notebooks.
 
@@ -8,7 +8,7 @@ Features:
   - Per-section diff highlighting: green = retained, red = missing, yellow = partial
   - PDF/DOCX page image display alongside extracted text
   - Interactive review recorder with APPROVE / FLAG / OVERRIDE_SCORE actions
-  - Audit log persistence to experiments/reports/hitl_audit_log.json
+  - Audit log persistence to evals/reports/kb/v1/hitl_audit_log.json
 """
 
 from __future__ import annotations
@@ -55,7 +55,7 @@ class HITLReviewer:
     Exports audit log to disk.
     """
 
-    def __init__(self, report_dir: str = "experiments/reports"):
+    def __init__(self, report_dir: str = "evals/reports/kb/v1"):
         self.report_dir = report_dir
         self.audit_log: list[HITLReviewRecord] = []
         os.makedirs(report_dir, exist_ok=True)
@@ -388,7 +388,7 @@ def save_benchmark_report(
     all_metrics: list[dict[str, Any]],
     aggregations: dict[str, Any],
     judge_results: list[dict[str, Any]],
-    report_dir: str = "experiments/reports",
+    report_dir: str = "evals/reports/kb/v1",
 ) -> tuple[str, str]:
     """
     Save comprehensive benchmark results as JSON + Markdown summary.

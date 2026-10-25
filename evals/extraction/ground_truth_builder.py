@@ -1,5 +1,5 @@
 """
-experiments/extraction_eval/ground_truth_builder.py
+evals/extraction/ground_truth_builder.py
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Lossless container-level Ground Truth parsers for all 4 file formats.
 

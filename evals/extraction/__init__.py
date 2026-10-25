@@ -1,6 +1,6 @@
 """
-experiments/extraction_eval
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+evals/extraction
+~~~~~~~~~~~~~~~~
 Shared evaluation toolkit for TeleCopilot-AI extraction quality experiments.
 
 Modules:

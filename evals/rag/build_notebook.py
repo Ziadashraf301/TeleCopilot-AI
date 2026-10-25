@@ -1,4 +1,4 @@
-"""Generates experiments/03_rag_evaluation_ragas.ipynb (run: python experiments/rag_eval/build_notebook.py)."""
+"""Generates evals/notebooks/03_rag_evaluation_ragas.ipynb (run: python evals/rag/build_notebook.py)."""
 
 from pathlib import Path
 
@@ -13,7 +13,7 @@ cells = [
 This notebook runs the **production pipeline** (Cohere + BM25 query embedding → Qdrant hybrid search with RRF →
 Cohere Rerank v3.5 → Gemini JSON answer) on a fixed set of CSR questions, then scores it with **RAGAS**.
 
-- **Test set:** `experiments/rag_eval/eval_questions.json` — 13 questions (10 English, 3 Arabic) across 8 intents.
+- **Test set:** `evals/rag/eval_questions.json` — 13 questions (10 English, 3 Arabic) across 8 intents.
   Every reference answer is taken word-for-word from the human-verified ground truth in `data/ground_truth/`.
 - **Vector DB:** an embedded Qdrant instance (`QdrantClient(":memory:")`), so the real hybrid RRF search is used
   without a Qdrant server.
@@ -31,43 +31,45 @@ Cohere Rerank v3.5 → Gemini JSON answer) on a fixed set of CSR questions, then
     code("""import os, sys, json, time
 from pathlib import Path
 
-ROOT = Path.cwd().parent if Path.cwd().name == "experiments" else Path.cwd()
+# Notebooks live in evals/notebooks/; work from the repo root (telecopilot comes from pip install -e .)
+ROOT = Path.cwd().parents[1] if Path.cwd().name == "notebooks" else Path.cwd()
 os.chdir(ROOT)
-for p in [str(ROOT / "src"), str(ROOT)]:
-    if p not in sys.path:
-        sys.path.insert(0, p)
 
 from dotenv import load_dotenv
 load_dotenv(ROOT / ".env")
 for k in ["COHERE_API_KEY", "GEMINI_API_KEY"]:
     print(f"{k} set: {bool(os.getenv(k))}")   # never print the key itself
 
-REPORTS = ROOT / "experiments" / "reports"
+REPORTS = ROOT / "evals" / "reports" / "generation" / "v1"
 REPORTS.mkdir(parents=True, exist_ok=True)
-EVAL_SET = json.loads((ROOT / "experiments" / "rag_eval" / "eval_questions.json").read_text(encoding="utf-8"))
+EVAL_SET = json.loads((ROOT / "evals" / "rag" / "eval_questions.json").read_text(encoding="utf-8"))
 print(f"Loaded {len(EVAL_SET)} evaluation questions")"""),
     md("## 🗄️ Section 2 — Build the index (embedded Qdrant, real hybrid search)"),
     code("""from qdrant_client import QdrantClient
-from core.singletons import SingletonsManager
-from config.settings import get_settings
-from repositories.qdrant_repository import QdrantVectorRepository
-from services.cohere_service import CohereService
-from services.gemini_service import GeminiService
-from services.ingestion_service import IngestionService
-from services.agent_assist_service import AgentAssistService
+from telecopilot.agent.assist_service import AgentAssistService
+from telecopilot.config.settings import get_settings
+from telecopilot.core.singletons import SingletonsManager
+from telecopilot.kb.ingestion_service import IngestionService
+from telecopilot.kb.repositories.qdrant import QdrantVectorRepository
+from telecopilot.kb.retrieval import HybridRetriever
+from telecopilot.kb.sparse import SparseEmbeddingModel
+from telecopilot.llm.cohere import CohereService
+from telecopilot.llm.gemini import GeminiService
 
 settings = get_settings()
 SingletonsManager._qdrant_client = QdrantClient(":memory:")   # embedded Qdrant, no server needed
 
 repo = QdrantVectorRepository()
 assert repo._is_live, "Qdrant should be live (embedded mode)"
-cohere_svc, gemini_svc = CohereService(), GeminiService()
+cohere_svc, gemini_svc, sparse_model = CohereService(), GeminiService(), SparseEmbeddingModel()
 
 t0 = time.time()
-ingest_results = IngestionService(repo, cohere_svc).ingest_all_default_policies()
+ingest_results = IngestionService(repo, cohere_svc, sparse_model).ingest_all_default_policies()
 print(f"Indexed {len(ingest_results)} sources, {repo.count()} chunks in {time.time() - t0:.0f}s")
 
-service = AgentAssistService(vector_repo=repo, cohere_service=cohere_svc, gemini_service=gemini_svc)
+service = AgentAssistService(
+    retriever=HybridRetriever(repo, cohere_svc, sparse_model), gemini_service=gemini_svc
+)
 print("Models:", settings.DENSE_EMBEDDING_MODEL, "|", settings.RERANK_MODEL, "|", settings.LLM_MODEL)"""),
     md("## 🤖 Section 3 — Run the pipeline on every question"),
     code("""def run_pipeline(question: str) -> dict:
@@ -160,7 +162,7 @@ display(by_lang)
 
 scores.drop(columns=["retrieved_contexts"]).to_csv(REPORTS / "ragas_results.csv", index=False, encoding="utf-8-sig")
 (REPORTS / "ragas_summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
-print("Saved experiments/reports/ragas_results.csv and ragas_summary.json")"""),
+print("Saved evals/reports/generation/v1/ragas_results.csv and ragas_summary.json")"""),
     code("""import matplotlib.pyplot as plt
 means = scores[metric_cols].mean().sort_values()
 fig, ax = plt.subplots(figsize=(8, 3.6))
@@ -175,6 +177,6 @@ plt.savefig(REPORTS / "ragas_scores.png", dpi=150)
 plt.show()"""),
 ]
 nb = nbf.v4.new_notebook(cells=cells, metadata={"kernelspec": {"name": "python3", "display_name": "Python 3"}})
-out = Path(__file__).resolve().parents[1] / "03_rag_evaluation_ragas.ipynb"
+out = Path(__file__).resolve().parents[1] / "notebooks" / "03_rag_evaluation_ragas.ipynb"
 nbf.write(nb, out)
 print("wrote", out)

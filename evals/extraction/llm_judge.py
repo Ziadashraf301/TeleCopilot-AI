@@ -1,5 +1,5 @@
 """
-experiments/extraction_eval/llm_judge.py
+evals/extraction/llm_judge.py
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Gemini LLM-as-a-Judge for extraction quality evaluation.
 

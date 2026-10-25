@@ -202,7 +202,7 @@ GitHub Actions runs the test suite and builds the Docker image on every push and
 
 ## Evaluation (RAGAS)
 
-`experiments/03_rag_evaluation_ragas.ipynb` runs the production pipeline on 13 CSR questions (10 English, 3 Arabic)
+`evals/notebooks/03_rag_evaluation_ragas.ipynb` runs the production pipeline on 13 CSR questions (10 English, 3 Arabic)
 across 8 intents. Every reference answer is taken from the human-verified ground truth in `data/ground_truth/`.
 The notebook uses an embedded Qdrant instance, so the real hybrid RRF search is evaluated.
 
@@ -217,7 +217,7 @@ The notebook uses an embedded Qdrant instance, so the real hybrid RRF search is 
 | Factual correctness (recall) | 0.61 |
 | Median end-to-end latency | 3.9 s |
 
-![RAGAS scores](experiments/reports/ragas_scores.png)
+![RAGAS scores](evals/reports/generation/v1/ragas_scores.png)
 
 **What the results show**
 
@@ -229,7 +229,7 @@ The notebook uses an embedded Qdrant instance, so the real hybrid RRF search is 
   (SEC-88) was not in the top 3, so the answer gave generic troubleshooting.
 
 Judge: `gemini-3.1-flash-lite-preview` (the same model as the app, so scores may be slightly generous), with Cohere
-`embed-multilingual-v3.0` embeddings. Per-question scores are in `experiments/reports/ragas_results.csv`.
+`embed-multilingual-v3.0` embeddings. Per-question scores are in `evals/reports/generation/v1/ragas_results.csv`.
 
 ---
 

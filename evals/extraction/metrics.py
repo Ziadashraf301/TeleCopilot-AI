@@ -1,5 +1,5 @@
 """
-experiments/extraction_eval/metrics.py
+evals/extraction/metrics.py
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Word-level, ROUGE-L, entity, structure, and aggregation metrics.
 

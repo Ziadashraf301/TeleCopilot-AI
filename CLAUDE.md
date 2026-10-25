@@ -10,7 +10,7 @@ production at small scale (one contact centre team, ~20–100 CSRs). The full ro
 - Retrieval: Cohere `embed-multilingual-v3.0` dense + Qdrant BM25 sparse, RRF fusion, Cohere `rerank-v3.5` top 3.
 - Generation: Gemini (JSON resolution or SSE stream). Tracing: Langfuse.
 - UI: static HTML/JS in `static/` (a single form where the CSR types the problem — being replaced, see plan).
-- Eval: `experiments/` (extraction quality vs ground truth, RAGAS). Faithfulness 0.61 is the weak point.
+- Eval: `evals/` (notebooks in `evals/notebooks/`, code in `evals/extraction/` and `evals/rag/`, reports in `evals/reports/<service>/<stage>/`): extraction quality vs ground truth, RAGAS. Faithfulness 0.61 is the weak point.
 
 ## Scope
 Learning + portfolio project for **one telecom contact centre** (single company).
