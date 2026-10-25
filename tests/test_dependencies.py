@@ -5,12 +5,14 @@ from telecopilot.api.dependencies import (
     get_agent_assist_service,
     get_cohere_service,
     get_gemini_service,
+    get_hybrid_retriever,
     get_ingestion_service,
     get_sparse_model,
     get_vector_repository,
 )
 from telecopilot.kb.ingestion_service import IngestionService
 from telecopilot.kb.repositories.base import BaseVectorRepository
+from telecopilot.kb.retrieval import HybridRetriever
 from telecopilot.kb.sparse import SparseEmbeddingModel
 from telecopilot.llm.cohere import CohereService
 from telecopilot.llm.gemini import GeminiService
@@ -48,6 +50,10 @@ def test_dependency_injection_singletons(fake_gemini_client):
 
     ingest_svc = get_ingestion_service()
     assert isinstance(ingest_svc, IngestionService)
+
+    retriever = get_hybrid_retriever()
+    assert isinstance(retriever, HybridRetriever)
+    assert retriever.sparse_model is sparse1  # shares the singleton BM25 model
 
     assist_svc = get_agent_assist_service()
     assert isinstance(assist_svc, AgentAssistService)

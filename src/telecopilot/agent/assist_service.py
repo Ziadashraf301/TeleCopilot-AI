@@ -8,9 +8,7 @@ from typing import Any
 from telecopilot.config.settings import get_settings
 from telecopilot.core.logger import get_logger
 from telecopilot.core.observability import ObservabilityTracer
-from telecopilot.kb.repositories.base import BaseVectorRepository, SparseVectorData
-from telecopilot.kb.sparse import SparseEmbeddingModel
-from telecopilot.llm.cohere import CohereService
+from telecopilot.kb.retrieval import HybridRetriever
 from telecopilot.llm.gemini import GeminiService
 
 logger = get_logger()
@@ -22,80 +20,20 @@ class AgentAssistService:
     Core RAG orchestrator for Customer Service Agent Assist.
 
     Pipeline:
-      1. Dense embedding   — Cohere multilingual
-      2. Sparse embedding  — BM25 (SparseEmbeddingModel)
-      3. Hybrid search     — Qdrant dense + sparse fusion
-      4. Neural rerank     — Cohere Rerank v3.5
-      5. LLM synthesis     — Gemini (batch JSON or SSE stream)
-      6. Observability     — Langfuse token & cost tracing
+      1-3. Retrieval       — HybridRetriever: query embedding, Qdrant hybrid search, Cohere rerank
+      4.   LLM synthesis   — Gemini (batch JSON or SSE stream)
+      5.   Observability   — per-step latency, Langfuse token & cost tracing
 
     Fail-fast: no fallback logic. Any downstream error propagates immediately.
     """
 
-    def __init__(
-        self,
-        vector_repo: BaseVectorRepository,
-        cohere_service: CohereService,
-        gemini_service: GeminiService,
-    ):
-        self.vector_repo = vector_repo
-        self.cohere_service = cohere_service
+    def __init__(self, retriever: HybridRetriever, gemini_service: GeminiService):
+        self.retriever = retriever
         self.gemini_service = gemini_service
-        self.sparse_model = SparseEmbeddingModel()
 
     # ------------------------------------------------------------------
     # Shared helpers
     # ------------------------------------------------------------------
-
-    def _embed_query(self, customer_query: str):
-        """Embed query using Cohere (dense) and BM25 (sparse). Returns (dense_vec, sparse_vec)."""
-        query_dense_vector = self.cohere_service.get_embedding(customer_query, input_type="search_query")
-        sparse_vec = self.sparse_model.embed_text(customer_query)
-        query_sparse_vector = SparseVectorData(indices=sparse_vec.indices, values=sparse_vec.values)
-        return query_dense_vector, query_sparse_vector
-
-    def _hybrid_search(self, customer_query, dense_vec, sparse_vec, policy_filter, intent_filter):
-        """Run Qdrant hybrid search. Raises ValueError if no results found."""
-        results = self.vector_repo.hybrid_search(
-            query=customer_query,
-            query_dense_vector=dense_vec,
-            query_sparse_vector=sparse_vec,
-            top_k=settings.RETRIEVAL_TOP_K,
-            policy_filter=policy_filter,
-            intent_filter=intent_filter,
-        )
-        if not results:
-            raise ValueError(
-                f"No relevant policy chunks found in Qdrant for query: '{customer_query}'. "
-                "Ensure documents are ingested before querying."
-            )
-        return results
-
-    def _rerank(self, customer_query: str, search_results) -> list[dict[str, Any]]:
-        """Rerank via Cohere and return ordered top_contexts list."""
-        candidate_docs = [r.content for r in search_results]
-        rerank_results = self.cohere_service.rerank(
-            query=customer_query,
-            documents=candidate_docs,
-            top_n=settings.RERANK_TOP_N,
-        )
-        top_contexts = []
-        for item in rerank_results:
-            res = search_results[item["index"]]
-            top_contexts.append(
-                {
-                    "chunk_id": res.chunk_id,
-                    "content": res.content,
-                    "source": res.source,
-                    "source_modality": res.source_modality,
-                    "policy_type": res.policy_type,
-                    "intent_category": res.intent_category,
-                    "section_title": res.section_title,
-                    "page_number": res.page_number,
-                    "relevance_score": item["relevance_score"],
-                }
-            )
-        return top_contexts
 
     @staticmethod
     def _build_citations(top_contexts: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -140,7 +78,7 @@ class AgentAssistService:
         try:
             # 1. Embed
             embed_start = time.time()
-            dense_vec, sparse_vec = self._embed_query(customer_query)
+            dense_vec, sparse_vec = self.retriever.embed_query(customer_query)
             embed_latency = time.time() - embed_start
             ObservabilityTracer.log_span(
                 trace=trace,
@@ -156,7 +94,7 @@ class AgentAssistService:
 
             # 2. Hybrid search
             search_start = time.time()
-            search_results = self._hybrid_search(customer_query, dense_vec, sparse_vec, policy_filter, intent_filter)
+            search_results = self.retriever.search(customer_query, dense_vec, sparse_vec, policy_filter, intent_filter)
             search_latency = time.time() - search_start
             ObservabilityTracer.log_span(
                 trace=trace,
@@ -173,7 +111,7 @@ class AgentAssistService:
 
             # 3. Rerank
             rerank_start = time.time()
-            top_contexts = self._rerank(customer_query, search_results)
+            top_contexts = self.retriever.rerank(customer_query, search_results)
             rerank_latency = time.time() - rerank_start
             ObservabilityTracer.log_span(
                 trace=trace,
@@ -259,19 +197,19 @@ class AgentAssistService:
         try:
             # 1. Embed  (blocking → thread pool)
             embed_start = time.time()
-            dense_vec, sparse_vec = await asyncio.to_thread(self._embed_query, customer_query)
+            dense_vec, sparse_vec = await asyncio.to_thread(self.retriever.embed_query, customer_query)
             embed_latency = time.time() - embed_start
 
             # 2. Hybrid search  (blocking → thread pool)
             search_start = time.time()
             search_results = await asyncio.to_thread(
-                self._hybrid_search, customer_query, dense_vec, sparse_vec, policy_filter, intent_filter
+                self.retriever.search, customer_query, dense_vec, sparse_vec, policy_filter, intent_filter
             )
             search_latency = time.time() - search_start
 
             # 3. Rerank  (blocking → thread pool)
             rerank_start = time.time()
-            top_contexts = await asyncio.to_thread(self._rerank, customer_query, search_results)
+            top_contexts = await asyncio.to_thread(self.retriever.rerank, customer_query, search_results)
             rerank_latency = time.time() - rerank_start
 
             detected_intent = top_contexts[0].get("intent_category", "GENERAL")

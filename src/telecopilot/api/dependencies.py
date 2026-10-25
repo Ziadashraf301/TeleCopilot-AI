@@ -4,6 +4,7 @@ from telecopilot.agent.assist_service import AgentAssistService
 from telecopilot.kb.ingestion_service import IngestionService
 from telecopilot.kb.repositories.base import BaseVectorRepository
 from telecopilot.kb.repositories.qdrant import QdrantVectorRepository
+from telecopilot.kb.retrieval import HybridRetriever
 from telecopilot.kb.sparse import SparseEmbeddingModel
 from telecopilot.llm.cohere import CohereService
 from telecopilot.llm.gemini import GeminiService
@@ -38,8 +39,13 @@ def get_ingestion_service() -> IngestionService:
     return IngestionService(vector_repo=get_vector_repository(), cohere_service=get_cohere_service())
 
 
+def get_hybrid_retriever() -> HybridRetriever:
+    """Dependency for policy retrieval (embed query, hybrid search, rerank)."""
+    return HybridRetriever(
+        vector_repo=get_vector_repository(), cohere_service=get_cohere_service(), sparse_model=get_sparse_model()
+    )
+
+
 def get_agent_assist_service() -> AgentAssistService:
     """Dependency for Agent Assist RAG Service."""
-    return AgentAssistService(
-        vector_repo=get_vector_repository(), cohere_service=get_cohere_service(), gemini_service=get_gemini_service()
-    )
+    return AgentAssistService(retriever=get_hybrid_retriever(), gemini_service=get_gemini_service())
