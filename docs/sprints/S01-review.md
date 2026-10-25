@@ -237,3 +237,54 @@ left to Ziad (it is in another project's database).
   `occurred_at`, uncommitted work rolled back when the request's session closes. `pytest` 35 passed; ruff clean.
 
 **Behaviour change**: none (nothing writes to Postgres yet).
+
+### S01-07 — ingestion CLI, `/api/ready`, logger clean-up — ✅ done
+**What changed** (3 commits)
+1. *Logger*: `configure_logging()` installs the console / JSON Lines / rolling-file sinks; importing
+   `core/logger.py` changes nothing. Called by the API lifespan and the CLI. Logs folder = new `LOG_DIR` setting.
+2. *Ingestion CLI* `python -m telecopilot.kb.ingest --all` (`kb/ingest.py`); the API lifespan only configures logging.
+3. *Readiness*: `ping()` on `BaseVectorRepository` (Qdrant asks the server), `db.session.ping()` (`SELECT 1`), a Redis
+   client singleton in `core/singletons.py`; `api/readiness.py` composes them; `GET /api/ready` → 200 / 503.
+   Default `DATABASE_URL` / `REDIS_URL` now use `127.0.0.1`.
+
+**Why**
+- *CLI exit code 1 if any source fails*: the old start-up hook logged ingestion errors as a warning and served
+  anyway. A script or CI job can now see a partial index. Re-runs are safe (point id = `uuid5(chunk_id)`).
+- *The CLI builds its own `IngestionService`*: reusing `api/dependencies.py` would be a `kb → api` import. Two entry
+  points (API, CLI) each wiring their objects is normal; the duplication is one line.
+- *Readiness lives in `api/`* (approved correction): only the API layer knows all three dependencies; each layer
+  exposes just a ping. A failing check is **reported** (`ok: false`, error text, HTTP 503), not hidden — the one
+  place where catching any exception is the point.
+- *`/api/ready` is a sync route*: the pings block; FastAPI runs sync routes in a thread pool, so the event loop
+  isn't stalled.
+- *`127.0.0.1` defaults*: compose binds Postgres/Redis to IPv4 only and Windows resolves `localhost` to IPv6 first.
+  Measured: a new Redis connection took **2,126 ms via `localhost` vs 23 ms via `127.0.0.1`**.
+- *`LOG_DIR` setting*: replaces a hard-coded path; the folder is created once, not on every JSON log line.
+- Rejected: keeping start-up ingestion behind a flag (a speculative option, and the failure mode stays hidden).
+
+**Evidence**
+- Tests: logger (no side effects at import, checked in a fresh process in an empty folder; JSON + text sinks),
+  CLI (exit 0 / 1, `--all` required, wiring), API start-up fails the test if ingestion is called, readiness
+  (200 all up; 503 for each of qdrant / postgres / redis down, with the error). Golden OpenAPI: the **only**
+  difference is the added `/api/ready` path (all existing paths and schemas identical). `pytest` 46 passed; ruff clean.
+- Real stack, API on the host against an **empty** collection: no ingestion lines in the log, `indexed_chunks_count: 0`;
+  `/api/ready` 200 → `docker compose stop redis` → **503** `redis: TimeoutError` (Qdrant/Postgres ok) → start → 200.
+- In compose after rebuild (0 wheels downloaded, 244 cache hits; image still 709 MB): `/api/ready` 200 in 17 s from
+  `up`, all checks < 10 ms; `docker compose run --rm app alembic current` → `0001 (head)`; the CLI is in the image
+  (`--help`; exit 2 without `--all`). A real `--all` run was **not** done (it calls Gemini OCR + Cohere with live
+  keys; the 651 chunks are already indexed).
+
+**Behaviour change**: the API no longer indexes on start-up; run the CLI once on an empty Qdrant. `/api/ready` is new.
+
+**Found**
+- *Start-up is now import-bound*: importing the app takes ~19 s on the laptop; 8.9 s of it is
+  `langchain_text_splitters`, whose `__init__` imports every splitter incl. NLTK/sklearn ones (installed locally by
+  the eval extras; not in the Docker image, where the app is up in ~9–17 s). Proposal (M2, chunking v2): import only
+  the splitter modules used.
+- *Race → silent in-memory mode*: two first requests at once built two `QdrantVectorRepository` instances; both tried
+  to create the collection, the second got `409 Conflict`, and its `except` switched it to in-memory mode — and that
+  instance was cached (`live_connection: false` while Qdrant was up). S01-10 removes the fallback; collection
+  creation should also treat "already exists" as success.
+- *Client/server mismatch*: `qdrant-client 1.19.0` warns it is incompatible with server `v1.13.0` (pre-existing:
+  the laptop had 1.19 before this sprint). Proposal: move the server to a matching version when M3 touches
+  retrieval (one image pull, ~80 MB, needs Ziad's OK), or pin the client to 1.13.x.
