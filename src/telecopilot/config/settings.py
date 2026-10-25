@@ -1,4 +1,6 @@
 from functools import lru_cache
+from pathlib import Path
+from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -18,12 +20,31 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
+    # HTTP
+    CORS_ORIGINS: list[str] = ["http://localhost:8000"]  # JSON list in .env, e.g. ["http://localhost:3000"]
+
+    # Paths, relative to the working directory (repo root locally, /app in Docker)
+    DATA_RAW_DIR: Path = Path("data/raw")
+    STATIC_DIR: Path = Path("static")
+
     # Qdrant Vector DB
     QDRANT_HOST: str = "localhost"
     QDRANT_PORT: int = 6333
     QDRANT_API_KEY: str | None = None
     QDRANT_COLLECTION: str = "telecom_customer_policies"
+    QDRANT_TIMEOUT_S: float = 10.0
     VECTOR_DIMENSION: int = 1024  # embed-multilingual-v3.0
+
+    # Postgres (CRM, tickets, audit) and Redis (sessions, pub/sub, jobs) — ADR-5
+    DATABASE_URL: str = "postgresql+psycopg://telecopilot:telecopilot@localhost:5432/telecopilot"
+    DB_TIMEOUT_S: float = 5.0
+    REDIS_URL: str = "redis://localhost:6379/0"
+    REDIS_TIMEOUT_S: float = 2.0
+
+    # Model providers (ADR-2). Only today's implementations are accepted; M3 adds llamacpp | vllm | tei | local.
+    LLM_PROVIDER: Literal["gemini"] = "gemini"
+    EMBED_PROVIDER: Literal["cohere"] = "cohere"
+    RERANK_PROVIDER: Literal["cohere"] = "cohere"
 
     # Specified AI Models
     DENSE_EMBEDDING_MODEL: str = "embed-multilingual-v3.0"
@@ -47,6 +68,7 @@ class Settings(BaseSettings):
 
     # Web Scraper
     SCRAPER_VERIFY_SSL: bool = True
+    SCRAPER_TIMEOUT_S: float = 30.0
 
     # RAG Tuning Parameters
     RETRIEVAL_TOP_K: int = 5

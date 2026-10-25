@@ -6,14 +6,13 @@ from docx import Document
 from fastapi import APIRouter, HTTPException, Response
 from fastapi.responses import FileResponse, HTMLResponse
 
+from telecopilot.config.settings import get_settings
 from telecopilot.core.logger import get_logger
 
 logger = get_logger()
 router = APIRouter(tags=["Document Files & Policies"])
 
-DATA_RAW_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "raw"))
-if not os.path.exists(DATA_RAW_DIR):
-    DATA_RAW_DIR = os.path.abspath(os.path.join(os.getcwd(), "data", "raw"))
+DATA_RAW_DIR = str(get_settings().DATA_RAW_DIR.resolve())
 
 POLICY_CATALOG = [
     {

@@ -16,9 +16,10 @@ class WebScraperExtractor(BaseExtractor):
     without writing any files to disk.
     """
 
-    def __init__(self, timeout: float = 30.0, verify_ssl: bool | None = None):
-        self.timeout = timeout
-        self.verify_ssl = get_settings().SCRAPER_VERIFY_SSL if verify_ssl is None else verify_ssl
+    def __init__(self, timeout: float | None = None, verify_ssl: bool | None = None):
+        settings = get_settings()
+        self.timeout = settings.SCRAPER_TIMEOUT_S if timeout is None else timeout
+        self.verify_ssl = settings.SCRAPER_VERIFY_SSL if verify_ssl is None else verify_ssl
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
             "Accept-Language": "ar,en-US;q=0.9,en;q=0.8",

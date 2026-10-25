@@ -31,7 +31,7 @@ class SingletonsManager:
             cls._qdrant_client = QdrantClient(
                 url=f"http://{settings.QDRANT_HOST}:{settings.QDRANT_PORT}",
                 api_key=api_key,
-                timeout=10.0,
+                timeout=settings.QDRANT_TIMEOUT_S,
             )
         return cls._qdrant_client
 

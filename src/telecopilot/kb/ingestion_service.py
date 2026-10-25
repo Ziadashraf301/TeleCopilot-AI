@@ -1,6 +1,7 @@
 import os
 from typing import Any
 
+from telecopilot.config.settings import get_settings
 from telecopilot.core.logger import get_logger
 from telecopilot.kb.factories import ChunkerFactory, ExtractorFactory
 from telecopilot.kb.models import DocumentChunk, ExtractedDocument
@@ -90,9 +91,7 @@ class IngestionService:
         results = []
 
         # 1. Dynamically discover and ingest all files in data/raw/
-        raw_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "raw"))
-        if not os.path.exists(raw_dir):
-            raw_dir = "data/raw"
+        raw_dir = str(get_settings().DATA_RAW_DIR.resolve())
 
         supported_exts = [".html", ".xml", ".docx", ".pdf"]
         local_files = []

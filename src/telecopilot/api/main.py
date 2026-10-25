@@ -1,4 +1,3 @@
-import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -59,13 +58,9 @@ app.add_middleware(
 for module in (assist, ingest, health, scraper, documents):
     app.include_router(module.router)
 
-# Mount Static UI Files (resolving project root static directory)
-static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "static"))
-if not os.path.exists(static_dir):
-    static_dir = os.path.abspath("static")
-
-if os.path.exists(static_dir):
-    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+# Mount the v1 static UI (replaced by the Reflex app in M1)
+if settings.STATIC_DIR.is_dir():
+    app.mount("/", StaticFiles(directory=settings.STATIC_DIR, html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn
