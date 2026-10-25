@@ -308,3 +308,48 @@ build — see "S01-08 (dependency part, pulled forward)" above. This part:
 - Image: **709 MB vs 977 MB** before (criterion "not larger than before" met).
 
 **Behaviour change**: cross-origin browser requests from origins not in `CORS_ORIGINS` are now refused.
+
+### S01-10 — remove silent fallbacks — ✅ done
+**What changed**
+- `llm/cohere.py`: raises at construction without `COHERE_API_KEY` (same as `GeminiService`); embed/rerank errors
+  propagate. Deleted the hash-based pseudo-embeddings and the fake `1.0 - 0.1·i` rerank scores.
+- `kb/repositories/qdrant.py`: no in-memory store, no `_is_live`, no `except` around Qdrant calls; construction and
+  every call raise when Qdrant is unreachable. `initialize_collection` uses `collection_exists` and treats a
+  concurrent `409 Conflict` as success (the race found in S01-07); other errors propagate. Removed an
+  old-client `FusionQuery` shim (client is pinned) and named the prefetch factor.
+- `/api/health` keeps its JSON shape; `live_connection` is `true` whenever it answers. The readiness check builds the
+  repository *inside* the check so a down Qdrant yields 503, not 500.
+- Log messages that promised a fallback ("Fallback mode will be active") corrected.
+- Tests: an **autouse embedded Qdrant** (`QdrantClient(":memory:")`) per test in `conftest.py`, so no test can reach
+  or write into a real server; Cohere fail-fast tests (missing key, embed error, rerank error, 96-text batching);
+  unreachable Qdrant raises; 409 race tolerated; other creation errors propagate.
+
+**Why**
+- *Pseudo-embeddings* would be **written into Qdrant** by the standalone ingestion job and look like real vectors;
+  the S01-01 smoke run already "indexed" 502 chunks that way. *Fake rerank scores* reorder results arbitrarily
+  while looking like model output.
+- *In-memory mode* made a down database report `HEALTHY` and answered `/solve` with keyword overlap; worse, it was
+  cached in the DI singleton, so the instance never recovered when Qdrant came back. Now a failed construction is not
+  cached (`lru_cache` doesn't cache exceptions), so the next request reconnects.
+- *Fakes/embedded Qdrant in tests* instead of the fallbacks: tests check our behaviour against a real Qdrant engine
+  (in-process), not against a mock-mode code path that production never should run.
+
+**Evidence**
+- `pytest` **56 passed in ~9 s** (sprint baseline: 16 passed in 42 s); ruff clean. v1 contract (golden) tests
+  unchanged → success paths identical.
+- Real run, Qdrant down (port 9), keys blank: `/api/health` **500**, `/api/ready` **503** `qdrant: timed out`
+  (postgres/redis ok), `/api/agent-assist/solve` **500**, UI 200.
+
+**Behaviour change (errors only)**
+| Situation | Before | After |
+|---|---|---|
+| Qdrant unreachable | `/api/health` 200 `live_connection: false`; search served from an in-memory keyword list | `/api/health` 500, `/api/ready` 503, `/solve` 500 |
+| Cohere error / no key during ingestion | hash pseudo-vectors upserted into Qdrant | ingestion of that source fails (`FAILED`, CLI exit 1) |
+| Cohere error during `/solve` | fake rerank order, answer generated anyway | HTTP 500 |
+| Concurrent first requests creating the collection | second instance silently in-memory, cached | both succeed |
+
+**Found (not fixed; proposals)**: other broad `except` blocks that degrade quietly — `GeminiOCRExtractor` keeps a
+partial document when a page's OCR call fails (pages can go missing from the index), the HTML/Markdown chunkers fall
+back to other splitters, the XML extractor falls back to BeautifulSoup, and `core/singletons.py` swallows client
+initialisation errors (the service then raises "not initialised" and the original cause is only in the log).
+Langfuse/tracing warnings are intentional (tracing must not break a request).
