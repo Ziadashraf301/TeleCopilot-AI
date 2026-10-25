@@ -74,7 +74,7 @@ Rough calendar: ~48 weeks part-time. Re-plan at every milestone review.
 | ✅ S01-07 | Startup ingestion → CLI job `python -m telecopilot.kb.ingest --all`; `/api/ready` reports dependency status | 3 | API starts fast with empty Qdrant |
 | ✅ S01-08 | CORS from settings, requirements split (runtime / dev / eval extras), pinned versions, ruff in CI | 3 | CI green; image not larger than before |
 | ✅ S01-10 | Remove silent fallbacks: `CohereService` raises instead of pseudo-embeddings / fake rerank scores; `QdrantVectorRepository` raises instead of in-memory mode; tests inject fakes (done before S01-09) | 3 | Errors propagate; tests use fakes, no network waits; behaviour change on errors documented in report + review |
-| S01-09 | Sprint + M0 review | 2 | `docs/sprints/S01-review.md` |
+| ✅ S01-09 | Sprint + M0 review | 2 | `docs/sprints/S01-review.md` |
 
 ## M1 — Agent desktop + CRM data (S02–S04)
 **Visual reference:** Figma community file "Chat UI" (https://www.figma.com/community/file/1057195320253196766/chat-ui).
@@ -186,4 +186,4 @@ optional ≤ $10 run → final side-by-side table (quality, latency, capacity, c
 ## Status
 | Sprint | Status |
 |---|---|
-| S01 | not started |
+| S01 | done, review pending (`docs/sprints/S01-review.md`) |

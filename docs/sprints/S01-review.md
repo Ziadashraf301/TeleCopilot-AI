@@ -1,6 +1,98 @@
 # S01 review — M0 Restructure & foundation
 
-Status: **in progress** (filled ticket by ticket; finalised in S01-09).
+Status: **done, waiting for Ziad's review.** Branch `sprint/01-foundation` (not pushed, not merged).
+v1 behaviour on success paths is unchanged (golden contract tests: same 12 endpoints, same JSON); behaviour changes
+only on errors (S01-10) and in start-up (ingestion is a separate job, S01-07). M0 exit criteria: new package layout ✅,
+config ✅, Postgres/Redis/Alembic ✅, ingestion as a job ✅, CI ✅ (simulated on 3.11; runs for real on the first PR).
+
+## Done / not done
+| Ticket | Status | Evidence (details in the ticket reports below) |
+|---|---|---|
+| S01-00 Design pack | ✅ approved | `docs/design/M0-foundation.md`, corrections applied (section 11) |
+| S01-01 pyproject + `src/telecopilot` | ✅ | `pip install -e .`; `uvicorn telecopilot.api.main:app` serves; no `sys.path` edits left |
+| S01-02 group into `api/agent/kb/llm` | ✅ | golden contract tests generated before the refactor and never regenerated (only `/api/ready` added in S01-07); layer test |
+| S01-03 `experiments/` → `evals/` | ✅ | `nbformat.validate` ok; setup + import cells of all 3 notebooks run in real kernels |
+| S01-04 Settings v2 | ✅ | settings tests run without `.env`; `.env.example` covers every new key |
+| S01-05 `deploy/compose/` | ✅ | stack up; `/api/health` live with 651 chunks; no `.env` in the image; image 709 MB (was 977 MB) |
+| S01-06 SQLAlchemy + Alembic + `audit_log` | ✅ | `alembic upgrade head` on compose Postgres (host and container); `alembic check` no drift; SQLite tests |
+| S01-07 ingestion CLI + `/api/ready` + logger | ✅ | API start-up never ingests (test + real run on an empty collection); `/api/ready` 200 → 503 (Redis stopped) → 200 |
+| S01-08 CORS, deps split, pins, ruff in CI | ✅ | CORS tests; CI steps; simulated CI on Python 3.11.17 without `.env`: ruff clean, 48 passed |
+| S01-10 remove silent fallbacks | ✅ | Cohere/Qdrant raise; autouse embedded Qdrant in tests; real run with Qdrant down: health 500, ready 503, solve 500 |
+| S01-09 review | ✅ | this file; Status table in `docs/SPRINTS.md` |
+
+**Final state**: `pytest` **56 passed in ~10 s** (sprint start: 16 passed in 42 s) · `ruff check` clean ·
+`ruff format --check` 99 files formatted · 35 commits, every message starts with its ticket ID · no secrets,
+`.env` or local absolute paths committed (checked with grep over the sprint diff).
+
+**Not done / not verified**
+- GitHub CI has not run (it runs only on push/PR, which needs Ziad's OK); simulated locally on Python 3.11 instead.
+- `python -m telecopilot.kb.ingest --all` was not run end to end: it calls Gemini OCR + Cohere with live keys and the
+  651 chunks are already indexed. Its logic is unit-tested and it runs in the container (`--help`, exit codes).
+- No live `/solve` call against Gemini/Cohere (cost); covered by the contract tests with fakes.
+
+## Decisions taken during the sprint
+1. **Golden-file contract tests before refactoring** (S01-02): every field of the v1 responses and ingestion
+   outputs is pinned, so "behaviour unchanged" is checked, not assumed.
+2. **S01-08's dependency work pulled forward** (before S01-05's first build): unpinned, Docker would have installed
+   untested major versions (cohere 7, langfuse 5, pymupdf 2 + onnxruntime) and downloaded everything twice.
+3. **DB packages added together with the pins** (before S01-06) so the image is built once.
+4. **Engine in `db/session.py`, not `core/singletons.py`**: follows the approved layer rule (`core` must not import `db`).
+5. **Readiness in `api/`** composing per-layer pings (approved correction); the Qdrant check builds the repository
+   inside the check so a down Qdrant is a 503, not a 500.
+6. **`127.0.0.1` instead of `localhost`** in the default DB/Redis URLs (2.1 s → 23 ms per new connection on Windows).
+7. **Compose host ports overridable** (`QDRANT_HOST_PORT`, …; defaults unchanged) instead of stopping another
+   project's containers that hold 6333/6334 on this laptop.
+8. **`LOG_DIR` setting** added (the logger had a hard-coded `logs/`).
+9. **Notebook source cells edited in place** (outputs kept) rather than regenerating notebook 03.
+10. **Secrets only at runtime**: `.dockerignore` keeps `.env` out of the image; compose passes it via `env_file`.
+11. **ruff**: `E, F, W, I, B, UP` enforced; E501 off (formatter owns line length), FastAPI `Depends` whitelisted for B008.
+
+## Downloads and sizes
+| What | Where | Size |
+|---|---|---|
+| ruff 0.17.2 (Windows wheel) | laptop | 10.3 MB |
+| psycopg 3.3.6 + psycopg-binary (Windows wheels) | laptop | 3.9 MB |
+| App image build: 104 pinned runtime wheels (Linux, 3.11) | Docker pip cache | **132 MB** (from the build log; second build 0 MB, 244 cache hits) |
+| pytest / pytest-asyncio / ruff for the CI simulation | throwaway container | ~15 MB |
+| Package metadata for dry-run resolutions, PyPI HEAD requests, registry manifests | — | a few MB |
+| te.eg pages fetched by the S01-01 smoke run (start-up ingestion, before S01-07) | — | < 1 MB |
+| Docker images pulled | — | **none** (qdrant v1.13.0, postgres:16-alpine, redis:7-alpine, python:3.11-slim were cached) |
+| Model weights | — | none (as required) |
+
+Image sizes: app **709 MB** (old v1 image 977 MB) · qdrant 189 MB · postgres 294 MB · redis 39 MB · base 125 MB.
+
+## Risks found
+| # | Risk | Impact | Status |
+|---|---|---|---|
+| 1 | **BM25 indices use Python's per-process `hash()`** (verified: same text, different indices per process) | Sparse half of hybrid search is noise after any restart and for every CLI-ingested chunk; may explain part of faithfulness 0.61 | **open, needs a decision** (P1) |
+| 2 | qdrant-client 1.19 vs server v1.13 (client warns "incompatible") | Subtle API mismatches | open (P4) |
+| 3 | Other quiet degradations: Gemini OCR keeps partial pages, chunker/XML parser fallbacks, singletons swallow client-init errors | Content missing from the index without a failure | open (P3) |
+| 4 | Any image built **before** this sprint contains `.env` (no `.dockerignore` existed) | API keys inside old local images | rotate keys if such an image was ever pushed/shared; consider deleting old images |
+| 5 | Old tests wrote into whatever Qdrant listened on `localhost:6333` (here `crm_docker`'s, now holding a stray `telecom_customer_policies` collection with 1 point) | Pollution of another project's DB | fixed for the future (S01-10); stray collection left for Ziad to delete |
+| 6 | Only direct deps are pinned; transitive versions can move | Rare "works on my machine" drift | accepted for now (P6) |
+| 7 | Local app import takes ~19 s (8.9 s `langchain_text_splitters` → NLTK/sklearn, installed by the eval extras) | Slow local start/reload; Docker unaffected (~9–17 s to ready) | open (P5) |
+| 8 | `/api/health` now returns 500 when Qdrant is down (was 200 + `live_connection: false`) | Monitors that treated health as liveness see failures | intended (S01-10); P7 if a pure liveness probe is wanted |
+| 9 | Default `DATABASE_URL` carries local dev credentials | Fine for the local stack only | M8 security pass |
+
+## Proposals (not built)
+- **P1 — Stable BM25 hash** (`zlib.crc32` of the UTF-8 token) + one re-index. Small and high-value; suggested as the
+  first ticket of S02, or in M2 before any retrieval eval. Changes stored sparse indices only, not weights.
+- **P2 — Run the ingestion CLI once for real** after P1 so the index is consistent, then re-run RAGAS to see whether
+  faithfulness moves.
+- **P3 — Fail-loud extraction in M2 (S06-01 / S06-03)**: per-page OCR failures, chunker fallbacks and the XML fallback
+  become counted data-quality records instead of warnings; singletons re-raise client-init errors.
+- **P4 — Align Qdrant client and server** in M3 (server image pull ~80 MB, needs Ziad's OK) or pin the client to 1.13.x.
+- **P5 — Import only the LangChain splitter modules used** (M2 chunking v2), cutting ~9 s from local start-up.
+- **P6 — Lock file** (pip-tools or uv) if transitive drift ever bites; not needed yet.
+- **P7 — Optional `/api/live`** (process up, no dependencies) if container liveness probes are added in M8.
+- **For S02 planning**: the Reflex desktop needs its origin in `CORS_ORIGINS`; the M1 ERD should decide which actions
+  write to `audit_log` and its indexes; add an audit repository class when the first writer appears, not before.
+
+## Local environment notes
+- Our compose stack is still running (`telco_qdrant` on host ports 6343/6344 for this run, `telco_postgres`,
+  `telco_redis`, `telco_agent_assist` on 8000). `docker compose stop` stops it; the Qdrant/Postgres volumes are kept.
+- Other projects' containers (`crm_docker`, `real_estate`) start with Docker Desktop (`restart=always`) and hold
+  6333/6334; start ours with `QDRANT_HOST_PORT=6343 QDRANT_GRPC_HOST_PORT=6344 docker compose up` while they run.
 
 ## Ticket reports
 
