@@ -1,0 +1,339 @@
+# M0 — Restructure & Foundation (design pack, S01-00)
+
+Status: **draft, waiting for Ziad's approval**. No code changes until approved.
+Branch: `sprint/01-foundation`. Covers tickets S01-01 … S01-09 in [../SPRINTS.md](../SPRINTS.md).
+
+**Goal of M0 in one sentence:** the v1 app keeps doing exactly what it does today (same endpoints, same JSON),
+but it lives in a proper installable package, starts fast, and has Postgres, Redis, migrations, settings and CI
+ready for M1.
+
+---
+
+## 1. Where we are today
+
+```mermaid
+flowchart TB
+  subgraph src["src/  (put on sys.path by hand)"]
+    api["api/main.py<br/>app + startup ingestion + CORS *"]
+    controllers["controllers/<br/>5 routers"]
+    dependencies["dependencies/<br/>FastAPI DI"]
+    services["services/<br/>agent_assist · ingestion · cohere · gemini · sparse BM25"]
+    repositories["repositories/<br/>base + qdrant"]
+    ingestion["ingestion/<br/>extractors · chunkers · factories"]
+    models["models/<br/>api_models · document_models"]
+    core["core/<br/>logger · singletons · observability"]
+    config["config/settings.py"]
+  end
+  experiments["experiments/<br/>3 notebooks + extraction_eval + rag_eval + reports"]
+  static["static/ (v1 UI)"]
+  data["data/raw · data/ground_truth"]
+  experiments -. "sys.path hack" .-> src
+```
+
+What hurts today, and which ticket fixes it:
+
+| Problem | Why it matters | Fixed in |
+|---|---|---|
+| `sys.path` is edited in `main.py`, `conftest.py`, `pytest.ini`, the Dockerfile and every notebook | Imports only work from some folders; top-level names like `config`, `core`, `models` can clash with other installed libraries | S01-01 |
+| Folders are grouped by *kind* (controllers, services, models) instead of by *feature* | When M1 adds CRM and M5 adds channels, `services/` would mix KB, CRM and channel code | S01-02 |
+| The app scrapes te.eg and runs OCR **during startup** | Start-up takes minutes and needs the internet and API keys; a failure is only logged as a warning | S01-07 |
+| `CORS allow_origins=["*"]`, Qdrant `timeout=10.0` hard-coded | Hard-coded config (anti-pattern); `*` with credentials is unsafe | S01-04, S01-08 |
+| One unpinned `requirements.txt` with test tools, unused packages (`google-genai`, full `langchain`) | Bigger Docker image, builds not reproducible | S01-08 |
+| No Postgres, Redis, migrations, lint in CI | M1 needs them on day one | S01-04 … S01-08 |
+
+---
+
+## 2. Target layout after S01
+
+```mermaid
+flowchart TB
+  subgraph pkg["src/telecopilot/  (installed with pip install -e .)"]
+    direction TB
+    api2["api/<br/>main.py · dependencies.py · schemas.py<br/>routers/ assist · ingest · scraper · documents · health"]
+    agent2["agent/<br/>assist_service.py  (today's AgentAssistService)"]
+    kb2["kb/<br/>models.py · extractors/ · chunkers/ · factories.py<br/>repositories/ (base, qdrant) · sparse.py · retrieval.py<br/>ingestion_service.py · ingest.py (CLI)"]
+    llm2["llm/<br/>cohere.py · gemini.py  (unchanged behaviour)"]
+    db2["db/<br/>base.py · session.py"]
+    audit2["audit/<br/>models.py  (AuditLog table)"]
+    core2["core/<br/>logger · singletons · observability · readiness"]
+    config2["config/settings.py"]
+  end
+  migrations["migrations/  (Alembic) + alembic.ini"]
+  evals["evals/<br/>notebooks/ · extraction/ · rag/ · reports/"]
+  deploy["deploy/compose/docker-compose.yml<br/>qdrant · postgres · redis · app"]
+  root["docker-compose.yml  (include: deploy/compose/…)"]
+  root --> deploy
+```
+
+File-by-file moves (done with `git mv`, so `git log --follow` keeps each file's history):
+
+| Today | After S01 | Note |
+|---|---|---|
+| `src/api/main.py` | `telecopilot/api/main.py` | No more `sys.path`; no startup ingestion (S01-07) |
+| `src/controllers/*_controller.py` | `telecopilot/api/routers/{assist,ingest,scraper,documents,health}.py` | Same paths, same JSON |
+| `src/dependencies/dependencies.py` | `telecopilot/api/dependencies.py` | DI wiring belongs to the API layer |
+| `src/models/api_models.py` | `telecopilot/api/schemas.py` | HTTP request/response shapes |
+| `src/models/document_models.py` | `telecopilot/kb/models.py` | Chunks, search results, extracted docs |
+| `src/ingestion/*` | `telecopilot/kb/{extractors,chunkers,factories.py,base.py}` | Unchanged code |
+| `src/repositories/*` | `telecopilot/kb/repositories/{base,qdrant}.py` | Vector store is a KB concern |
+| `src/services/sparse_embedding_model.py` | `telecopilot/kb/sparse.py` | BM25 is retrieval, not an LLM |
+| `src/services/ingestion_service.py` | `telecopilot/kb/ingestion_service.py` | |
+| `src/services/cohere_service.py`, `gemini_service.py` | `telecopilot/llm/cohere.py`, `gemini.py` | Unchanged until M3 provider interfaces |
+| `src/services/agent_assist_service.py` | `telecopilot/agent/assist_service.py` | See decision D3 |
+| `src/core/*`, `src/config/*` | `telecopilot/core/*`, `telecopilot/config/*` | |
+| `experiments/*.ipynb` | `evals/notebooks/*.ipynb` | |
+| `experiments/extraction_eval/` | `evals/extraction/` | |
+| `experiments/rag_eval/` | `evals/rag/` | |
+| `experiments/reports/*` | `evals/reports/kb/v1/` (extraction, HITL log), `evals/reports/generation/v1/` (RAGAS) | Matches the `evals/reports/<service>/<stage>/` rule in PLAN.md |
+| `requirements.txt` | `pyproject.toml` (runtime deps + `dev` and `eval` extras) | One source of truth |
+| `docker-compose.yml` | `deploy/compose/docker-compose.yml` + thin root file | Root keeps `docker compose up` working |
+| `static/`, `data/` | unchanged | Reflex replaces `static/` in M1 |
+
+`crm/`, `channels/`, `speech/`, `mcp_servers/`, `worker/` and `apps/web/` from the PLAN layout are **not** created in
+S01. Empty folders for the future would be YAGNI; each appears in the milestone that fills it.
+
+---
+
+## 3. Layer dependencies (which package may import which)
+
+```mermaid
+flowchart TB
+  api["api<br/>(HTTP: routers, schemas, DI)"]
+  agent["agent<br/>(orchestration: retrieve → generate)"]
+  kb["kb<br/>(extract, chunk, index, retrieve)"]
+  llm["llm<br/>(Cohere, Gemini clients wrapped)"]
+  audit["audit"]
+  db["db<br/>(SQLAlchemy base, session)"]
+  core["core<br/>(logging, singletons, tracing, readiness)"]
+  config["config"]
+  api --> agent
+  api --> kb
+  api --> core
+  agent --> kb
+  agent --> llm
+  kb --> llm
+  audit --> db
+  agent --> core
+  kb --> core
+  llm --> core
+  core --> db
+  db --> config
+  core --> config
+```
+
+Rule: **arrows point downwards only.** A lower package never imports a higher one (for example `kb` never imports
+`agent` or `api`). This is the "no wrong-way imports" rule from CODE_GUIDELINES. In plain words: the parts at the
+bottom (settings, logging, database) don't know who uses them, so they can be tested alone and reused by the
+worker, the CLI and the future Reflex app.
+
+`kb → llm` exists because ingestion and retrieval need embeddings and reranking (Cohere today). In M3 this becomes
+`kb → llm.Embedder / llm.Reranker` interfaces (ADR-2); the direction stays the same.
+
+---
+
+## 4. Startup and readiness (S01-07)
+
+Today startup scrapes and indexes everything. After S01-07 the API only connects; indexing is a separate command.
+
+```mermaid
+sequenceDiagram
+  participant Dev as Ziad / CI
+  participant CLI as python -m telecopilot.kb.ingest --all
+  participant API as FastAPI app
+  participant Q as Qdrant
+  participant P as Postgres
+  participant R as Redis
+  Dev->>API: start (uvicorn / compose)
+  API-->>Dev: up in seconds, even if Qdrant is empty
+  Dev->>CLI: run ingestion job (when data changes)
+  CLI->>Q: upsert chunks (dense + sparse)
+  Dev->>API: GET /api/ready
+  API->>Q: list collections
+  API->>P: SELECT 1
+  API->>R: PING
+  API-->>Dev: 200 {"status":"ready","checks":{...}} or 503 {"status":"not_ready",...}
+```
+
+- `/api/health` keeps today's response shape exactly (v1 UI and tests use it).
+- `/api/ready` is new infrastructure, not a feature: it answers "can this instance serve traffic?" Each check
+  returns `ok`, `latency_ms` and, on failure, a short `error`. An empty Qdrant is *ready* (the CLI fills it); a
+  Qdrant that cannot be reached is *not ready*.
+- In Docker Compose the ingestion job is a one-off command:
+  `docker compose run --rm app python -m telecopilot.kb.ingest --all`.
+
+---
+
+## 5. Data foundation (S01-04 … S01-06)
+
+```mermaid
+flowchart LR
+  subgraph compose["deploy/compose (one network)"]
+    app["app<br/>python:3.11-slim"]
+    qd[("qdrant v1.13.0<br/>(already used)")]
+    pg[("postgres:16-alpine")]
+    rd[("redis:7-alpine")]
+  end
+  app --> qd
+  app --> pg
+  app --> rd
+```
+
+First (and only) table in S01, so Alembic and the session dependency are proven end to end:
+
+```mermaid
+erDiagram
+  AUDIT_LOG {
+    bigint id PK
+    timestamptz occurred_at "server default now()"
+    string actor "csr id, or 'system' until auth exists (M1)"
+    string action "e.g. ingest.run, ticket.update"
+    string entity_type "nullable"
+    string entity_id "nullable"
+    json details "free-form context"
+  }
+```
+
+- **Sync SQLAlchemy 2** (not async): every existing service is synchronous, FastAPI runs sync dependencies in a
+  thread pool, and at 20–100 CSRs this is far below any limit. Async can be added if a load test (ADR-9) shows a need.
+- Driver: `psycopg` 3 (binary wheel). Tests use **SQLite in memory**, so CI needs no Postgres.
+- `get_db_session()` is a FastAPI dependency in `db/session.py`, exposed through `api/dependencies.py` like the others.
+- Alembic lives at the repo root (`alembic.ini`, `migrations/`); `migrations/env.py` reads `DATABASE_URL` from
+  settings, never from the ini file, so no credentials are committed.
+- S01 writes **no** audit rows yet; who writes what is decided in the M1 ERD (S02-00). The table only proves the
+  plumbing.
+
+New settings (S01-04), all overridable from `.env`, defaults keep today's behaviour:
+
+| Setting | Default | Why |
+|---|---|---|
+| `DATABASE_URL` | `postgresql+psycopg://telecopilot:telecopilot@localhost:5432/telecopilot` | Local compose Postgres |
+| `REDIS_URL` | `redis://localhost:6379/0` | Local compose Redis |
+| `QDRANT_TIMEOUT_S`, `DB_TIMEOUT_S`, `REDIS_TIMEOUT_S`, `SCRAPER_TIMEOUT_S` | today's values: Qdrant 10 s, scraper 30 s; DB 5 s and Redis 2 s (new) | Replaces hard-coded numbers |
+| `CORS_ORIGINS` | `["http://localhost:8000"]` | Replaces `*` (S01-08 wires it) |
+| `LLM_PROVIDER` / `EMBED_PROVIDER` / `RERANK_PROVIDER` | `gemini` / `cohere` / `cohere` | Placeholders for ADR-2; validated as a fixed list of names, only today's value is accepted until M3 adds the others |
+| `DATA_RAW_DIR`, `STATIC_DIR` | `data/raw`, `static` (relative to the working dir) | Needed once code runs from an installed package (see risk R2) |
+
+---
+
+## 6. Migration steps (order of commits)
+
+```mermaid
+flowchart LR
+  s0["S01-00<br/>this design"] --> s1["S01-01<br/>pyproject + src/telecopilot<br/>imports rewritten"]
+  s1 --> s2["S01-02<br/>group into kb / llm / agent / api"]
+  s2 --> s3["S01-03<br/>experiments → evals"]
+  s3 --> s4["S01-04<br/>settings v2"]
+  s4 --> s5["S01-05<br/>deploy/compose + PG + Redis"]
+  s5 --> s6["S01-06<br/>SQLAlchemy + Alembic + audit_log"]
+  s6 --> s7["S01-07<br/>ingest CLI + /api/ready"]
+  s7 --> s8["S01-08<br/>CORS, deps split, ruff in CI"]
+  s8 --> s9["S01-09<br/>review"]
+```
+
+How each step stays safe:
+1. **S01-01 in three commits**: (a) `git mv src/* src/telecopilot/` + `pyproject.toml`; (b) mechanical import
+   rewrite `from config.` → `from telecopilot.config.` etc., delete `sys.path` code; (c) `ruff format` +
+   `ruff check --fix` on the whole repo as its own commit, so the move commits stay readable and formatting noise
+   is isolated. Tests must be green after (b) and (c).
+2. **S01-02** is moves plus the three small behaviour-neutral clean-ups in D4. Endpoint paths and JSON shapes are
+   checked by the existing controller tests plus one new test that snapshots the OpenAPI path list before/after.
+3. Every ticket ends with `pytest`, `ruff check`, `ruff format --check` green before it is ticked.
+
+---
+
+## 7. Decisions (options, choice, why)
+
+**D1 — Package build tool.** Options: setuptools · hatchling · poetry · uv. **Choice: setuptools** with a
+`src/` layout in `pyproject.toml`. Why: already installed, no new tool to learn or download, standard
+`pip install -e .`. Poetry/uv would add a second dependency manager.
+
+**D2 — Group by feature (`kb`, `llm`, `agent`) instead of by kind (`services`, `controllers`).** Why: M1+ adds CRM,
+channels and speech; feature folders keep each feature's model, service and repository together, so a change to
+"KB" touches one folder. Controllers stay together under `api/routers/` because they are all HTTP and thin.
+
+**D3 — Where `AgentAssistService` goes.** Options: (a) `kb/` · (b) a new `assist/` package · (c) **`agent/`**.
+Choice: (c). It orchestrates retrieval + generation, which is exactly what the M6 LangGraph agent will do; the
+PLAN layout already has `agent/`. Putting it in `kb/` would make `kb` depend on the LLM generator and blur the KB's
+job.
+
+**D4 — Small clean-ups done while moving (behaviour-neutral, covered by tests).** I propose these three because
+they touch the files being moved anyway and each removes a CODE_GUIDELINES violation:
+1. *Extract retrieval*: move `_embed_query`, `_hybrid_search`, `_rerank` out of `AgentAssistService` (342 lines,
+   two jobs) into `kb/retrieval.py` (`HybridRetriever`). The ticket lists "retrieval" under `kb/`, and the M3
+   retrieval eval (S09-01) needs retrieval without the LLM.
+2. *DRY ingestion*: `ingest_url` and `ingest_file` repeat the same extract → chunk → embed → upsert code; one
+   private helper. Returned dicts stay byte-for-byte the same.
+3. *One sparse vector type*: `SparseVector` (BM25 model) duplicates `SparseVectorData` (pydantic); keep the
+   pydantic one.
+Anything bigger is a proposal for later (section 9), not done in S01.
+
+**D5 — Ingestion as a CLI, not a startup hook (ADR-10 direction).** Options: keep startup ingestion behind a flag ·
+background task inside the API · **separate CLI job**. Choice: CLI. Why: the API starts in seconds, ingestion
+errors are visible (non-zero exit code instead of a warning), and in M2 the same entry point becomes the pipeline
+job. A flag would be a "speculative option" and a background task hides failures.
+
+**D6 — Dependencies.** Runtime deps in `[project.dependencies]` pinned with `==` to the versions already installed
+on the laptop (no new downloads, reproducible); `dev` extra = pytest, pytest-asyncio, httpx, ruff; `eval` extra =
+ragas, langchain-openai, langchain-cohere, jupyter bits used by the notebooks. Remove unused `google-genai` and the
+full `langchain` (only `langchain-text-splitters` is imported). `requirements.txt` is deleted (one source of truth).
+
+**D7 — Docker.** Same `python:3.11-slim` base (already cached). Pip cache mount
+(`RUN --mount=type=cache,target=/root/.cache/pip`) so rebuilds reuse downloaded wheels instead of downloading again.
+Try dropping `build-essential` (≈ 200 MB in the image) if every dependency has a wheel; keep it only if a build
+fails. `pip install .` (non-editable) inside the image.
+
+**D8 — Compose file location.** `deploy/compose/docker-compose.yml` holds the services; the root file is
+`include: [deploy/compose/docker-compose.yml]` (Compose ≥ 2.20) and keeps `name: telecopilot-ai`, so the existing
+Qdrant volume and `docker compose up` keep working. Container names and the `qdrant_storage` volume stay the same.
+Later profiles (`local-gpu`, `api-fallback`, `cloud-gpu`) go in the same folder when M3 needs them.
+
+**D9 — Ruff rules.** `E, F, W, I, B, UP`, line length 120 (matches the current code). Started in S01-01 so every
+later ticket can run `ruff check` as the agent prompt requires; CI enforcement is added in S01-08.
+
+**D10 — Evals import path.** Notebooks set the working directory to the repo root (they need `data/` anyway) and
+import `telecopilot` from the installed package. `evals/` is a plain folder with `__init__.py`, imported from the
+repo root; it is not installed with the app because the app must never depend on eval code.
+
+---
+
+## 8. Risks
+
+| # | Risk | Mitigation |
+|---|---|---|
+| R1 | Big import rewrite breaks something tests don't cover (notebooks, `build_notebook.py`, scripts) | Grep for every old top-level name after the rewrite; open each notebook's import cell with `python -c` equivalents |
+| R2 | After `pip install .` in Docker, `__file__`-based paths (`static/`, `data/raw/`) point into site-packages | `STATIC_DIR` / `DATA_RAW_DIR` settings relative to the working dir (`/app` in Docker) |
+| R3 | Rebuilding the Docker image re-downloads Python packages (estimate 150–250 MB) | Pip cache mount; I will measure the first rebuild and **ask before it if the estimate is over 200 MB** |
+| R4 | New images: `postgres:16-alpine` ≈ 100 MB, `redis:7-alpine` ≈ 15 MB download | Under the 200 MB limit; sizes will be listed in the review |
+| R5 | Docker Desktop is not running right now | S01-05/06 need it; I'll ask you to start it when I get there |
+| R6 | Tests take ~42 s today because they wait on Qdrant timeouts | S01-07 removes startup ingestion; tests override the repository so no network wait |
+| R7 | Moving `ingestion` code changes the `logger` module name shown in logs | Cosmetic only; noted |
+| R8 | `pip install -e .` on OneDrive paths can be slow or lock files | If it fails, fall back to a `.pth` editable install mode (`--config-settings editable_mode=compat`) |
+
+---
+
+## 9. Found while reading — proposals, **not** built in S01
+
+These conflict with CLAUDE.md rules but fixing them changes behaviour, so they belong to later tickets:
+- **Silent fallbacks**: `CohereService` returns hash-based "pseudo-embeddings" and fake rerank scores on any
+  error; `QdrantVectorRepository` silently switches to an in-memory mode. Both break "fail fast". Proposal: remove
+  in S08-02 when the provider interfaces replace these classes.
+- **Logger side effects at import** (adds file sinks and creates `logs/` on import, global state). Proposal:
+  a `configure_logging()` called from app/CLI start-up, in S01-07 if you want it now (small), otherwise M8.
+- **`documents` router holds a hard-coded catalogue and ~250 lines of HTML templates** (business logic in a route).
+  Proposal: the KB source registry in M2 (S05-01) replaces the catalogue; preview rendering moves into `kb/`.
+- **Deprecated SDK**: `google-generativeai` is deprecated in favour of `google-genai`. Proposal: switch inside the
+  Gemini provider in S08-01.
+- **Dead code**: `GeminiService.generate_reply_stream` (sync) is unused. Proposal: delete in S01-02 (dead code is a
+  listed anti-pattern; no behaviour change). I'll include it unless you object.
+
+---
+
+## 10. Open questions for Ziad
+
+1. OK to do the three D4 clean-ups (retrieval extraction, DRY ingestion, one sparse vector type) and delete the dead
+   sync stream method inside S01-02, or should S01 be strictly moves only?
+2. Should `/api/ready` also return `503` when Postgres/Redis are down even though v1 doesn't use them yet? (My
+   default: yes, since they are part of the compose stack from S01-05 on.)
+3. Do you want a small test that enforces the layer arrows in section 3 (parses imports, ~30 lines, no new
+   dependency)? My recommendation: yes, it stops wrong-way imports from creeping in during M1–M6.
+4. Logger clean-up (section 9): now in S01-07, or later?
