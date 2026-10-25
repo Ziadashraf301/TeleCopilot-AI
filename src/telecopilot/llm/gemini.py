@@ -1,5 +1,5 @@
 import json
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncIterator
 from typing import Any
 
 from telecopilot.config.settings import get_settings
@@ -17,7 +17,6 @@ class GeminiService:
 
     Methods:
       generate_agent_solution()       — sync, JSON mode, returns full structured dict
-      generate_reply_stream()         — sync iterator, used by batch endpoint only
       generate_reply_stream_async()   — ASYNC generator, true token-by-token SSE streaming
 
     Fail-fast: no fallback logic. Any error propagates immediately.
@@ -109,23 +108,6 @@ Respond STRICTLY in valid JSON format with the following keys:
         parsed = json.loads(response.text)
         logger.info(f"Gemini batch solution generated for query: '{customer_query[:60]}...'")
         return parsed
-
-    # ------------------------------------------------------------------
-    # Sync streaming  (kept for reference — NOT used by SSE endpoint)
-    # ------------------------------------------------------------------
-
-    def generate_reply_stream(
-        self,
-        customer_query: str,
-        retrieved_contexts: list[dict[str, Any]],
-    ) -> Iterator[str]:
-        """Sync streaming — only use in non-async contexts. Prefer generate_reply_stream_async."""
-        context_str = self._build_context_str(retrieved_contexts)
-        prompt = self._build_stream_prompt(customer_query, context_str)
-        response = self.client.generate_content(prompt, stream=True)
-        for chunk in response:
-            if chunk.text:
-                yield chunk.text
 
     # ------------------------------------------------------------------
     # TRUE async streaming  (used by SSE endpoint — real token-by-token)
