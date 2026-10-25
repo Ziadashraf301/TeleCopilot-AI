@@ -115,20 +115,22 @@ The app uses a layered **controller → service → repository** design, with **
 chunkers, **singletons** for API clients and the database connection, and FastAPI dependency injection.
 
 ```
-src/
-├── api/main.py              FastAPI app; ingests sources on startup if Qdrant is empty
-├── controllers/             agent assist, ingestion, scraper, documents, health
-├── services/                agent_assist, ingestion, cohere, gemini, sparse embeddings
-├── repositories/            Qdrant repository (collection, upsert, hybrid search)
-├── ingestion/
-│   ├── extractors/          html, xml, docx, gemini_ocr, web_scraper
-│   ├── chunkers/            format-aware policy chunkers
-│   └── factories.py         ExtractorFactory, ChunkerFactory
-├── core/                    logger (loguru), Langfuse observability, singletons
-├── models/                  Pydantic API and document models
-└── config/settings.py       pydantic-settings configuration
-static/                      CSR dashboard (HTML, CSS, JS)
-tests/                       11 pytest modules
+src/telecopilot/                 one installable package (pip install -e .)
+├── api/                         main.py (FastAPI app), routers/, schemas.py, dependencies.py (DI wiring)
+├── agent/assist_service.py      copilot orchestration: retrieve, then generate (batch JSON or SSE)
+├── kb/
+│   ├── extractors/              html, xml, docx, gemini_ocr, web_scraper
+│   ├── chunkers/                format-aware policy chunkers
+│   ├── factories.py             ExtractorFactory, ChunkerFactory
+│   ├── repositories/            Qdrant repository (collection, upsert, hybrid search)
+│   ├── sparse.py                BM25 sparse embeddings
+│   ├── ingestion_service.py     extract → chunk → embed → upsert
+│   └── models.py                document and chunk models
+├── llm/                         Cohere (embed, rerank) and Gemini (generation) clients
+├── core/                        logger (loguru), Langfuse observability, client singletons
+└── config/settings.py           pydantic-settings configuration
+static/                          CSR dashboard (HTML, CSS, JS)
+tests/                           pytest suite, incl. v1 contract (golden files) and layer-import rules
 ```
 
 ---

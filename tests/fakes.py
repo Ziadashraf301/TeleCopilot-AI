@@ -1,7 +1,7 @@
 """Offline stand-ins for external services (Qdrant, Cohere, Gemini), shared by the test modules."""
 
-from telecopilot.models.document_models import DocumentChunk, SearchResult
-from telecopilot.repositories.base import BaseVectorRepository
+from telecopilot.kb.models import DocumentChunk, SearchResult
+from telecopilot.kb.repositories.base import BaseVectorRepository
 
 FAKE_DENSE_DIM = 1024
 

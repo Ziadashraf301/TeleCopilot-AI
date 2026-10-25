@@ -108,6 +108,7 @@ flowchart TB
   config["config"]
   api --> agent
   api --> kb
+  api --> llm
   api --> core
   api --> db
   agent --> kb
@@ -125,6 +126,9 @@ Rule: **arrows point downwards only.** A lower package never imports a higher on
 `agent` or `api`). This is the "no wrong-way imports" rule from CODE_GUIDELINES. In plain words: the parts at the
 bottom (settings, logging, database) don't know who uses them, so they can be tested alone and reused by the
 worker, the CLI and the future Reflex app.
+
+Every package may also import `config` (the bottom layer); those arrows are left out of the drawing to keep it
+readable. `api → llm` exists because the DI wiring in `api/dependencies.py` builds the Cohere and Gemini services.
 
 `core` and `db` are both foundation packages and depend **only on `config`** (and third-party libraries). They
 never import each other. Anything that needs several of them at once (for example readiness) lives in `api`.

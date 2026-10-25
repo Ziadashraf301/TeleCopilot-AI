@@ -1,10 +1,10 @@
 import pytest
 from fakes import FakeCohereService, FakeGeminiService, FakeVectorRepository
 
+from telecopilot.agent.assist_service import AgentAssistService
+from telecopilot.api.dependencies import get_agent_assist_service
 from telecopilot.api.main import app
 from telecopilot.core.singletons import SingletonsManager
-from telecopilot.dependencies import get_agent_assist_service
-from telecopilot.services.agent_assist_service import AgentAssistService
 
 
 @pytest.fixture

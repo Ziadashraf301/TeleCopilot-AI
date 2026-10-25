@@ -2,8 +2,8 @@ import pytest
 from qdrant_client import QdrantClient
 
 from telecopilot.core.singletons import SingletonsManager
-from telecopilot.repositories.base import DocumentChunk
-from telecopilot.repositories.qdrant_repository import QdrantVectorRepository
+from telecopilot.kb.repositories.base import DocumentChunk
+from telecopilot.kb.repositories.qdrant import QdrantVectorRepository
 
 
 @pytest.fixture

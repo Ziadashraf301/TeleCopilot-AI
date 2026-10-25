@@ -1,6 +1,7 @@
 import pytest
 
-from telecopilot.dependencies import (
+from telecopilot.agent.assist_service import AgentAssistService
+from telecopilot.api.dependencies import (
     get_agent_assist_service,
     get_cohere_service,
     get_gemini_service,
@@ -8,12 +9,11 @@ from telecopilot.dependencies import (
     get_sparse_model,
     get_vector_repository,
 )
-from telecopilot.repositories.base import BaseVectorRepository
-from telecopilot.services.agent_assist_service import AgentAssistService
-from telecopilot.services.cohere_service import CohereService
-from telecopilot.services.gemini_service import GeminiService
-from telecopilot.services.ingestion_service import IngestionService
-from telecopilot.services.sparse_embedding_model import SparseEmbeddingModel
+from telecopilot.kb.ingestion_service import IngestionService
+from telecopilot.kb.repositories.base import BaseVectorRepository
+from telecopilot.kb.sparse import SparseEmbeddingModel
+from telecopilot.llm.cohere import CohereService
+from telecopilot.llm.gemini import GeminiService
 
 
 @pytest.fixture

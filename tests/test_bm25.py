@@ -1,4 +1,4 @@
-from telecopilot.services.sparse_embedding_model import SparseEmbeddingModel, SparseVector
+from telecopilot.kb.sparse import SparseEmbeddingModel, SparseVector
 
 
 def test_okapi_bm25_sparse_model():

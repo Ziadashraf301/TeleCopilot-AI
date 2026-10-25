@@ -1,5 +1,5 @@
-from telecopilot.ingestion.chunkers.policy_chunkers import WebScrapedPolicyChunker
-from telecopilot.ingestion.extractors.web_scraper_extractor import WebScraperExtractor
+from telecopilot.kb.chunkers.policy_chunkers import WebScrapedPolicyChunker
+from telecopilot.kb.extractors.web_scraper_extractor import WebScraperExtractor
 
 
 def test_web_scraper_html_parsing():

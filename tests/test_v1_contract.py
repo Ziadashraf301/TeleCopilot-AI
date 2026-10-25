@@ -13,7 +13,7 @@ from fakes import FakeCohereService, FakeVectorRepository
 from fastapi.testclient import TestClient
 
 from telecopilot.api.main import app
-from telecopilot.services.ingestion_service import IngestionService
+from telecopilot.kb.ingestion_service import IngestionService
 
 GOLDEN_DIR = Path(__file__).parent / "golden"
 RAW_DIR = Path(__file__).parents[1] / "data" / "raw"

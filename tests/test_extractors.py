@@ -1,5 +1,5 @@
-from telecopilot.ingestion.chunkers.policy_chunkers import SIMPolicyChunker
-from telecopilot.ingestion.extractors.html_extractor import HTMLExtractor
+from telecopilot.kb.chunkers.policy_chunkers import SIMPolicyChunker
+from telecopilot.kb.extractors.html_extractor import HTMLExtractor
 
 
 def test_html_extractor_and_sim_chunker(tmp_path):

@@ -1,6 +1,6 @@
-from telecopilot.repositories.base import DocumentChunk, SparseVectorData
-from telecopilot.repositories.qdrant_repository import QdrantVectorRepository
-from telecopilot.services.sparse_embedding_model import SparseEmbeddingModel, SparseVector
+from telecopilot.kb.repositories.base import DocumentChunk, SparseVectorData
+from telecopilot.kb.repositories.qdrant import QdrantVectorRepository
+from telecopilot.kb.sparse import SparseEmbeddingModel, SparseVector
 
 
 def test_sparse_embedding_model():

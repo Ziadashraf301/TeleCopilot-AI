@@ -5,10 +5,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from telecopilot.api.routers import assist, documents, health, ingest, scraper
 from telecopilot.config.settings import get_settings
-from telecopilot.controllers import agent_assist_router, download_router, health_router, ingest_router, scraper_router
 from telecopilot.core.logger import get_logger
-from telecopilot.services.ingestion_service import IngestionService
+from telecopilot.kb.ingestion_service import IngestionService
 
 logger = get_logger()
 settings = get_settings()
@@ -22,7 +22,7 @@ async def lifespan(app: FastAPI):
     """
     logger.info(f"Starting {settings.APP_NAME} in {settings.APP_ENV} mode...")
     try:
-        from telecopilot.dependencies.dependencies import get_cohere_service, get_vector_repository
+        from telecopilot.api.dependencies import get_cohere_service, get_vector_repository
 
         repo = get_vector_repository()
         cohere_svc = get_cohere_service()
@@ -58,11 +58,8 @@ app.add_middleware(
 )
 
 # Register Controller Routers
-app.include_router(agent_assist_router)
-app.include_router(ingest_router)
-app.include_router(health_router)
-app.include_router(scraper_router)
-app.include_router(download_router)
+for module in (assist, ingest, health, scraper, documents):
+    app.include_router(module.router)
 
 # Mount Static UI Files (resolving project root static directory)
 static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "static"))

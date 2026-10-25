@@ -1,8 +1,8 @@
-from telecopilot.ingestion.chunkers.policy_chunkers import (
+from telecopilot.kb.chunkers.policy_chunkers import (
     SIMPolicyChunker,
     WebScrapedPolicyChunker,
 )
-from telecopilot.models.document_models import ExtractedDocument
+from telecopilot.kb.models import ExtractedDocument
 
 
 def test_langchain_splitters_in_chunkers():

@@ -5,7 +5,7 @@ production at small scale (one contact centre team, ~20–100 CSRs). The full ro
 
 ## Current state (v1)
 - FastAPI app; layered **controller → service → repository**, factories for extractors/chunkers, singletons for clients,
-  FastAPI DI in `src/dependencies/`.
+  FastAPI DI in `src/telecopilot/api/dependencies.py`.
 - Ingestion: HTML, XML, DOCX, PDFs (Gemini Vision OCR), te.eg scraping → format-aware chunkers with 12 intent tags.
 - Retrieval: Cohere `embed-multilingual-v3.0` dense + Qdrant BM25 sparse, RRF fusion, Cohere `rerank-v3.5` top 3.
 - Generation: Gemini (JSON resolution or SSE stream). Tracing: Langfuse.
@@ -59,8 +59,9 @@ Code is one installable package under `src/telecopilot/`; always import absolute
 
 ## Conventions
 - Fail fast: no silent fallbacks in the pipeline; errors propagate (see `AgentAssistService`).
-- New external clients → singleton in `src/core/singletons.py`, exposed via `src/dependencies/dependencies.py`.
-- Settings only via `src/config/settings.py` (pydantic-settings, `.env`). Never commit `.env` or secret files.
+- New external clients → singleton in `telecopilot/core/singletons.py`, exposed via `telecopilot/api/dependencies.py`.
+- Imports point downwards only (`api → agent → kb → llm → core → config`); `tests/test_layers.py` enforces it.
+- Settings only via `telecopilot/config/settings.py` (pydantic-settings, `.env`). Never commit `.env` or secret files.
 - Tests stub external clients (Gemini/Cohere); CI has no API keys and no GPU.
 - Citations show file names only, never local absolute paths.
 - Arabic text: normalise before comparing/evaluating (alef/yaa/taa marbuta, diacritics).
