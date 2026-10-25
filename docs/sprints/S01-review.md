@@ -145,7 +145,7 @@ image is a hard rule).
   exposed beyond localhost); any real deployment sets `DATABASE_URL` in `.env`. Trade-off noted for the M8
   security pass.
 
-**Evidence**: settings tests (7) run with `_env_file=None` and a cleaned environment, so the developer `.env` can't
+**Evidence**: settings tests (6) run with `_env_file=None` and a cleaned environment, so the developer `.env` can't
 mask a wrong default. `/` (static UI), `/api/v1/policies` (all 10 files found) and a raw file download return 200.
 `pytest` 31 passed; ruff clean.
 
