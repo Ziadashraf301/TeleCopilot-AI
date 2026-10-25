@@ -1,5 +1,4 @@
-import pytest
-from telecopilot.core.observability import ObservabilityTracer, MODEL_COST_PER_MILLION
+from telecopilot.core.observability import ObservabilityTracer
 
 
 def test_token_estimation_and_cost_calculation():
@@ -25,7 +24,7 @@ def test_observability_log_generation():
         model="gemini-1.5-flash",
         latency=0.45,
         prompt_tokens=120,
-        completion_tokens=80
+        completion_tokens=80,
     )
 
     assert metrics["prompt_tokens"] == 120

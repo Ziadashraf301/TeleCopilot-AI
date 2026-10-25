@@ -1,7 +1,7 @@
 import re
-import math
-from typing import List, Dict, Any, Optional
 from collections import Counter
+from typing import Any
+
 from telecopilot.config.settings import get_settings
 from telecopilot.core.logger import get_logger
 
@@ -11,15 +11,13 @@ settings = get_settings()
 
 class SparseVector:
     """Represents a sparse vector with indices and weights for Qdrant BM25 hybrid search."""
-    def __init__(self, indices: List[int], values: List[float]):
+
+    def __init__(self, indices: list[int], values: list[float]):
         self.indices = indices
         self.values = values
 
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "indices": self.indices,
-            "values": self.values
-        }
+    def to_dict(self) -> dict[str, Any]:
+        return {"indices": self.indices, "values": self.values}
 
 
 class SparseEmbeddingModel:
@@ -32,22 +30,16 @@ class SparseEmbeddingModel:
     - avg_doc_len: Average document length (default 128 tokens)
     """
 
-    def __init__(
-        self,
-        vocab_size: int = 100000,
-        k1: float = 1.5,
-        b: float = 0.75,
-        avg_doc_len: float = 128.0
-    ):
+    def __init__(self, vocab_size: int = 100000, k1: float = 1.5, b: float = 0.75, avg_doc_len: float = 128.0):
         self.model_name = settings.SPARSE_EMBEDDING_MODEL
         self.vocab_size = vocab_size
         self.k1 = k1
         self.b = b
         self.avg_doc_len = avg_doc_len
 
-    def _tokenize(self, text: str) -> List[str]:
+    def _tokenize(self, text: str) -> list[str]:
         """Tokenize Arabic, English words and numbers."""
-        tokens = re.findall(r'\b\w+\b', text.lower())
+        tokens = re.findall(r"\b\w+\b", text.lower())
         return [t for t in tokens if len(t) > 1]
 
     def _hash_token(self, token: str) -> int:
@@ -66,7 +58,7 @@ class SparseEmbeddingModel:
         doc_len = len(tokens)
         counts = Counter(tokens)
 
-        token_weights: Dict[int, float] = {}
+        token_weights: dict[int, float] = {}
         for token, tf in counts.items():
             idx = self._hash_token(token)
 
@@ -88,6 +80,6 @@ class SparseEmbeddingModel:
 
         return SparseVector(indices=indices, values=values)
 
-    def embed_batch(self, texts: List[str]) -> List[SparseVector]:
+    def embed_batch(self, texts: list[str]) -> list[SparseVector]:
         """Batch generate sparse vectors."""
         return [self.embed_text(t) for t in texts]

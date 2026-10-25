@@ -1,18 +1,19 @@
 import os
+
 from telecopilot.core.logger import get_logger
-from telecopilot.ingestion.base import BaseExtractor, BaseChunker
-from telecopilot.ingestion.extractors.html_extractor import HTMLExtractor
-from telecopilot.ingestion.extractors.gemini_ocr_extractor import GeminiOCRExtractor
+from telecopilot.ingestion.base import BaseChunker, BaseExtractor
+from telecopilot.ingestion.chunkers.policy_chunkers import (
+    BillingPolicyChunker,
+    SIMPolicyChunker,
+    WebScrapedPolicyChunker,
+    WifiPolicyChunker,
+    XMLPolicyChunker,
+)
 from telecopilot.ingestion.extractors.docx_extractor import DocxExtractor
+from telecopilot.ingestion.extractors.gemini_ocr_extractor import GeminiOCRExtractor
+from telecopilot.ingestion.extractors.html_extractor import HTMLExtractor
 from telecopilot.ingestion.extractors.web_scraper_extractor import WebScraperExtractor
 from telecopilot.ingestion.extractors.xml_extractor import XMLExtractor
-from telecopilot.ingestion.chunkers.policy_chunkers import (
-    SIMPolicyChunker,
-    WifiPolicyChunker,
-    BillingPolicyChunker,
-    XMLPolicyChunker,
-    WebScrapedPolicyChunker,
-)
 
 logger = get_logger()
 

@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
+
 from telecopilot.core.logger import get_logger
-from telecopilot.models.api_models import CustomerQueryRequest, AgentSolutionResponse
-from telecopilot.services.agent_assist_service import AgentAssistService
 from telecopilot.dependencies import get_agent_assist_service
+from telecopilot.models.api_models import AgentSolutionResponse, CustomerQueryRequest
+from telecopilot.services.agent_assist_service import AgentAssistService
 
 logger = get_logger()
 router = APIRouter(prefix="/api/agent-assist", tags=["Agent Assist"])
@@ -30,7 +31,7 @@ async def solve_problem(
         return solution
     except Exception as e:
         logger.error(f"[BATCH] Pipeline error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/solve/stream")
@@ -49,6 +50,7 @@ async def solve_problem_stream(
     Raises HTTP 500 on any pipeline failure (no silent fallback).
     """
     try:
+
         async def event_stream():
             async for chunk in service.solve_customer_problem_stream(
                 customer_query=request.customer_query,
@@ -64,9 +66,9 @@ async def solve_problem_stream(
             headers={
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive",
-                "X-Accel-Buffering": "no",   # disable nginx buffering
+                "X-Accel-Buffering": "no",  # disable nginx buffering
             },
         )
     except Exception as e:
         logger.error(f"[STREAM] Pipeline error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e

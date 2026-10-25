@@ -1,9 +1,9 @@
 from telecopilot.ingestion.chunkers.policy_chunkers import (
-    SIMPolicyChunker,
-    WifiPolicyChunker,
     BillingPolicyChunker,
+    SIMPolicyChunker,
+    WebScrapedPolicyChunker,
+    WifiPolicyChunker,
     XMLPolicyChunker,
-    WebScrapedPolicyChunker
 )
 
 __all__ = [
@@ -11,5 +11,5 @@ __all__ = [
     "WifiPolicyChunker",
     "BillingPolicyChunker",
     "XMLPolicyChunker",
-    "WebScrapedPolicyChunker"
+    "WebScrapedPolicyChunker",
 ]

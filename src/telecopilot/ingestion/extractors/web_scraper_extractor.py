@@ -1,8 +1,6 @@
-import io
-from typing import List, Dict, Any, Optional
 import httpx
 from bs4 import BeautifulSoup
-from pydantic import BaseModel, Field
+
 from telecopilot.config.settings import get_settings
 from telecopilot.core.logger import get_logger
 from telecopilot.ingestion.base import BaseExtractor, ExtractedDocument
@@ -18,27 +16,29 @@ class WebScraperExtractor(BaseExtractor):
     without writing any files to disk.
     """
 
-    def __init__(self, timeout: float = 30.0, verify_ssl: Optional[bool] = None):
+    def __init__(self, timeout: float = 30.0, verify_ssl: bool | None = None):
         self.timeout = timeout
         self.verify_ssl = get_settings().SCRAPER_VERIFY_SSL if verify_ssl is None else verify_ssl
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
             "Accept-Language": "ar,en-US;q=0.9,en;q=0.8",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         }
 
     def scrape_url_in_memory(self, url: str) -> ExtractedDocument:
         """Fetches URL and parses content directly in memory."""
         logger.info(f"WebScraper fetching live URL in-memory: {url}")
         try:
-            with httpx.Client(timeout=self.timeout, follow_redirects=True, headers=self.headers, verify=self.verify_ssl) as client:
+            with httpx.Client(
+                timeout=self.timeout, follow_redirects=True, headers=self.headers, verify=self.verify_ssl
+            ) as client:
                 response = client.get(url)
                 response.raise_for_status()
                 html_content = response.text
                 logger.info(f"Fetched {url} ({len(html_content)} bytes)")
         except Exception as e:
             logger.error(f"Live scraping request failed for {url}: {e}")
-            raise RuntimeError(f"Failed to scrape URL {url}: {e}")
+            raise RuntimeError(f"Failed to scrape URL {url}: {e}") from e
 
         return self._parse_html_in_memory(html_content, source_url=url)
 
@@ -70,27 +70,17 @@ class WebScraperExtractor(BaseExtractor):
 
                 sec_content = "\n".join(content_parts)
                 if sec_content and len(sec_content) > 10:
-                    sections.append({
-                        "section_title": sec_title,
-                        "content": sec_content,
-                        "page_number": 1
-                    })
+                    sections.append({"section_title": sec_title, "content": sec_content, "page_number": 1})
 
         if not sections:
             text_blocks = [p.get_text().strip() for p in soup.find_all("p") if len(p.get_text().strip()) > 20]
             if text_blocks:
-                sections.append({
-                    "section_title": f"{title} - Main Content",
-                    "content": "\n".join(text_blocks),
-                    "page_number": 1
-                })
+                sections.append(
+                    {"section_title": f"{title} - Main Content", "content": "\n".join(text_blocks), "page_number": 1}
+                )
             else:
                 body_text = soup.get_text(separator="\n").strip()
-                sections.append({
-                    "section_title": title,
-                    "content": body_text[:3000],
-                    "page_number": 1
-                })
+                sections.append({"section_title": title, "content": body_text[:3000], "page_number": 1})
 
         raw_text = soup.get_text(separator="\n").strip()
 
@@ -101,5 +91,5 @@ class WebScraperExtractor(BaseExtractor):
             raw_text=raw_text,
             policy_type="telecom_egypt_web",
             sections=sections,
-            metadata={"source_url": source_url, "scraped_live": True}
+            metadata={"source_url": source_url, "scraped_live": True},
         )

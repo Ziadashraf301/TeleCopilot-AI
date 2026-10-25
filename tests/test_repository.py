@@ -1,5 +1,6 @@
 import pytest
 from qdrant_client import QdrantClient
+
 from telecopilot.core.singletons import SingletonsManager
 from telecopilot.repositories.base import DocumentChunk
 from telecopilot.repositories.qdrant_repository import QdrantVectorRepository
@@ -27,17 +28,13 @@ def test_qdrant_repository_in_memory_fallback(in_memory_qdrant):
         intent_category="SIM_MANAGEMENT",
         section_title="eSIM Activation Guide",
         page_number=1,
-        dense_vector=[0.1] * 1024
+        dense_vector=[0.1] * 1024,
     )
 
     upserted = repo.upsert_chunks([test_chunk])
     assert upserted == 1
 
-    results = repo.hybrid_search(
-        query="How to activate eSIM for free?",
-        query_dense_vector=[0.1] * 1024,
-        top_k=2
-    )
+    results = repo.hybrid_search(query="How to activate eSIM for free?", query_dense_vector=[0.1] * 1024, top_k=2)
 
     assert len(results) >= 1
     assert results[0].chunk_id == "test_sim_1"

@@ -1,5 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
+
 from telecopilot.api.main import app
 from telecopilot.core.singletons import SingletonsManager
 from telecopilot.dependencies import get_agent_assist_service
@@ -19,8 +20,9 @@ class FakeVectorRepository(BaseVectorRepository):
     def upsert_chunks(self, chunks) -> int:
         return len(chunks)
 
-    def hybrid_search(self, query, query_dense_vector, query_sparse_vector=None,
-                      top_k=5, policy_filter=None, intent_filter=None):
+    def hybrid_search(
+        self, query, query_dense_vector, query_sparse_vector=None, top_k=5, policy_filter=None, intent_filter=None
+    ):
         return [
             SearchResult(
                 chunk_id="html_sim_replacement_policy_html_1",
@@ -90,7 +92,7 @@ def test_agent_assist_solve_endpoint(mocked_agent_assist):
     """Test /api/agent-assist/solve generates grounded CSR solution."""
     payload = {
         "customer_query": "I lost my phone today and need a replacement SIM card right away.",
-        "policy_filter": "sim_replacement"
+        "policy_filter": "sim_replacement",
     }
     response = client.post("/api/agent-assist/solve", json=payload)
     assert response.status_code == 200
@@ -106,7 +108,7 @@ def test_agent_assist_solve_stream_endpoint(mocked_agent_assist):
     """Test /api/agent-assist/solve/stream returns Server-Sent Events (SSE) stream."""
     payload = {
         "customer_query": "I lost my phone today and need a replacement SIM card right away.",
-        "policy_filter": "sim_replacement"
+        "policy_filter": "sim_replacement",
     }
     response = client.post("/api/agent-assist/solve/stream", json=payload)
     assert response.status_code == 200

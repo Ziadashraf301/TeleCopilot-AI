@@ -1,7 +1,9 @@
-import os
 import io
+import os
+
 import fitz  # PyMuPDF
 from PIL import Image
+
 from telecopilot.core.logger import get_logger
 from telecopilot.core.singletons import SingletonsManager
 from telecopilot.ingestion.base import BaseExtractor, ExtractedDocument
@@ -49,7 +51,9 @@ class GeminiOCRExtractor(BaseExtractor):
                         img_bytes = pix.tobytes("png")
                         img = Image.open(io.BytesIO(img_bytes))
 
-                        logger.info(f"Invoking Gemini Multimodal Vision OCR on scanned PDF page {page_num} of {os.path.basename(file_path)}...")
+                        logger.info(
+                            f"Invoking Gemini Multimodal Vision OCR on scanned PDF page {page_num} of {os.path.basename(file_path)}..."
+                        )
                         prompt = (
                             "You are an expert OCR and technical document analysis engine for Telecom Support. "
                             "Extract all text, troubleshooting checklists, tables, decision trees, Arabic/English content, "
@@ -61,9 +65,13 @@ class GeminiOCRExtractor(BaseExtractor):
                             last_scanned_ocr = page_text
                             logger.info(f"Gemini OCR successfully extracted page {page_num} ({len(page_text)} chars)")
                     except Exception as e:
-                        logger.warning(f"Gemini Vision OCR API call warning on page {page_num}: {e}. Retaining available text.")
+                        logger.warning(
+                            f"Gemini Vision OCR API call warning on page {page_num}: {e}. Retaining available text."
+                        )
                 elif page_idx >= 3 and last_scanned_ocr:
-                    page_text = f"### {base_name.replace('_', ' ').title()} - Detailed Section {page_num}\n{last_scanned_ocr}"
+                    page_text = (
+                        f"### {base_name.replace('_', ' ').title()} - Detailed Section {page_num}\n{last_scanned_ocr}"
+                    )
 
             if not inferred_title and page_text:
                 first_line = page_text.splitlines()[0].replace("#", "").strip()
@@ -71,12 +79,14 @@ class GeminiOCRExtractor(BaseExtractor):
                     inferred_title = first_line
 
             full_text_parts.append(page_text)
-            sections.append({
-                "section_title": f"{base_name.replace('_', ' ').title()} - Page {page_num}",
-                "content": page_text,
-                "page_number": page_num,
-                "is_scanned": ocr_used
-            })
+            sections.append(
+                {
+                    "section_title": f"{base_name.replace('_', ' ').title()} - Page {page_num}",
+                    "content": page_text,
+                    "page_number": page_num,
+                    "is_scanned": ocr_used,
+                }
+            )
 
         doc.close()
         raw_text = "\n\n".join(full_text_parts)
@@ -90,5 +100,5 @@ class GeminiOCRExtractor(BaseExtractor):
             raw_text=raw_text,
             policy_type=resolved_policy_type,
             sections=sections,
-            metadata={"format": "pdf", "pages": len(sections), "ocr_engine": "gemini-multimodal-vision"}
+            metadata={"format": "pdf", "pages": len(sections), "ocr_engine": "gemini-multimodal-vision"},
         )

@@ -1,6 +1,8 @@
 """Generates experiments/03_rag_evaluation_ragas.ipynb (run: python experiments/rag_eval/build_notebook.py)."""
-import nbformat as nbf
+
 from pathlib import Path
+
+import nbformat as nbf
 
 md = nbf.v4.new_markdown_cell
 code = nbf.v4.new_code_cell
@@ -94,7 +96,9 @@ for item in EVAL_SET:
     hit = item["source"] in out["retrieved_sources"]
     print(f"{item['id']} | {out['latency_s']:>5}s | source retrieved: {'✅' if hit else '❌'} | {item['question'][:60]}")
     time.sleep(1)   # stay under free-tier rate limits"""),
-    md("### Retrieval hit rate (no LLM judge needed)\nDid the reranked top 3 include the document the reference answer comes from?"),
+    md(
+        "### Retrieval hit rate (no LLM judge needed)\nDid the reranked top 3 include the document the reference answer comes from?"
+    ),
     code("""import pandas as pd
 df = pd.DataFrame(rows)
 df["source_hit"] = [r["source"] in r["retrieved_sources"] for r in rows]

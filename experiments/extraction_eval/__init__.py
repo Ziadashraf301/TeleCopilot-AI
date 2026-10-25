@@ -9,10 +9,11 @@ Modules:
     llm_judge             - Gemini LLM-as-a-Judge with sliding window chunking
     hitl                  - Human-in-the-loop diff display and review logging
 """
-from .ground_truth_builder import GroundTruthDocument, GroundTruthBuilder
-from .metrics import ExtractionMetrics, compute_all_metrics, aggregate_micro_macro
-from .llm_judge import GeminiJudge, JudgeResult
+
+from .ground_truth_builder import GroundTruthBuilder, GroundTruthDocument
 from .hitl import HITLReviewer
+from .llm_judge import GeminiJudge, JudgeResult
+from .metrics import ExtractionMetrics, aggregate_micro_macro, compute_all_metrics
 
 __all__ = [
     "GroundTruthDocument",

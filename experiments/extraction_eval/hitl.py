@@ -13,29 +13,29 @@ Features:
 
 from __future__ import annotations
 
+import difflib
 import json
 import os
-import re
-import difflib
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import List, Dict, Any, Optional
-
+from typing import Any
 
 # ---------------------------------------------------------------------------
 # Review Record Dataclass
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class HITLReviewRecord:
     """Single human review decision for one document."""
+
     file_name: str
     file_type: str
     timestamp: str
-    action: str           # APPROVE | FLAG | OVERRIDE_SCORE
-    human_score: Optional[float] = None
+    action: str  # APPROVE | FLAG | OVERRIDE_SCORE
+    human_score: float | None = None
     comment: str = ""
-    flagged_issues: List[str] = field(default_factory=list)
+    flagged_issues: list[str] = field(default_factory=list)
     auto_score: float = 0.0
     verdict: str = ""
 
@@ -47,6 +47,7 @@ class HITLReviewRecord:
 # Main HITLReviewer Class
 # ---------------------------------------------------------------------------
 
+
 class HITLReviewer:
     """
     Human-In-The-Loop reviewer for Jupyter notebooks.
@@ -56,7 +57,7 @@ class HITLReviewer:
 
     def __init__(self, report_dir: str = "experiments/reports"):
         self.report_dir = report_dir
-        self.audit_log: List[HITLReviewRecord] = []
+        self.audit_log: list[HITLReviewRecord] = []
         os.makedirs(report_dir, exist_ok=True)
 
     # ------------------------------------------------------------------
@@ -75,7 +76,7 @@ class HITLReviewer:
         Green = present in both, Red = in GT but missing from extracted, Yellow = partial.
         """
         try:
-            from IPython.display import display, HTML
+            from IPython.display import HTML, display
         except ImportError:
             print("[HITL] IPython not available — printing plain text diff instead.\n")
             self._plain_diff(extracted_text, ground_truth_text, title)
@@ -160,15 +161,17 @@ class HITLReviewer:
 
     def display_image_alongside_text(
         self,
-        images: List[Any],       # PIL Images
+        images: list[Any],  # PIL Images
         extracted_text: str,
         title: str = "Visual vs Extracted",
         max_images: int = 3,
     ) -> None:
         """Display PDF/DOCX page images alongside extracted text in Jupyter."""
         try:
-            from IPython.display import display, HTML
-            import base64, io
+            import base64
+            import io
+
+            from IPython.display import HTML, display
         except ImportError:
             print("[HITL] IPython not available.")
             return
@@ -182,7 +185,7 @@ class HITLReviewer:
                 image_panels.append(
                     f'<div style="margin-bottom:12px">'
                     f'<div style="font-size:11px;color:#64748b;margin-bottom:4px">'
-                    f'Page / Image {i + 1}</div>'
+                    f"Page / Image {i + 1}</div>"
                     f'<img src="data:image/png;base64,{b64}" '
                     f'style="max-width:100%;border:1px solid #e2e8f0;border-radius:4px"/>'
                     f"</div>"
@@ -219,10 +222,10 @@ class HITLReviewer:
 </div>"""
         display(HTML(html))
 
-    def display_metrics_summary(self, metrics_dict: Dict[str, Any], judge_result: Any = None) -> None:
+    def display_metrics_summary(self, metrics_dict: dict[str, Any], judge_result: Any = None) -> None:
         """Render a styled metrics summary card in Jupyter."""
         try:
-            from IPython.display import display, HTML
+            from IPython.display import HTML, display
         except ImportError:
             print(json.dumps(metrics_dict, indent=2))
             return
@@ -232,7 +235,7 @@ class HITLReviewer:
             return (
                 f'<span style="background:{color};color:white;'
                 f'border-radius:4px;padding:2px 8px;font-size:12px;font-weight:bold">'
-                f'{value:.1%}</span>'
+                f"{value:.1%}</span>"
             )
 
         rows = ""
@@ -298,9 +301,9 @@ class HITLReviewer:
         action: str,
         auto_score: float = 0.0,
         verdict: str = "",
-        human_score: Optional[float] = None,
+        human_score: float | None = None,
         comment: str = "",
-        flagged_issues: Optional[List[str]] = None,
+        flagged_issues: list[str] | None = None,
     ) -> HITLReviewRecord:
         """
         Record a human review decision.
@@ -325,18 +328,22 @@ class HITLReviewer:
         self.audit_log.append(record)
 
         try:
-            from IPython.display import display, HTML
+            from IPython.display import HTML, display
+
             color_map = {"APPROVE": "#22c55e", "FLAG": "#f59e0b", "OVERRIDE_SCORE": "#7c3aed"}
             color = color_map.get(action.upper(), "#94a3b8")
-            display(HTML(
-                f'<div style="background:{color}1a;border-left:4px solid {color};'
-                f'border-radius:4px;padding:10px 16px;margin:8px 0;font-family:sans-serif">'
-                f'<strong style="color:{color}">{action.upper()}</strong> recorded for '
-                f'<code>{_esc(file_name)}</code>'
-                f'{f" — Score override: {human_score}" if human_score is not None else ""}'
-                f'{f"<br><em style=\'color:#64748b\'>{_esc(comment)}</em>" if comment else ""}'
-                f"</div>"
-            ))
+            comment_html = f"<br><em style='color:#64748b'>{_esc(comment)}</em>" if comment else ""
+            display(
+                HTML(
+                    f'<div style="background:{color}1a;border-left:4px solid {color};'
+                    f'border-radius:4px;padding:10px 16px;margin:8px 0;font-family:sans-serif">'
+                    f'<strong style="color:{color}">{action.upper()}</strong> recorded for '
+                    f"<code>{_esc(file_name)}</code>"
+                    f"{f' — Score override: {human_score}' if human_score is not None else ''}"
+                    f"{comment_html}"
+                    f"</div>"
+                )
+            )
         except ImportError:
             print(f"[HITL] {action.upper()} recorded for {file_name}")
 
@@ -361,7 +368,7 @@ class HITLReviewer:
 
     @staticmethod
     def _plain_diff(extracted: str, ground_truth: str, title: str) -> None:
-        print(f"\n{'='*60}\n{title}\n{'='*60}")
+        print(f"\n{'=' * 60}\n{title}\n{'=' * 60}")
         diff = difflib.unified_diff(
             ground_truth.splitlines(),
             extracted.splitlines(),
@@ -376,12 +383,13 @@ class HITLReviewer:
 # Benchmark Report Writer
 # ---------------------------------------------------------------------------
 
+
 def save_benchmark_report(
-    all_metrics: List[Dict[str, Any]],
-    aggregations: Dict[str, Any],
-    judge_results: List[Dict[str, Any]],
+    all_metrics: list[dict[str, Any]],
+    aggregations: dict[str, Any],
+    judge_results: list[dict[str, Any]],
     report_dir: str = "experiments/reports",
-) -> Tuple[str, str]:
+) -> tuple[str, str]:
     """
     Save comprehensive benchmark results as JSON + Markdown summary.
     Returns (json_path, md_path).
@@ -393,8 +401,7 @@ def save_benchmark_report(
     json_data = {
         "generated_at": datetime.now().isoformat(),
         "per_file_metrics": all_metrics,
-        "aggregations": {k: asdict(v) if hasattr(v, "__dataclass_fields__") else v
-                         for k, v in aggregations.items()},
+        "aggregations": {k: asdict(v) if hasattr(v, "__dataclass_fields__") else v for k, v in aggregations.items()},
         "judge_results": judge_results,
     }
     json_path = os.path.join(report_dir, f"extraction_benchmark_{timestamp}.json")
@@ -436,7 +443,7 @@ def save_benchmark_report(
         verdict_emoji = {"PASS": "✅", "CONDITIONAL_PASS": "⚠️", "FAIL": "❌"}.get(verdict, "—")
         md_lines.append(
             f"| `{fn}` "
-            f"| {m.get('file_type','')}"
+            f"| {m.get('file_type', '')}"
             f"| {m.get('word_f1', 0):.1%} "
             f"| {m.get('rouge_l_score', 0):.1%} "
             f"| {m.get('entity_recall_overall', 0):.1%} "
@@ -460,14 +467,10 @@ def save_benchmark_report(
 # Utility
 # ---------------------------------------------------------------------------
 
+
 def _esc(text: str) -> str:
     """HTML-escape a string."""
-    return (text
-            .replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-            .replace('"', "&quot;"))
+    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
 
 
 # Fix missing Tuple import at module level
-from typing import Tuple

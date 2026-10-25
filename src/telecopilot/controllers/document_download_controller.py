@@ -1,12 +1,11 @@
-import os
-import io
 import mimetypes
+import os
 import xml.dom.minidom
-from typing import List, Dict, Any
-import fitz  # PyMuPDF
+
 from docx import Document
-from fastapi import APIRouter, Response, HTTPException
-from fastapi.responses import HTMLResponse, StreamingResponse, FileResponse
+from fastapi import APIRouter, HTTPException, Response
+from fastapi.responses import FileResponse, HTMLResponse
+
 from telecopilot.core.logger import get_logger
 
 logger = get_logger()
@@ -25,7 +24,7 @@ POLICY_CATALOG = [
         "language": "EN",
         "category": "Mobile & SIM",
         "description": "Lost SIM reporting, biometric ID verification, instant QR-code eSIM provisioning, and line security bars.",
-        "icon": "📱"
+        "icon": "📱",
     },
     {
         "id": "5g_troubleshooting",
@@ -35,7 +34,7 @@ POLICY_CATALOG = [
         "language": "EN",
         "category": "Technical Support",
         "description": "5G NSA/SA band lock, VoNR call dropping, APN provisioning, and modem diagnostic procedures.",
-        "icon": "⚡"
+        "icon": "⚡",
     },
     {
         "id": "billing_refund",
@@ -45,7 +44,7 @@ POLICY_CATALOG = [
         "language": "EN",
         "category": "Billing & Payments",
         "description": "Courtesy late fee waivers, roaming overage adjustments, payment plans, and dispute escalation protocols.",
-        "icon": "💳"
+        "icon": "💳",
     },
     {
         "id": "ftth_installation",
@@ -55,7 +54,7 @@ POLICY_CATALOG = [
         "language": "EN",
         "category": "Broadband & Fiber",
         "description": "Drop cable termination, optical power attenuation dBm acceptance, ONT fusion splicing, and site certification.",
-        "icon": "🛠️"
+        "icon": "🛠️",
     },
     {
         "id": "arabic_family_bundles",
@@ -65,7 +64,7 @@ POLICY_CATALOG = [
         "language": "AR",
         "category": "Plans & Bundles",
         "description": "شروط ضم خطوط العائلة، توزيع الجيجابايتس والدقائق، وسياسات الترحيل وتوحيد الفواتير للعملاء.",
-        "icon": "👨‍👩‍👧‍👦"
+        "icon": "👨‍👩‍👧‍👦",
     },
     {
         "id": "arabic_router_diagnostics",
@@ -75,7 +74,7 @@ POLICY_CATALOG = [
         "language": "AR",
         "category": "Hardware & WiFi",
         "description": "تشخيص لمبات الراوتر، دلالة إشارة LOS الحمراء، استقرار خطوط VDSL/FTTH، وإجراءات استبدال الأجهزة في الفروع.",
-        "icon": "📡"
+        "icon": "📡",
     },
     {
         "id": "cybersecurity_fraud",
@@ -85,7 +84,7 @@ POLICY_CATALOG = [
         "language": "EN",
         "category": "Security & Fraud",
         "description": "Mandatory 24-hour financial SMS lock, OTP credential sniffing countermeasures, and unauthorized transfer handling.",
-        "icon": "🛡️"
+        "icon": "🛡️",
     },
     {
         "id": "operations_manual",
@@ -95,7 +94,7 @@ POLICY_CATALOG = [
         "language": "EN",
         "category": "Engineering & Ops",
         "description": "Core optical distribution frame standards, SLA dispatch parameters, and high-priority escalation trees.",
-        "icon": "📜"
+        "icon": "📜",
     },
     {
         "id": "roaming_passport",
@@ -105,7 +104,7 @@ POLICY_CATALOG = [
         "language": "EN",
         "category": "Roaming & Travel",
         "description": "Structured XML rate cards, Tier 1/2 travel zones, fair use data thresholds, and partner carrier roaming agreements.",
-        "icon": "🌍"
+        "icon": "🌍",
     },
     {
         "id": "arabic_enterprise_sla",
@@ -115,8 +114,8 @@ POLICY_CATALOG = [
         "language": "AR",
         "category": "B2B Enterprise",
         "description": "معايير الضمان الماسي والذهبي، جداول التعويضات المالية عن انقطاع خطوط الربط المخصصة، والتصعيد الهندسي.",
-        "icon": "🏢"
-    }
+        "icon": "🏢",
+    },
 ]
 
 
@@ -128,13 +127,15 @@ async def list_policies():
         filepath = os.path.join(DATA_RAW_DIR, item["filename"])
         size_bytes = os.path.getsize(filepath) if os.path.exists(filepath) else 0
         size_mb = round(size_bytes / (1024 * 1024), 2)
-        policies.append({
-            **item,
-            "size_bytes": size_bytes,
-            "size_mb": size_mb,
-            "raw_url": f"/api/v1/files/raw/{item['filename']}",
-            "preview_url": f"/api/v1/files/preview/{item['filename']}"
-        })
+        policies.append(
+            {
+                **item,
+                "size_bytes": size_bytes,
+                "size_mb": size_mb,
+                "raw_url": f"/api/v1/files/raw/{item['filename']}",
+                "preview_url": f"/api/v1/files/preview/{item['filename']}",
+            }
+        )
     return {"status": "success", "count": len(policies), "policies": policies}
 
 
@@ -157,9 +158,7 @@ async def get_raw_file(filename: str):
             mime_type = "application/octet-stream"
 
     return FileResponse(
-        path=filepath,
-        media_type=mime_type,
-        headers={"Content-Disposition": f"inline; filename=\"{clean_filename}\""}
+        path=filepath, media_type=mime_type, headers={"Content-Disposition": f'inline; filename="{clean_filename}"'}
     )
 
 
@@ -202,7 +201,7 @@ async def get_file_preview(filename: str):
 
             body_content = "\n".join(html_parts)
             preview_html = f"""<!DOCTYPE html>
-<html lang="{'ar' if is_arabic else 'en'}" dir="{direction}">
+<html lang="{"ar" if is_arabic else "en"}" dir="{direction}">
 <head>
     <meta charset="UTF-8">
     <title>{title}</title>
@@ -274,11 +273,11 @@ async def get_file_preview(filename: str):
             return HTMLResponse(content=preview_html)
         except Exception as e:
             logger.error(f"Error previewing docx: {e}")
-            raise HTTPException(status_code=500, detail=f"Failed to preview DOCX: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to preview DOCX: {e}") from e
 
     elif ext == ".xml":
         try:
-            with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+            with open(filepath, encoding="utf-8", errors="replace") as f:
                 raw_xml = f.read()
 
             try:
@@ -290,7 +289,7 @@ async def get_file_preview(filename: str):
             escaped_xml = pretty_xml.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
             preview_html = f"""<!DOCTYPE html>
-<html lang="{'ar' if is_arabic else 'en'}" dir="{direction}">
+<html lang="{"ar" if is_arabic else "en"}" dir="{direction}">
 <head>
     <meta charset="UTF-8">
     <title>{title}</title>
@@ -335,10 +334,10 @@ async def get_file_preview(filename: str):
 </html>"""
             return HTMLResponse(content=preview_html)
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to preview XML: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to preview XML: {e}") from e
 
     elif ext == ".html":
-        with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+        with open(filepath, encoding="utf-8", errors="replace") as f:
             html_content = f.read()
         return HTMLResponse(content=html_content)
 
@@ -379,7 +378,7 @@ async def get_file_preview(filename: str):
 async def get_sim_policy_html():
     filepath = os.path.join(DATA_RAW_DIR, "sim_replacement_policy.html")
     if os.path.exists(filepath):
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             return HTMLResponse(f.read())
     return HTMLResponse("<h1>SIM Policy</h1>")
 
@@ -399,6 +398,6 @@ async def download_billing_policy_docx():
         return FileResponse(
             filepath,
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            filename="billing_refund_policy.docx"
+            filename="billing_refund_policy.docx",
         )
     return Response(content="File not found", status_code=404)

@@ -1,6 +1,6 @@
-import pytest
-import os
 import json
+import os
+
 from telecopilot.core.logger import get_logger
 
 
@@ -16,7 +16,7 @@ def test_structured_logger():
     log_file = "logs/structured_telemetry.json.log"
     assert os.path.exists(log_file)
 
-    with open(log_file, "r", encoding="utf-8") as f:
+    with open(log_file, encoding="utf-8") as f:
         lines = f.readlines()
         assert len(lines) > 0
         last_log = json.loads(lines[-1])

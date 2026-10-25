@@ -15,32 +15,33 @@ from __future__ import annotations
 import json
 import re
 import time
-from dataclasses import dataclass, field, asdict
-from typing import List, Dict, Any, Optional, Tuple
-
+from dataclasses import asdict, dataclass, field
+from typing import Any
 
 # ---------------------------------------------------------------------------
 # Judge Result Dataclass
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class JudgeResult:
     """Structured output from Gemini LLM-as-a-Judge."""
+
     file_name: str
     file_type: str
 
     # 4-dimension rubric scores (0–100)
-    completeness_score: float = 0.0        # Were all clauses, rules, prices, tables preserved?
+    completeness_score: float = 0.0  # Were all clauses, rules, prices, tables preserved?
     structure_fidelity_score: float = 0.0  # Quality of heading hierarchy, tables, ordering
-    noise_hallucination_score: float = 0.0 # Cleanliness (100 = no noise/hallucination)
-    arabic_fidelity_score: float = 0.0    # Arabic/multilingual correctness
+    noise_hallucination_score: float = 0.0  # Cleanliness (100 = no noise/hallucination)
+    arabic_fidelity_score: float = 0.0  # Arabic/multilingual correctness
 
     overall_score: float = 0.0
-    verdict: str = "UNKNOWN"               # PASS | CONDITIONAL_PASS | FAIL
+    verdict: str = "UNKNOWN"  # PASS | CONDITIONAL_PASS | FAIL
 
-    missing_critical_elements: List[str] = field(default_factory=list)
-    noise_artifacts: List[str] = field(default_factory=list)
-    recommendations: List[str] = field(default_factory=list)
+    missing_critical_elements: list[str] = field(default_factory=list)
+    noise_artifacts: list[str] = field(default_factory=list)
+    recommendations: list[str] = field(default_factory=list)
 
     # Provenance
     chunks_evaluated: int = 1
@@ -134,12 +135,13 @@ Rules:
 # Tokeniser (for chunking, reusing metrics logic)
 # ---------------------------------------------------------------------------
 
-def _simple_tokenize(text: str) -> List[str]:
+
+def _simple_tokenize(text: str) -> list[str]:
     """Simple word tokeniser for chunk size estimation."""
     return re.findall(r"\S+", text)
 
 
-def _chunk_text(text: str, chunk_size: int = 3500, overlap: int = 200) -> List[str]:
+def _chunk_text(text: str, chunk_size: int = 3500, overlap: int = 200) -> list[str]:
     """
     Split text into overlapping token-count-based chunks.
     Returns list of text chunk strings.
@@ -163,7 +165,8 @@ def _chunk_text(text: str, chunk_size: int = 3500, overlap: int = 200) -> List[s
 # JSON Response Parser
 # ---------------------------------------------------------------------------
 
-def _parse_judge_response(response_text: str) -> Dict[str, Any]:
+
+def _parse_judge_response(response_text: str) -> dict[str, Any]:
     """Extract and parse JSON from Gemini response text."""
     # Try direct parse first
     try:
@@ -194,6 +197,7 @@ def _parse_judge_response(response_text: str) -> Dict[str, Any]:
 # Heuristic Fallback Judge (Fix 4 — offline / API key absent)
 # ---------------------------------------------------------------------------
 
+
 def _heuristic_judge(
     extracted_text: str,
     ground_truth_text: str,
@@ -204,7 +208,7 @@ def _heuristic_judge(
     Deterministic fallback judge when Gemini API is unavailable.
     Uses word overlap, entity presence, and noise heuristics.
     """
-    from .metrics import tokenize, token_set, extract_critical_entities
+    from .metrics import extract_critical_entities, tokenize
 
     gt_tokens = set(tokenize(ground_truth_text))
     ex_tokens = set(tokenize(extracted_text))
@@ -261,6 +265,7 @@ def _heuristic_judge(
 # Gemini Judge (main)
 # ---------------------------------------------------------------------------
 
+
 class GeminiJudge:
     """
     Evaluates extraction quality using Gemini LLM-as-a-Judge.
@@ -279,7 +284,7 @@ class GeminiJudge:
         ground_truth_text: str,
         file_name: str,
         file_type: str,
-        page_images: Optional[List[Any]] = None,  # PIL Images for visual audit
+        page_images: list[Any] | None = None,  # PIL Images for visual audit
     ) -> JudgeResult:
         """
         Main evaluation entry point.
@@ -292,8 +297,8 @@ class GeminiJudge:
         ex_chunks = _chunk_text(extracted_text, self.chunk_size, self.overlap)
         n_chunks = max(len(gt_chunks), len(ex_chunks))
 
-        chunk_results: List[Dict[str, Any]] = []
-        chunk_weights: List[int] = []
+        chunk_results: list[dict[str, Any]] = []
+        chunk_weights: list[int] = []
 
         for i in range(n_chunks):
             gt_chunk = gt_chunks[i] if i < len(gt_chunks) else ""
@@ -321,7 +326,7 @@ class GeminiJudge:
                     chunk_weights.append(len(_simple_tokenize(gt_chunk)))
                 time.sleep(0.5)  # Polite rate limit
 
-            except Exception as e:
+            except Exception:
                 # On chunk failure, use heuristic for this chunk
                 heuristic = _heuristic_judge(ex_chunk, gt_chunk, file_name, file_type)
                 chunk_results.append(heuristic.to_dict())
@@ -334,9 +339,7 @@ class GeminiJudge:
         total_weight = sum(chunk_weights) or 1
 
         def weighted_avg(key: str) -> float:
-            return sum(
-                r.get(key, 0) * w for r, w in zip(chunk_results, chunk_weights)
-            ) / total_weight
+            return sum(r.get(key, 0) * w for r, w in zip(chunk_results, chunk_weights, strict=True)) / total_weight
 
         completeness = weighted_avg("completeness_score")
         structure = weighted_avg("structure_fidelity_score")

@@ -1,5 +1,7 @@
 import os
+
 from bs4 import BeautifulSoup
+
 from telecopilot.core.logger import get_logger
 from telecopilot.ingestion.base import BaseExtractor, ExtractedDocument
 
@@ -18,7 +20,7 @@ class HTMLExtractor(BaseExtractor):
             raise FileNotFoundError(f"File not found: {file_path}")
 
         base_name = os.path.splitext(os.path.basename(file_path))[0]
-        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+        with open(file_path, encoding="utf-8", errors="ignore") as f:
             html_content = f.read()
 
         soup = BeautifulSoup(html_content, "html.parser")
@@ -44,17 +46,11 @@ class HTMLExtractor(BaseExtractor):
 
                 sec_content = "\n".join(content_parts)
                 if sec_content:
-                    sections.append({
-                        "section_title": sec_title,
-                        "content": sec_content,
-                        "page_number": 1
-                    })
+                    sections.append({"section_title": sec_title, "content": sec_content, "page_number": 1})
         else:
-            sections.append({
-                "section_title": title,
-                "content": soup.get_text(separator="\n").strip(),
-                "page_number": 1
-            })
+            sections.append(
+                {"section_title": title, "content": soup.get_text(separator="\n").strip(), "page_number": 1}
+            )
 
         raw_text = soup.get_text(separator="\n").strip()
 
@@ -65,5 +61,5 @@ class HTMLExtractor(BaseExtractor):
             raw_text=raw_text,
             policy_type=base_name,
             sections=sections,
-            metadata={"format": "html", "file_size": len(html_content)}
+            metadata={"format": "html", "file_size": len(html_content)},
         )

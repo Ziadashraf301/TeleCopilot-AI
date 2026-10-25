@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends
+
 from telecopilot.config.settings import get_settings
-from telecopilot.repositories.base import BaseVectorRepository
 from telecopilot.dependencies import get_vector_repository
+from telecopilot.repositories.base import BaseVectorRepository
 
 router = APIRouter(prefix="/api/health", tags=["Health"])
 settings = get_settings()
@@ -18,11 +19,11 @@ async def health_check(repo: BaseVectorRepository = Depends(get_vector_repositor
         "vector_store": {
             "collection": settings.QDRANT_COLLECTION,
             "indexed_chunks_count": vector_count,
-            "live_connection": getattr(repo, "_is_live", False)
+            "live_connection": getattr(repo, "_is_live", False),
         },
         "providers": {
             "cohere": bool(settings.COHERE_API_KEY),
             "gemini": bool(settings.GEMINI_API_KEY),
-            "langfuse": bool(settings.LANGFUSE_PUBLIC_KEY and settings.LANGFUSE_SECRET_KEY)
-        }
+            "langfuse": bool(settings.LANGFUSE_PUBLIC_KEY and settings.LANGFUSE_SECRET_KEY),
+        },
     }

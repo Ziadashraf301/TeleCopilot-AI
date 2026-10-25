@@ -1,6 +1,6 @@
-from typing import Optional
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -8,11 +8,8 @@ class Settings(BaseSettings):
     Application Settings configured via environment variables and .env file.
     Follows Singleton access via get_settings() cache.
     """
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore"
-    )
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     # App Info
     APP_NAME: str = "TeleCopilot AI"
@@ -24,7 +21,7 @@ class Settings(BaseSettings):
     # Qdrant Vector DB
     QDRANT_HOST: str = "localhost"
     QDRANT_PORT: int = 6333
-    QDRANT_API_KEY: Optional[str] = None
+    QDRANT_API_KEY: str | None = None
     QDRANT_COLLECTION: str = "telecom_customer_policies"
     VECTOR_DIMENSION: int = 1024  # embed-multilingual-v3.0
 
@@ -35,14 +32,14 @@ class Settings(BaseSettings):
     LLM_MODEL: str = "gemini-3.1-flash-lite-preview"
 
     # API Keys
-    COHERE_API_KEY: Optional[str] = None
-    GEMINI_API_KEY: Optional[str] = None
+    COHERE_API_KEY: str | None = None
+    GEMINI_API_KEY: str | None = None
 
     # Langfuse Observability
-    LANGFUSE_PUBLIC_KEY: Optional[str] = None
-    LANGFUSE_SECRET_KEY: Optional[str] = None
-    LANGFUSE_HOST: Optional[str] = None
-    LANGFUSE_BASE_URL: Optional[str] = None
+    LANGFUSE_PUBLIC_KEY: str | None = None
+    LANGFUSE_SECRET_KEY: str | None = None
+    LANGFUSE_HOST: str | None = None
+    LANGFUSE_BASE_URL: str | None = None
 
     @property
     def langfuse_host_url(self) -> str:

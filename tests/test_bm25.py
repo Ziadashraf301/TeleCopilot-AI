@@ -1,4 +1,3 @@
-import pytest
 from telecopilot.services.sparse_embedding_model import SparseEmbeddingModel, SparseVector
 
 

@@ -1,8 +1,8 @@
 import os
-import glob
-from typing import List, Dict, Any
+from typing import Any
+
 from telecopilot.core.logger import get_logger
-from telecopilot.ingestion.factories import ExtractorFactory, ChunkerFactory
+from telecopilot.ingestion.factories import ChunkerFactory, ExtractorFactory
 from telecopilot.repositories.base import BaseVectorRepository, SparseVectorData
 from telecopilot.services.cohere_service import CohereService
 from telecopilot.services.sparse_embedding_model import SparseEmbeddingModel
@@ -14,7 +14,7 @@ DEFAULT_ONLINE_SOURCES = [
     "https://www.te.eg/",
     "https://www.te.eg/web/guest/personal/services/fixed-broadband",
     "https://www.te.eg/web/guest/personal/services/mobile-call-services",
-    "https://www.te.eg/web/guest/personal/services/international-roaming"
+    "https://www.te.eg/web/guest/personal/services/international-roaming",
 ]
 
 
@@ -31,7 +31,7 @@ class IngestionService:
         self.cohere_service = cohere_service
         self.sparse_model = SparseEmbeddingModel()
 
-    def ingest_url(self, target_url: str) -> Dict[str, Any]:
+    def ingest_url(self, target_url: str) -> dict[str, Any]:
         """Scrapes a live website URL in-memory and indexes it directly into Qdrant."""
         logger.info(f"Starting in-memory scrape & ingestion for: {target_url}")
 
@@ -68,10 +68,10 @@ class IngestionService:
             "intent_category": chunks[0].intent_category if chunks else "PLANS_AND_OFFERS",
             "chunks_count": upserted_count,
             "vector_types": ["dense_cohere_1024", "sparse_bm25_lexical"],
-            "status": "SUCCESS"
+            "status": "SUCCESS",
         }
 
-    def ingest_file(self, file_path: str) -> Dict[str, Any]:
+    def ingest_file(self, file_path: str) -> dict[str, Any]:
         """Extracts and indexes a local policy file (HTML, PDF, DOCX) into Qdrant."""
         logger.info(f"Ingesting local document: {file_path}")
         extractor = ExtractorFactory.get_extractor(file_path)
@@ -99,10 +99,10 @@ class IngestionService:
             "policy_type": extracted_doc.policy_type,
             "intent_category": chunks[0].intent_category if chunks else "GENERAL",
             "chunks_count": upserted_count,
-            "status": "SUCCESS"
+            "status": "SUCCESS",
         }
 
-    def ingest_all_default_policies(self, url_list: List[str] = None) -> List[Dict[str, Any]]:
+    def ingest_all_default_policies(self, url_list: list[str] = None) -> list[dict[str, Any]]:
         """Ingests all 10 policy modalities (HTML, XML, DOCX, PDF, Scanned Image PDF) and live Web URLs into Qdrant."""
         results = []
 
@@ -128,11 +128,7 @@ class IngestionService:
                 results.append(res)
             except Exception as e:
                 logger.error(f"Failed to ingest local policy {f}: {e}")
-                results.append({
-                    "source": f,
-                    "error": str(e),
-                    "status": "FAILED"
-                })
+                results.append({"source": f, "error": str(e), "status": "FAILED"})
 
         # 2. Ingest Live Web Modality (te.eg)
         targets = url_list or DEFAULT_ONLINE_SOURCES
@@ -142,9 +138,5 @@ class IngestionService:
                 results.append(res)
             except Exception as e:
                 logger.error(f"Failed to scrape {url}: {e}")
-                results.append({
-                    "source_url": url,
-                    "error": str(e),
-                    "status": "FAILED"
-                })
+                results.append({"source_url": url, "error": str(e), "status": "FAILED"})
         return results

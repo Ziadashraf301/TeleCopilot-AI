@@ -1,6 +1,8 @@
 import os
 import xml.etree.ElementTree as ET
+
 from bs4 import BeautifulSoup
+
 from telecopilot.core.logger import get_logger
 from telecopilot.ingestion.base import BaseExtractor, ExtractedDocument
 
@@ -23,9 +25,10 @@ class XMLExtractor(BaseExtractor):
         raw_text_parts = []
 
         try:
-            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            with open(file_path, encoding="utf-8", errors="ignore") as f:
                 xml_content = f.read()
             import re
+
             sanitized = re.sub(r"&(?!(amp|lt|gt|quot|apos);)", "&amp;", xml_content)
             root = ET.fromstring(sanitized)
 
@@ -34,8 +37,10 @@ class XMLExtractor(BaseExtractor):
 
             for child in root:
                 sec_id = child.attrib.get("id") or child.attrib.get("code") or child.tag
-                sec_title = child.attrib.get("title") or child.attrib.get("name") or f"{child.tag.capitalize()} ({sec_id})"
-                
+                sec_title = (
+                    child.attrib.get("title") or child.attrib.get("name") or f"{child.tag.capitalize()} ({sec_id})"
+                )
+
                 child_lines = []
                 for elem in child.iter():
                     if elem.text and elem.text.strip():
@@ -46,16 +51,12 @@ class XMLExtractor(BaseExtractor):
 
                 content = "\n".join(child_lines)
                 if content:
-                    sections.append({
-                        "section_title": sec_title,
-                        "content": content,
-                        "page_number": 1
-                    })
+                    sections.append({"section_title": sec_title, "content": content, "page_number": 1})
                     raw_text_parts.append(f"## {sec_title}\n{content}")
 
         except Exception as e:
             logger.warning(f"ElementTree parse warning for {file_path}: {e}. Falling back to BeautifulSoup XML parser.")
-            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            with open(file_path, encoding="utf-8", errors="ignore") as f:
                 content_str = f.read()
             soup = BeautifulSoup(content_str, "xml")
             doc_title = soup.find().name if soup.find() else os.path.basename(file_path)
@@ -63,11 +64,7 @@ class XMLExtractor(BaseExtractor):
             for elem in soup.find_all(recursive=False):
                 sec_title = elem.name
                 sec_content = elem.get_text(separator="\n").strip()
-                sections.append({
-                    "section_title": sec_title,
-                    "content": sec_content,
-                    "page_number": 1
-                })
+                sections.append({"section_title": sec_title, "content": sec_content, "page_number": 1})
                 raw_text_parts.append(f"## {sec_title}\n{sec_content}")
 
         raw_text = "\n\n".join(raw_text_parts)
@@ -79,5 +76,5 @@ class XMLExtractor(BaseExtractor):
             raw_text=raw_text,
             policy_type=policy_type,
             sections=sections,
-            metadata={"format": "xml", "total_sections": len(sections)}
+            metadata={"format": "xml", "total_sections": len(sections)},
         )

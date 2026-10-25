@@ -1,8 +1,10 @@
-import sys
 import json
 import os
+import sys
 from datetime import datetime
+
 from loguru import logger
+
 from telecopilot.config.settings import get_settings
 
 settings = get_settings()
@@ -25,15 +27,15 @@ def json_formatter(record):
             "dense": settings.DENSE_EMBEDDING_MODEL,
             "sparse": settings.SPARSE_EMBEDDING_MODEL,
             "rerank": settings.RERANK_MODEL,
-            "llm": settings.LLM_MODEL
+            "llm": settings.LLM_MODEL,
         },
-        "extra": record["extra"]
+        "extra": record["extra"],
     }
     if record["exception"]:
         log_data["exception"] = {
             "type": record["exception"].type.__name__ if record["exception"].type else "Exception",
             "value": str(record["exception"].value),
-            "traceback": record["exception"].traceback
+            "traceback": record["exception"].traceback,
         }
     return json.dumps(log_data, ensure_ascii=False) + "\n"
 

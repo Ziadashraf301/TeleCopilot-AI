@@ -17,14 +17,13 @@ Incorporates:
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field, asdict
-from typing import List, Dict, Set, Tuple, Optional
 from collections import defaultdict
-
+from dataclasses import asdict, dataclass, field
 
 # ---------------------------------------------------------------------------
 # Arabic Normalisation & Tokenisation (Fix 1)
 # ---------------------------------------------------------------------------
+
 
 def normalize_arabic(text: str) -> str:
     """
@@ -49,7 +48,7 @@ def normalize_arabic(text: str) -> str:
     return text
 
 
-def tokenize(text: str) -> List[str]:
+def tokenize(text: str) -> list[str]:
     """
     Tokenise text that may contain Arabic, English, numbers, and percentages.
     Normalises Arabic before splitting.
@@ -61,7 +60,7 @@ def tokenize(text: str) -> List[str]:
     return [t.lower() for t in tokens]
 
 
-def token_set(text: str) -> Set[str]:
+def token_set(text: str) -> set[str]:
     return set(tokenize(text))
 
 
@@ -69,7 +68,8 @@ def token_set(text: str) -> Set[str]:
 # ROUGE-L via LCS  (Fix 5)
 # ---------------------------------------------------------------------------
 
-def _lcs_length(a: List[str], b: List[str]) -> int:
+
+def _lcs_length(a: list[str], b: list[str]) -> int:
     """Dynamic programming LCS length — O(len(a) × len(b))."""
     m, n = len(a), len(b)
     # Space-optimised: only keep two rows
@@ -108,21 +108,21 @@ def rouge_l(extracted: str, ground_truth: str) -> float:
 # ---------------------------------------------------------------------------
 
 # Regexes for telecom-critical entities
-_ENTITY_PATTERNS: Dict[str, str] = {
-    "percentages":    r"\b\d{1,3}(?:\.\d+)?%",            # 99.99%, 25%
-    "egp_prices":     r"\b\d+(?:\.\d+)?\s*(?:EGP|ج\.م)",  # 150 EGP, 5.00 EGP
-    "phone_numbers":  r"\b1[0-9]{7,10}\b|\b19\d{3}\b",    # 19777, 01xxxxxxxxx
-    "sla_codes":      r"\bSLA-[A-Z]+\b",                   # SLA-DIAMOND, SLA-GOLD
-    "circuit_ids":    r"\bCORP-CIRC-\d{4}\b",             # CORP-CIRC-0001
-    "doc_ids":        r"\bPOL-[A-Z]+-\d{4}-V\d+\b",       # POL-SIM-2026-V4
-    "speeds":         r"\b\d+\s*(?:Mbps|Gbps|GB|MB)\b",   # 100 Mbps, 140GB
-    "durations":      r"\b\d+\s*(?:days?|hours?|minutes?|months?|years?)\b",
+_ENTITY_PATTERNS: dict[str, str] = {
+    "percentages": r"\b\d{1,3}(?:\.\d+)?%",  # 99.99%, 25%
+    "egp_prices": r"\b\d+(?:\.\d+)?\s*(?:EGP|ج\.م)",  # 150 EGP, 5.00 EGP
+    "phone_numbers": r"\b1[0-9]{7,10}\b|\b19\d{3}\b",  # 19777, 01xxxxxxxxx
+    "sla_codes": r"\bSLA-[A-Z]+\b",  # SLA-DIAMOND, SLA-GOLD
+    "circuit_ids": r"\bCORP-CIRC-\d{4}\b",  # CORP-CIRC-0001
+    "doc_ids": r"\bPOL-[A-Z]+-\d{4}-V\d+\b",  # POL-SIM-2026-V4
+    "speeds": r"\b\d+\s*(?:Mbps|Gbps|GB|MB)\b",  # 100 Mbps, 140GB
+    "durations": r"\b\d+\s*(?:days?|hours?|minutes?|months?|years?)\b",
 }
 
 
-def extract_critical_entities(text: str) -> Dict[str, List[str]]:
+def extract_critical_entities(text: str) -> dict[str, list[str]]:
     """Extract all telecom-critical entity occurrences from text."""
-    results: Dict[str, List[str]] = {}
+    results: dict[str, list[str]] = {}
     for category, pattern in _ENTITY_PATTERNS.items():
         matches = re.findall(pattern, text, flags=re.IGNORECASE)
         if matches:
@@ -130,14 +130,14 @@ def extract_critical_entities(text: str) -> Dict[str, List[str]]:
     return results
 
 
-def entity_retention(extracted: str, ground_truth: str) -> Dict[str, float]:
+def entity_retention(extracted: str, ground_truth: str) -> dict[str, float]:
     """
     Per-category entity recall: how many unique GT entities appear in extracted text.
     Returns dict of category → recall (0.0–1.0).
     """
     gt_entities = extract_critical_entities(ground_truth)
     ex_entities = extract_critical_entities(extracted)
-    scores: Dict[str, float] = {}
+    scores: dict[str, float] = {}
     for cat, gt_vals in gt_entities.items():
         gt_set = set(v.lower() for v in gt_vals)
         ex_set = set(v.lower() for v in ex_entities.get(cat, []))
@@ -157,7 +157,8 @@ def overall_entity_recall(extracted: str, ground_truth: str) -> float:
 # Section Order Score — Kendall's tau  (Fix 3)
 # ---------------------------------------------------------------------------
 
-def kendall_tau_order(extracted_titles: List[str], gt_titles: List[str]) -> float:
+
+def kendall_tau_order(extracted_titles: list[str], gt_titles: list[str]) -> float:
     """
     Measure section order preservation as Kendall's tau.
     Aligns extracted titles to GT titles via best-substring match, then computes tau.
@@ -167,7 +168,7 @@ def kendall_tau_order(extracted_titles: List[str], gt_titles: List[str]) -> floa
         return 1.0  # No sections to compare → neutral
 
     # Build rank mapping: for each GT title, find its best-matching extracted index
-    def best_match_idx(title: str, candidates: List[str]) -> int:
+    def best_match_idx(title: str, candidates: list[str]) -> int:
         title_toks = set(tokenize(title))
         best_score, best_idx = -1.0, 0
         for i, cand in enumerate(candidates):
@@ -188,7 +189,7 @@ def kendall_tau_order(extracted_titles: List[str], gt_titles: List[str]) -> floa
     concordant = discordant = 0
     for i in range(n):
         for j in range(i + 1, n):
-            diff = (ranks[j] - ranks[i])
+            diff = ranks[j] - ranks[i]
             if diff > 0:
                 concordant += 1
             elif diff < 0:
@@ -200,6 +201,7 @@ def kendall_tau_order(extracted_titles: List[str], gt_titles: List[str]) -> floa
 # ---------------------------------------------------------------------------
 # Table & Media Retention
 # ---------------------------------------------------------------------------
+
 
 def table_cell_retention(extracted_cells: int, gt_cells: int) -> float:
     if gt_cells == 0:
@@ -217,11 +219,13 @@ def media_retention(extracted_media: int, gt_media: int) -> float:
 # Per-File Extraction Metrics Dataclass
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class ExtractionMetrics:
     """All quality metrics for one extracted document vs its ground truth."""
+
     file_name: str
-    file_type: str                    # html | xml | docx | pdf
+    file_type: str  # html | xml | docx | pdf
 
     # Token-level
     word_recall: float = 0.0
@@ -231,7 +235,7 @@ class ExtractionMetrics:
 
     # Entity-level
     entity_recall_overall: float = 0.0
-    entity_recall_per_category: Dict[str, float] = field(default_factory=dict)
+    entity_recall_per_category: dict[str, float] = field(default_factory=dict)
 
     # Structure-level
     section_order_tau: float = 1.0
@@ -255,8 +259,8 @@ def compute_all_metrics(
     ground_truth_text: str,
     file_name: str,
     file_type: str,
-    extracted_section_titles: Optional[List[str]] = None,
-    gt_section_titles: Optional[List[str]] = None,
+    extracted_section_titles: list[str] | None = None,
+    gt_section_titles: list[str] | None = None,
     extracted_table_cells: int = 0,
     gt_table_cells: int = 0,
     extracted_media_count: int = 0,
@@ -313,10 +317,12 @@ def compute_all_metrics(
 # Micro / Macro Aggregation & Per-Type Breakdown
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class AggregatedMetrics:
     """Aggregated metrics over a set of documents."""
-    label: str                          # e.g. "ALL", "html", "xml", "docx", "pdf"
+
+    label: str  # e.g. "ALL", "html", "xml", "docx", "pdf"
     n_documents: int = 0
 
     # Macro (unweighted mean per document)
@@ -339,7 +345,7 @@ class AggregatedMetrics:
 
 
 def aggregate_micro_macro(
-    metrics_list: List[ExtractionMetrics],
+    metrics_list: list[ExtractionMetrics],
     label: str = "ALL",
 ) -> AggregatedMetrics:
     """
@@ -359,17 +365,14 @@ def aggregate_micro_macro(
     total_ex = sum(m.extracted_token_count for m in metrics_list)
 
     # Approximate: micro recall ≈ weighted average of recalls by GT size
-    micro_recall = (
-        sum(m.word_recall * m.gt_token_count for m in metrics_list) / total_gt
-        if total_gt else 0.0
-    )
+    micro_recall = sum(m.word_recall * m.gt_token_count for m in metrics_list) / total_gt if total_gt else 0.0
     micro_precision = (
-        sum(m.word_precision * m.extracted_token_count for m in metrics_list) / total_ex
-        if total_ex else 0.0
+        sum(m.word_precision * m.extracted_token_count for m in metrics_list) / total_ex if total_ex else 0.0
     )
     micro_f1 = (
         2 * micro_recall * micro_precision / (micro_recall + micro_precision)
-        if (micro_recall + micro_precision) > 0 else 0.0
+        if (micro_recall + micro_precision) > 0
+        else 0.0
     )
 
     return AggregatedMetrics(
@@ -390,13 +393,13 @@ def aggregate_micro_macro(
 
 
 def aggregate_per_type(
-    metrics_list: List[ExtractionMetrics],
-) -> Dict[str, AggregatedMetrics]:
+    metrics_list: list[ExtractionMetrics],
+) -> dict[str, AggregatedMetrics]:
     """
     Break down metrics by document type: html, xml, docx, pdf.
     Also includes an 'ALL' entry.
     """
-    groups: Dict[str, List[ExtractionMetrics]] = defaultdict(list)
+    groups: dict[str, list[ExtractionMetrics]] = defaultdict(list)
     for m in metrics_list:
         groups[m.file_type].append(m)
     groups["ALL"] = metrics_list

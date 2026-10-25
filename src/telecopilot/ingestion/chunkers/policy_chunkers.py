@@ -1,14 +1,15 @@
 import os
 import re
-from typing import List, Dict, Any
+
 from langchain_text_splitters import (
-    MarkdownHeaderTextSplitter,
     HTMLHeaderTextSplitter,
+    MarkdownHeaderTextSplitter,
     RecursiveCharacterTextSplitter,
 )
-from telecopilot.ingestion.base import BaseChunker
-from telecopilot.models.document_models import ExtractedDocument, DocumentChunk
+
 from telecopilot.core.logger import get_logger
+from telecopilot.ingestion.base import BaseChunker
+from telecopilot.models.document_models import DocumentChunk, ExtractedDocument
 
 logger = get_logger()
 
@@ -58,12 +59,10 @@ class SIMPolicyChunker(BaseChunker):
         ]
         self.html_splitter = HTMLHeaderTextSplitter(headers_to_split_on=self.headers_to_split_on)
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap,
-            separators=["\n\n", "\n", ". ", " "]
+            chunk_size=chunk_size, chunk_overlap=chunk_overlap, separators=["\n\n", "\n", ". ", " "]
         )
 
-    def chunk(self, document: ExtractedDocument) -> List[DocumentChunk]:
+    def chunk(self, document: ExtractedDocument) -> list[DocumentChunk]:
         chunks = []
         chunk_idx = 1
         intent = get_intent_for_policy(document.policy_type)
@@ -100,7 +99,11 @@ class SIMPolicyChunker(BaseChunker):
                             intent_category=intent,
                             section_title=header_title,
                             page_number=1,
-                            metadata={"format": "html", "intent": intent, "splitter": "LangChain_HTMLHeaderTextSplitter"}
+                            metadata={
+                                "format": "html",
+                                "intent": intent,
+                                "splitter": "LangChain_HTMLHeaderTextSplitter",
+                            },
                         )
                     )
                     chunk_idx += 1
@@ -124,7 +127,7 @@ class SIMPolicyChunker(BaseChunker):
                             intent_category=intent,
                             section_title=sec["section_title"],
                             page_number=1,
-                            metadata={"format": "html", "intent": intent, "splitter": "LangChain_RecursiveCharacter"}
+                            metadata={"format": "html", "intent": intent, "splitter": "LangChain_RecursiveCharacter"},
                         )
                     )
                     chunk_idx += 1
@@ -146,17 +149,12 @@ class WifiPolicyChunker(BaseChunker):
             ("##", "Header 2"),
             ("###", "Header 3"),
         ]
-        self.md_splitter = MarkdownHeaderTextSplitter(
-            headers_to_split_on=self.headers_to_split_on,
-            strip_headers=False
-        )
+        self.md_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=self.headers_to_split_on, strip_headers=False)
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap,
-            separators=["\n\n", "\n- ", "\n", ". "]
+            chunk_size=chunk_size, chunk_overlap=chunk_overlap, separators=["\n\n", "\n- ", "\n", ". "]
         )
 
-    def chunk(self, document: ExtractedDocument) -> List[DocumentChunk]:
+    def chunk(self, document: ExtractedDocument) -> list[DocumentChunk]:
         chunks = []
         chunk_idx = 1
         doc_tag = os.path.basename(document.source_path).replace(".", "_")
@@ -188,7 +186,12 @@ class WifiPolicyChunker(BaseChunker):
                             intent_category=intent,
                             section_title=header_title,
                             page_number=1,
-                            metadata={"format": "pdf", "intent": intent, "splitter": "LangChain_MarkdownHeaderTextSplitter", "ocr_engine": "gemini-vision"}
+                            metadata={
+                                "format": "pdf",
+                                "intent": intent,
+                                "splitter": "LangChain_MarkdownHeaderTextSplitter",
+                                "ocr_engine": "gemini-vision",
+                            },
                         )
                     )
                     chunk_idx += 1
@@ -212,12 +215,14 @@ class WifiPolicyChunker(BaseChunker):
                             intent_category=intent,
                             section_title=sec["section_title"],
                             page_number=sec.get("page_number", 1),
-                            metadata={"format": "pdf", "intent": intent, "splitter": "LangChain_RecursiveCharacter"}
+                            metadata={"format": "pdf", "intent": intent, "splitter": "LangChain_RecursiveCharacter"},
                         )
                     )
                     chunk_idx += 1
 
-        logger.info(f"LangChain Markdown-Aware WifiPolicyChunker produced {len(chunks)} chunks for {document.source_path}.")
+        logger.info(
+            f"LangChain Markdown-Aware WifiPolicyChunker produced {len(chunks)} chunks for {document.source_path}."
+        )
         return chunks
 
 
@@ -229,12 +234,10 @@ class BillingPolicyChunker(BaseChunker):
 
     def __init__(self, chunk_size: int = 450, chunk_overlap: int = 60):
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap,
-            separators=["\n\n", "\n", ". "]
+            chunk_size=chunk_size, chunk_overlap=chunk_overlap, separators=["\n\n", "\n", ". "]
         )
 
-    def chunk(self, document: ExtractedDocument) -> List[DocumentChunk]:
+    def chunk(self, document: ExtractedDocument) -> list[DocumentChunk]:
         chunks = []
         chunk_idx = 1
         doc_tag = os.path.basename(document.source_path).replace(".", "_")
@@ -261,7 +264,7 @@ class BillingPolicyChunker(BaseChunker):
                         intent_category=intent,
                         section_title=sec["section_title"],
                         page_number=sec.get("page_number", 1),
-                        metadata={"format": "docx", "intent": intent, "splitter": "LangChain_ClauseSplitter"}
+                        metadata={"format": "docx", "intent": intent, "splitter": "LangChain_ClauseSplitter"},
                     )
                 )
                 chunk_idx += 1
@@ -277,12 +280,10 @@ class XMLPolicyChunker(BaseChunker):
 
     def __init__(self, chunk_size: int = 500, chunk_overlap: int = 80):
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap,
-            separators=["\n\n", "\n", ". ", " "]
+            chunk_size=chunk_size, chunk_overlap=chunk_overlap, separators=["\n\n", "\n", ". ", " "]
         )
 
-    def chunk(self, document: ExtractedDocument) -> List[DocumentChunk]:
+    def chunk(self, document: ExtractedDocument) -> list[DocumentChunk]:
         chunks = []
         chunk_idx = 1
         doc_tag = os.path.basename(document.source_path).replace(".", "_")
@@ -309,7 +310,7 @@ class XMLPolicyChunker(BaseChunker):
                         intent_category=intent,
                         section_title=sec["section_title"],
                         page_number=sec.get("page_number", 1),
-                        metadata={"format": "xml", "intent": intent, "splitter": "LangChain_XMLRecursive"}
+                        metadata={"format": "xml", "intent": intent, "splitter": "LangChain_XMLRecursive"},
                     )
                 )
                 chunk_idx += 1
@@ -333,12 +334,10 @@ class WebScrapedPolicyChunker(BaseChunker):
         ]
         self.html_splitter = HTMLHeaderTextSplitter(headers_to_split_on=self.headers_to_split_on)
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap,
-            separators=["\n\n", "\n", ". ", " | ", " "]
+            chunk_size=chunk_size, chunk_overlap=chunk_overlap, separators=["\n\n", "\n", ". ", " | ", " "]
         )
 
-    def chunk(self, document: ExtractedDocument) -> List[DocumentChunk]:
+    def chunk(self, document: ExtractedDocument) -> list[DocumentChunk]:
         chunks = []
         chunk_idx = 1
         for sec in document.sections:
@@ -363,7 +362,12 @@ class WebScrapedPolicyChunker(BaseChunker):
                         intent_category="PLANS_AND_OFFERS",
                         section_title=sec["section_title"],
                         page_number=sec.get("page_number", 1),
-                        metadata={"format": "web_scraped", "intent": "PLANS_AND_OFFERS", "splitter": "LangChain_WebSemanticSplitter", "url": document.source_path}
+                        metadata={
+                            "format": "web_scraped",
+                            "intent": "PLANS_AND_OFFERS",
+                            "splitter": "LangChain_WebSemanticSplitter",
+                            "url": document.source_path,
+                        },
                     )
                 )
                 chunk_idx += 1

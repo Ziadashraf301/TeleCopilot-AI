@@ -1,11 +1,12 @@
 from functools import lru_cache
+
 from telecopilot.repositories.base import BaseVectorRepository
 from telecopilot.repositories.qdrant_repository import QdrantVectorRepository
+from telecopilot.services.agent_assist_service import AgentAssistService
 from telecopilot.services.cohere_service import CohereService
 from telecopilot.services.gemini_service import GeminiService
-from telecopilot.services.sparse_embedding_model import SparseEmbeddingModel
 from telecopilot.services.ingestion_service import IngestionService
-from telecopilot.services.agent_assist_service import AgentAssistService
+from telecopilot.services.sparse_embedding_model import SparseEmbeddingModel
 
 
 @lru_cache(maxsize=1)
@@ -34,16 +35,11 @@ def get_sparse_model() -> SparseEmbeddingModel:
 
 def get_ingestion_service() -> IngestionService:
     """Dependency for Ingestion Service."""
-    return IngestionService(
-        vector_repo=get_vector_repository(),
-        cohere_service=get_cohere_service()
-    )
+    return IngestionService(vector_repo=get_vector_repository(), cohere_service=get_cohere_service())
 
 
 def get_agent_assist_service() -> AgentAssistService:
     """Dependency for Agent Assist RAG Service."""
     return AgentAssistService(
-        vector_repo=get_vector_repository(),
-        cohere_service=get_cohere_service(),
-        gemini_service=get_gemini_service()
+        vector_repo=get_vector_repository(), cohere_service=get_cohere_service(), gemini_service=get_gemini_service()
     )

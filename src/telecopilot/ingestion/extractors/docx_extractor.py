@@ -1,5 +1,7 @@
 import os
+
 from docx import Document
+
 from telecopilot.core.logger import get_logger
 from telecopilot.ingestion.base import BaseExtractor, ExtractedDocument
 
@@ -36,22 +38,18 @@ class DocxExtractor(BaseExtractor):
                 if not first_heading_seen:
                     first_heading_seen = text
                 if current_paragraphs:
-                    sections.append({
-                        "section_title": current_title,
-                        "content": "\n".join(current_paragraphs),
-                        "page_number": 1
-                    })
+                    sections.append(
+                        {"section_title": current_title, "content": "\n".join(current_paragraphs), "page_number": 1}
+                    )
                     current_paragraphs = []
                 current_title = text
             else:
                 current_paragraphs.append(text)
 
         if current_paragraphs:
-            sections.append({
-                "section_title": current_title,
-                "content": "\n".join(current_paragraphs),
-                "page_number": 1
-            })
+            sections.append(
+                {"section_title": current_title, "content": "\n".join(current_paragraphs), "page_number": 1}
+            )
 
         # Process tables
         for idx, table in enumerate(doc.tables):
@@ -60,11 +58,9 @@ class DocxExtractor(BaseExtractor):
                 row_cells = [cell.text.strip() for cell in row.cells]
                 table_rows.append(" | ".join(row_cells))
             table_text = "\n".join(table_rows)
-            sections.append({
-                "section_title": f"Technical Data & Schedule Table {idx + 1}",
-                "content": table_text,
-                "page_number": 1
-            })
+            sections.append(
+                {"section_title": f"Technical Data & Schedule Table {idx + 1}", "content": table_text, "page_number": 1}
+            )
 
         full_text = "\n\n".join([f"### {s['section_title']}\n{s['content']}" for s in sections])
         final_title = first_heading_seen if first_heading_seen else default_title
@@ -76,5 +72,5 @@ class DocxExtractor(BaseExtractor):
             raw_text=full_text,
             policy_type=base_name,
             sections=sections,
-            metadata={"format": "docx", "total_sections": len(sections)}
+            metadata={"format": "docx", "total_sections": len(sections)},
         )

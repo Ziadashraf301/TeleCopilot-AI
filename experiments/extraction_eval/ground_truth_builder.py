@@ -12,55 +12,57 @@ Produces:
 
 from __future__ import annotations
 
-import os
 import io
+import os
 import re
-import zipfile
 import xml.etree.ElementTree as ET
+import zipfile
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional, Tuple
 from pathlib import Path
+from typing import Any
 
 from bs4 import BeautifulSoup
-
 
 # ---------------------------------------------------------------------------
 # Data Structures
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class GroundTruthSection:
     """A single section within a Ground Truth document."""
-    section_id: str           # e.g. sec_1, sec_2
+
+    section_id: str  # e.g. sec_1, sec_2
     title: str
-    order: int                # 1-based position
-    page: int                 # 1-based page number (1 for single-page formats)
-    parent: str               # parent section_id or "root"
-    content: str              # raw text content
-    table_cells: int = 0      # number of table cells in this section
-    has_media: bool = False   # whether media was extracted for this section
+    order: int  # 1-based position
+    page: int  # 1-based page number (1 for single-page formats)
+    parent: str  # parent section_id or "root"
+    content: str  # raw text content
+    table_cells: int = 0  # number of table cells in this section
+    has_media: bool = False  # whether media was extracted for this section
 
 
 @dataclass
 class GroundTruthDocument:
     """Fully-structured ground truth for one source file."""
+
     document_id: str
     source_file: str
-    file_format: str          # html | xml | docx | pdf
+    file_format: str  # html | xml | docx | pdf
     policy_type: str
     title: str
 
-    sections: List[GroundTruthSection] = field(default_factory=list)
+    sections: list[GroundTruthSection] = field(default_factory=list)
     raw_text: str = ""
     total_words: int = 0
     total_table_cells: int = 0
     total_media_count: int = 0
-    critical_entities: List[str] = field(default_factory=list)
+    critical_entities: list[str] = field(default_factory=list)
     page_count: int = 1
-    embedded_images: List[Any] = field(default_factory=list)  # PIL Image objects
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    embedded_images: list[Any] = field(default_factory=list)  # PIL Image objects
+    metadata: dict[str, Any] = field(default_factory=dict)
 
-    def section_titles(self) -> List[str]:
+    def section_titles(self) -> list[str]:
         return [s.title for s in sorted(self.sections, key=lambda s: s.order)]
 
 
@@ -68,16 +70,17 @@ class GroundTruthDocument:
 # Helper: Extract critical entities for frontmatter
 # ---------------------------------------------------------------------------
 
-def _extract_entities(text: str) -> List[str]:
+
+def _extract_entities(text: str) -> list[str]:
     """Quick regex pass to find telecom-critical tokens for the YAML frontmatter."""
     patterns = [
-        r"\bPOL-[A-Z]+-\d{4}-V\d+\b",            # DOC IDs
-        r"\bSLA-[A-Z]+\b",                         # SLA tier codes
-        r"\bCORP-CIRC-\d{4}\b",                    # Circuit IDs
-        r"\b\d{1,3}(?:\.\d+)?%\b",                 # Percentages
-        r"\b19\d{3}\b|\b0[0-9]{9,10}\b",           # Phone numbers
-        r"\b\d+(?:\.\d+)?\s*(?:EGP|ج\.م)\b",       # Prices
-        r"\b\d+\s*(?:Mbps|Gbps|GB|MB)\b",          # Speeds/sizes
+        r"\bPOL-[A-Z]+-\d{4}-V\d+\b",  # DOC IDs
+        r"\bSLA-[A-Z]+\b",  # SLA tier codes
+        r"\bCORP-CIRC-\d{4}\b",  # Circuit IDs
+        r"\b\d{1,3}(?:\.\d+)?%\b",  # Percentages
+        r"\b19\d{3}\b|\b0[0-9]{9,10}\b",  # Phone numbers
+        r"\b\d+(?:\.\d+)?\s*(?:EGP|ج\.م)\b",  # Prices
+        r"\b\d+\s*(?:Mbps|Gbps|GB|MB)\b",  # Speeds/sizes
     ]
     found = set()
     for p in patterns:
@@ -90,14 +93,17 @@ def _extract_entities(text: str) -> List[str]:
 # Helper: Count words
 # ---------------------------------------------------------------------------
 
+
 def _word_count(text: str) -> int:
     from .metrics import tokenize
+
     return len(tokenize(text))
 
 
 # ---------------------------------------------------------------------------
 # HTML Ground Truth Builder
 # ---------------------------------------------------------------------------
+
 
 def build_html_ground_truth(file_path: str) -> GroundTruthDocument:
     """
@@ -108,7 +114,7 @@ def build_html_ground_truth(file_path: str) -> GroundTruthDocument:
     - Captures content appearing BEFORE first heading (document metadata).
     """
     base_name = Path(file_path).stem
-    with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+    with open(file_path, encoding="utf-8", errors="ignore") as f:
         html_content = f.read()
 
     soup = BeautifulSoup(html_content, "html.parser")
@@ -120,13 +126,14 @@ def build_html_ground_truth(file_path: str) -> GroundTruthDocument:
     for tag in soup(["script", "style"]):
         tag.decompose()
     from bs4 import Comment
+
     for comment in soup.find_all(string=lambda text: isinstance(text, Comment)):
         comment.extract()
 
     title = soup.title.string.strip() if soup.title else base_name.replace("_", " ").title()
 
-    sections: List[GroundTruthSection] = []
-    all_text_parts: List[str] = []
+    sections: list[GroundTruthSection] = []
+    all_text_parts: list[str] = []
 
     # ------------------------------------------------------------------
     # Capture PRE-HEADING metadata (paragraphs before first h1/h2/h3)
@@ -158,14 +165,16 @@ def build_html_ground_truth(file_path: str) -> GroundTruthDocument:
 
     if pre_heading_parts:
         pre_content = "\n".join(pre_heading_parts)
-        sections.append(GroundTruthSection(
-            section_id="sec_0",
-            title="Document Header & Metadata",
-            order=0,
-            page=1,
-            parent="root",
-            content=pre_content,
-        ))
+        sections.append(
+            GroundTruthSection(
+                section_id="sec_0",
+                title="Document Header & Metadata",
+                order=0,
+                page=1,
+                parent="root",
+                content=pre_content,
+            )
+        )
         all_text_parts.append(pre_content)
 
     # ------------------------------------------------------------------
@@ -207,8 +216,7 @@ def build_html_ground_truth(file_path: str) -> GroundTruthDocument:
                     sep = " | ".join(["---"] * len(header.split(" | ")))
                     md_table = "\n".join([header, sep] + md_rows[1:])
                     content_parts.append(md_table)
-            elif node.name in ["p", "li", "div", "span", "code", "em", "strong",
-                               "blockquote", "dd", "dt"]:
+            elif node.name in ["p", "li", "div", "span", "code", "em", "strong", "blockquote", "dd", "dt"]:
                 # Only capture if this element has text and no block children
                 # to avoid double-counting container divs
                 child_blocks = node.find_all(["p", "li", "table", "div", "ul", "ol"])
@@ -219,15 +227,17 @@ def build_html_ground_truth(file_path: str) -> GroundTruthDocument:
 
         content = "\n\n".join(content_parts)
         if content:
-            sections.append(GroundTruthSection(
-                section_id=sec_id,
-                title=sec_title,
-                order=idx + 1,
-                page=1,
-                parent="root",
-                content=content,
-                table_cells=table_cells,
-            ))
+            sections.append(
+                GroundTruthSection(
+                    section_id=sec_id,
+                    title=sec_title,
+                    order=idx + 1,
+                    page=1,
+                    parent="root",
+                    content=content,
+                    table_cells=table_cells,
+                )
+            )
             all_text_parts.append(f"## {sec_title}\n{content}")
 
     raw_text = "\n\n".join(all_text_parts)
@@ -252,6 +262,7 @@ def build_html_ground_truth(file_path: str) -> GroundTruthDocument:
 # XML Ground Truth Builder
 # ---------------------------------------------------------------------------
 
+
 def build_xml_ground_truth(file_path: str) -> GroundTruthDocument:
     """
     Lossless XML parser.
@@ -264,24 +275,21 @@ def build_xml_ground_truth(file_path: str) -> GroundTruthDocument:
     base_name = Path(file_path).stem
 
     try:
-        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+        with open(file_path, encoding="utf-8", errors="ignore") as f:
             xml_content = f.read()
         # Bug fix: sanitise ALL bare & occurrences, including:
         # - "e& (Etisalat)" in element text (roaming XML)
         # - attribute values with &
         # We must handle & inside CDATA-like text and attribute values.
         import re
+
         sanitized = re.sub(r"&(?!(amp|lt|gt|quot|apos|#\d+|#x[0-9A-Fa-f]+);)", "&amp;", xml_content)
         root = ET.fromstring(sanitized)
-        doc_title = (
-            root.attrib.get("title")
-            or root.attrib.get("name")
-            or root.tag.replace("_", " ").title()
-        )
+        doc_title = root.attrib.get("title") or root.attrib.get("name") or root.tag.replace("_", " ").title()
         policy_type = root.attrib.get("type") or base_name
 
-        sections: List[GroundTruthSection] = []
-        all_text_parts: List[str] = []
+        sections: list[GroundTruthSection] = []
+        all_text_parts: list[str] = []
 
         for child_idx, child in enumerate(root):
             sec_id = f"sec_{child_idx + 1}"
@@ -305,7 +313,7 @@ def build_xml_ground_truth(file_path: str) -> GroundTruthDocument:
             ]
             sec_title = next((t for t in title_candidates if t), child.tag.replace("_", " ").capitalize())
 
-            lines: List[str] = []
+            lines: list[str] = []
 
             # Root-level child attributes
             for k, v in child.attrib.items():
@@ -323,14 +331,16 @@ def build_xml_ground_truth(file_path: str) -> GroundTruthDocument:
 
             content = "\n".join(lines)
             if content:
-                sections.append(GroundTruthSection(
-                    section_id=sec_id,
-                    title=sec_title,
-                    order=child_idx + 1,
-                    page=1,
-                    parent="root",
-                    content=content,
-                ))
+                sections.append(
+                    GroundTruthSection(
+                        section_id=sec_id,
+                        title=sec_title,
+                        order=child_idx + 1,
+                        page=1,
+                        parent="root",
+                        content=content,
+                    )
+                )
                 all_text_parts.append(f"## {sec_title}\n{content}")
 
     except ET.ParseError:
@@ -344,14 +354,16 @@ def build_xml_ground_truth(file_path: str) -> GroundTruthDocument:
             sec_id = f"sec_{child_idx + 1}"
             sec_title = elem.name
             content = elem.get_text(separator="\n").strip()
-            sections.append(GroundTruthSection(
-                section_id=sec_id,
-                title=sec_title,
-                order=child_idx + 1,
-                page=1,
-                parent="root",
-                content=content,
-            ))
+            sections.append(
+                GroundTruthSection(
+                    section_id=sec_id,
+                    title=sec_title,
+                    order=child_idx + 1,
+                    page=1,
+                    parent="root",
+                    content=content,
+                )
+            )
             all_text_parts.append(f"## {sec_title}\n{content}")
 
     raw_text = "\n\n".join(all_text_parts)
@@ -374,6 +386,7 @@ def build_xml_ground_truth(file_path: str) -> GroundTruthDocument:
 # DOCX Ground Truth Builder
 # ---------------------------------------------------------------------------
 
+
 def build_docx_ground_truth(
     file_path: str,
     gemini_client=None,
@@ -390,13 +403,12 @@ def build_docx_ground_truth(
     base_name = Path(file_path).stem
     doc = Document(file_path)
 
-    sections: List[GroundTruthSection] = []
-    all_text_parts: List[str] = []
-    embedded_images: List[Any] = []
-    total_table_cells = 0
+    sections: list[GroundTruthSection] = []
+    all_text_parts: list[str] = []
+    embedded_images: list[Any] = []
 
     # ---- Step 1: Extract embedded images from word/media/ ----
-    media_transcriptions: List[str] = []
+    media_transcriptions: list[str] = []
     try:
         with zipfile.ZipFile(file_path, "r") as zf:
             media_files = [n for n in zf.namelist() if n.startswith("word/media/")]
@@ -404,6 +416,7 @@ def build_docx_ground_truth(
                 img_data = zf.read(mf)
                 try:
                     from PIL import Image
+
                     img = Image.open(io.BytesIO(img_data))
                     embedded_images.append(img)
                     if gemini_client:
@@ -429,12 +442,11 @@ def build_docx_ground_truth(
     # ---- Step 2: Build an ordered list of document elements (paragraphs + tables) ----
     # python-docx exposes doc.paragraphs and doc.tables separately,
     # but we need inline order. We walk the raw XML to get correct sequence.
-    from docx.oxml.ns import qn
     body = doc.element.body
 
     current_section_title = base_name.replace("_", " ").title()
     current_section_idx = 0
-    current_paragraphs: List[str] = []
+    current_paragraphs: list[str] = []
     first_heading = None
 
     def flush_section():
@@ -442,14 +454,16 @@ def build_docx_ground_truth(
         if current_paragraphs:
             sec_id = f"sec_{current_section_idx}"
             content = "\n".join(current_paragraphs)
-            sections.append(GroundTruthSection(
-                section_id=sec_id,
-                title=current_section_title,
-                order=current_section_idx,
-                page=1,
-                parent="root",
-                content=content,
-            ))
+            sections.append(
+                GroundTruthSection(
+                    section_id=sec_id,
+                    title=current_section_title,
+                    order=current_section_idx,
+                    page=1,
+                    parent="root",
+                    content=content,
+                )
+            )
             all_text_parts.append(f"## {current_section_title}\n{content}")
             current_paragraphs = []
             current_section_idx += 1
@@ -461,6 +475,7 @@ def build_docx_ground_truth(
             # Paragraph
             # Find paragraph in doc.paragraphs by XML identity
             from docx.text.paragraph import Paragraph
+
             p = Paragraph(elem, doc)
             text = p.text.strip()
             if not text:
@@ -476,34 +491,33 @@ def build_docx_ground_truth(
         elif tag == "tbl":
             # Inline table — render as Markdown grid
             from docx.table import Table
+
             tbl = Table(elem, doc)
             rows_md = []
-            cell_count = 0
             for row in tbl.rows:
                 cells = [cell.text.strip() for cell in row.cells]
-                cell_count += len(cells)
                 rows_md.append(" | ".join(cells))
-            total_table_cells_local = cell_count
             if rows_md:
                 sep = " | ".join(["---"] * len(rows_md[0].split(" | ")))
                 md_table = "\n".join([rows_md[0], sep] + rows_md[1:])
                 current_paragraphs.append(md_table)
-            total_table_cells.__class__  # reference so nonlocal works
 
     flush_section()
 
     # Append media transcriptions as final section
     if media_transcriptions:
         media_content = "\n\n".join(media_transcriptions)
-        sections.append(GroundTruthSection(
-            section_id=f"sec_{current_section_idx}",
-            title="Embedded Diagrams & Visual Content",
-            order=current_section_idx,
-            page=1,
-            parent="root",
-            content=media_content,
-            has_media=True,
-        ))
+        sections.append(
+            GroundTruthSection(
+                section_id=f"sec_{current_section_idx}",
+                title="Embedded Diagrams & Visual Content",
+                order=current_section_idx,
+                page=1,
+                parent="root",
+                content=media_content,
+                has_media=True,
+            )
+        )
         all_text_parts.append(f"## Embedded Diagrams & Visual Content\n{media_content}")
         current_section_idx += 1
 
@@ -538,6 +552,7 @@ def build_docx_ground_truth(
 # PDF Ground Truth Builder
 # ---------------------------------------------------------------------------
 
+
 def build_pdf_ground_truth(
     file_path: str,
     gemini_client=None,
@@ -554,10 +569,10 @@ def build_pdf_ground_truth(
 
     base_name = Path(file_path).stem
     doc = fitz.open(file_path)
-    sections: List[GroundTruthSection] = []
-    all_text_parts: List[str] = []
-    embedded_images: List[Any] = []
-    inferred_title: Optional[str] = None
+    sections: list[GroundTruthSection] = []
+    all_text_parts: list[str] = []
+    embedded_images: list[Any] = []
+    inferred_title: str | None = None
 
     for page_idx in range(len(doc)):
         page_num = page_idx + 1
@@ -590,7 +605,7 @@ def build_pdf_ground_truth(
                     if response and response.text:
                         page_text = response.text.strip()
                         vision_used = True
-            except Exception as e:
+            except Exception:
                 pass  # Fall back to native text
 
         if not inferred_title and page_text:
@@ -598,15 +613,17 @@ def build_pdf_ground_truth(
             if len(first_line) > 3:
                 inferred_title = first_line
 
-        sections.append(GroundTruthSection(
-            section_id=f"page_{page_num}",
-            title=f"{base_name.replace('_', ' ').title()} — Page {page_num}",
-            order=page_num,
-            page=page_num,
-            parent="root",
-            content=page_text,
-            has_media=vision_used,
-        ))
+        sections.append(
+            GroundTruthSection(
+                section_id=f"page_{page_num}",
+                title=f"{base_name.replace('_', ' ').title()} — Page {page_num}",
+                order=page_num,
+                page=page_num,
+                parent="root",
+                content=page_text,
+                has_media=vision_used,
+            )
+        )
         all_text_parts.append(page_text)
 
     doc.close()
@@ -632,6 +649,7 @@ def build_pdf_ground_truth(
 # ---------------------------------------------------------------------------
 # Main GroundTruthBuilder Dispatcher
 # ---------------------------------------------------------------------------
+
 
 class GroundTruthBuilder:
     """
@@ -660,7 +678,7 @@ class GroundTruthBuilder:
         Render a GroundTruthDocument into a YAML-frontmatted Markdown string.
         Includes per-section metadata delimiter comments.
         """
-        lines: List[str] = []
+        lines: list[str] = []
 
         # ---- YAML Frontmatter ----
         lines.append("---")
@@ -668,7 +686,7 @@ class GroundTruthBuilder:
         lines.append(f"source_file: {os.path.basename(gt.source_file)}")
         lines.append(f"file_format: {gt.file_format}")
         lines.append(f"policy_type: {gt.policy_type}")
-        lines.append(f"title: \"{gt.title}\"")
+        lines.append(f'title: "{gt.title}"')
         lines.append(f"page_count: {gt.page_count}")
         lines.append(f"total_sections: {len(gt.sections)}")
         lines.append(f"total_words: {gt.total_words}")
@@ -726,7 +744,8 @@ class GroundTruthBuilder:
 # Ground Truth Loader (for Notebook 2)
 # ---------------------------------------------------------------------------
 
-def load_ground_truth_md(md_path: str) -> Tuple[Dict[str, Any], str, List[GroundTruthSection]]:
+
+def load_ground_truth_md(md_path: str) -> tuple[dict[str, Any], str, list[GroundTruthSection]]:
     """
     Load a saved Ground Truth .md file.
     Returns:
@@ -734,11 +753,11 @@ def load_ground_truth_md(md_path: str) -> Tuple[Dict[str, Any], str, List[Ground
     """
     import yaml
 
-    with open(md_path, "r", encoding="utf-8") as f:
+    with open(md_path, encoding="utf-8") as f:
         content = f.read()
 
     # Parse YAML frontmatter
-    frontmatter: Dict[str, Any] = {}
+    frontmatter: dict[str, Any] = {}
     body = content
     if content.startswith("---"):
         end_idx = content.find("---", 3)
@@ -748,10 +767,10 @@ def load_ground_truth_md(md_path: str) -> Tuple[Dict[str, Any], str, List[Ground
                 frontmatter = yaml.safe_load(yaml_str) or {}
             except Exception:
                 frontmatter = {}
-            body = content[end_idx + 3:].strip()
+            body = content[end_idx + 3 :].strip()
 
     # Parse sections from metadata delimiter comments
-    sections: List[GroundTruthSection] = []
+    sections: list[GroundTruthSection] = []
     section_pattern = re.compile(
         r"<!--\s*section:\s*(\S+)\s*\|\s*title:\s*(.+?)\s*\|\s*page:\s*(\d+)\s*\|"
         r"\s*order:\s*(\d+)\s*\|\s*parent:\s*(\S+)\s*-->"
@@ -765,16 +784,18 @@ def load_ground_truth_md(md_path: str) -> Tuple[Dict[str, Any], str, List[Ground
         block_text = blocks[i + 1] if i + 1 < len(blocks) else ""
         # Strip the heading line
         block_lines = block_text.strip().splitlines()
-        content_lines = [l for l in block_lines if not l.strip().startswith("#")]
+        content_lines = [line for line in block_lines if not line.strip().startswith("#")]
         content = "\n".join(content_lines).strip()
 
-        sections.append(GroundTruthSection(
-            section_id=sec_id.strip(),
-            title=title.strip(),
-            order=int(order),
-            page=int(page),
-            parent=parent.strip(),
-            content=content,
-        ))
+        sections.append(
+            GroundTruthSection(
+                section_id=sec_id.strip(),
+                title=title.strip(),
+                order=int(order),
+                page=int(page),
+                parent=parent.strip(),
+                content=content,
+            )
+        )
 
     return frontmatter, body, sections

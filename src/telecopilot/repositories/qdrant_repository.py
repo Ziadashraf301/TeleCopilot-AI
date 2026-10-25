@@ -1,11 +1,12 @@
 import uuid
-from typing import List, Optional, Dict, Any
+
 from qdrant_client.http import models as qmodels
+
 from telecopilot.config.settings import get_settings
 from telecopilot.core.logger import get_logger
 from telecopilot.core.singletons import SingletonsManager
-from telecopilot.repositories.base import BaseVectorRepository
 from telecopilot.models.document_models import DocumentChunk, SearchResult, SparseVectorData
+from telecopilot.repositories.base import BaseVectorRepository
 
 logger = get_logger()
 settings = get_settings()
@@ -21,7 +22,7 @@ class QdrantVectorRepository(BaseVectorRepository):
     """
 
     # Shared class-level in-memory fallback list to ensure zero-loss across instances
-    _shared_in_memory_fallback: List[DocumentChunk] = []
+    _shared_in_memory_fallback: list[DocumentChunk] = []
 
     def __init__(self):
         self.client = SingletonsManager.get_qdrant_client()
@@ -36,30 +37,27 @@ class QdrantVectorRepository(BaseVectorRepository):
             collections = self.client.get_collections().collections
             exists = any(c.name == self.collection_name for c in collections)
             if not exists:
-                logger.info(f"Creating Qdrant collection '{self.collection_name}' with Dense (Cohere) + Sparse (BM25) vector indexes...")
+                logger.info(
+                    f"Creating Qdrant collection '{self.collection_name}' with Dense (Cohere) + Sparse (BM25) vector indexes..."
+                )
                 self.client.create_collection(
                     collection_name=self.collection_name,
                     vectors_config={
-                        "dense": qmodels.VectorParams(
-                            size=settings.VECTOR_DIMENSION,
-                            distance=qmodels.Distance.COSINE
-                        )
+                        "dense": qmodels.VectorParams(size=settings.VECTOR_DIMENSION, distance=qmodels.Distance.COSINE)
                     },
                     sparse_vectors_config={
-                        "sparse": qmodels.SparseVectorParams(
-                            index=qmodels.SparseIndexParams(
-                                on_disk=False
-                            )
-                        )
-                    }
+                        "sparse": qmodels.SparseVectorParams(index=qmodels.SparseIndexParams(on_disk=False))
+                    },
                 )
             self._is_live = True
             logger.info(f"Connected to Qdrant collection: {self.collection_name} (Dense + Sparse Hybrid ready)")
         except Exception as e:
-            logger.warning(f"Could not connect to live Qdrant server: {e}. Running in robust In-Memory Hybrid Mock mode.")
+            logger.warning(
+                f"Could not connect to live Qdrant server: {e}. Running in robust In-Memory Hybrid Mock mode."
+            )
             self._is_live = False
 
-    def upsert_chunks(self, chunks: List[DocumentChunk]) -> int:
+    def upsert_chunks(self, chunks: list[DocumentChunk]) -> int:
         """Upsert document chunks into Qdrant containing BOTH Dense and Sparse vectors."""
         if not chunks:
             return 0
@@ -70,14 +68,11 @@ class QdrantVectorRepository(BaseVectorRepository):
                 for chunk in chunks:
                     dense_vec = chunk.dense_vector or [0.0] * settings.VECTOR_DIMENSION
 
-                    vector_dict = {
-                        "dense": dense_vec
-                    }
+                    vector_dict = {"dense": dense_vec}
 
                     if chunk.sparse_vector:
                         vector_dict["sparse"] = qmodels.SparseVector(
-                            indices=chunk.sparse_vector.indices,
-                            values=chunk.sparse_vector.values
+                            indices=chunk.sparse_vector.indices, values=chunk.sparse_vector.values
                         )
 
                     payload = {
@@ -89,22 +84,19 @@ class QdrantVectorRepository(BaseVectorRepository):
                         "intent_category": chunk.intent_category,
                         "section_title": chunk.section_title,
                         "page_number": chunk.page_number,
-                        "metadata": chunk.metadata
+                        "metadata": chunk.metadata,
                     }
 
                     points.append(
                         qmodels.PointStruct(
-                            id=str(uuid.uuid5(uuid.NAMESPACE_DNS, chunk.chunk_id)),
-                            vector=vector_dict,
-                            payload=payload
+                            id=str(uuid.uuid5(uuid.NAMESPACE_DNS, chunk.chunk_id)), vector=vector_dict, payload=payload
                         )
                     )
 
-                self.client.upsert(
-                    collection_name=self.collection_name,
-                    points=points
+                self.client.upsert(collection_name=self.collection_name, points=points)
+                logger.info(
+                    f"Upserted {len(points)} chunks with Dense + Sparse vectors into Qdrant ({self.collection_name})."
                 )
-                logger.info(f"Upserted {len(points)} chunks with Dense + Sparse vectors into Qdrant ({self.collection_name}).")
                 return len(points)
             except Exception as e:
                 logger.error(f"Failed to upsert Dense + Sparse points to Qdrant: {e}. Falling back to in-memory store.")
@@ -119,12 +111,12 @@ class QdrantVectorRepository(BaseVectorRepository):
     def hybrid_search(
         self,
         query: str,
-        query_dense_vector: List[float],
-        query_sparse_vector: Optional[SparseVectorData] = None,
+        query_dense_vector: list[float],
+        query_sparse_vector: SparseVectorData | None = None,
         top_k: int = 5,
-        policy_filter: Optional[str] = None,
-        intent_filter: Optional[str] = None,
-    ) -> List[SearchResult]:
+        policy_filter: str | None = None,
+        intent_filter: str | None = None,
+    ) -> list[SearchResult]:
         if self._is_live:
             try:
                 # 1. Build Payload Filters
@@ -144,9 +136,7 @@ class QdrantVectorRepository(BaseVectorRepository):
                         )
                     )
 
-                query_filter = (
-                    qmodels.Filter(must=conditions) if conditions else None
-                )
+                query_filter = qmodels.Filter(must=conditions) if conditions else None
 
                 # 2. Configure Prefetches (Sub-queries)
                 prefetches = [
@@ -175,13 +165,9 @@ class QdrantVectorRepository(BaseVectorRepository):
                 # 3. Single-Roundtrip Native Query + Fusion
                 if len(prefetches) > 1:
                     try:
-                        fusion_query = qmodels.FusionQuery(
-                            fusion=qmodels.Fusion.RRF
-                        )
+                        fusion_query = qmodels.FusionQuery(fusion=qmodels.Fusion.RRF)
                     except AttributeError:
-                        fusion_query = qmodels.RrfQuery(
-                            rrf=qmodels.Rrf(k=60)
-                        )
+                        fusion_query = qmodels.RrfQuery(rrf=qmodels.Rrf(k=60))
 
                     response = self.client.query_points(
                         collection_name=self.collection_name,
@@ -205,13 +191,9 @@ class QdrantVectorRepository(BaseVectorRepository):
                         chunk_id=point.payload.get("chunk_id", ""),
                         content=point.payload.get("content", ""),
                         source=point.payload.get("source", ""),
-                        source_modality=point.payload.get(
-                            "source_modality", "LOCAL"
-                        ),
+                        source_modality=point.payload.get("source_modality", "LOCAL"),
                         policy_type=point.payload.get("policy_type", ""),
-                        intent_category=point.payload.get(
-                            "intent_category", "GENERAL"
-                        ),
+                        intent_category=point.payload.get("intent_category", "GENERAL"),
                         section_title=point.payload.get("section_title", ""),
                         page_number=point.payload.get("page_number"),
                         score=round(point.score, 4),
@@ -221,9 +203,7 @@ class QdrantVectorRepository(BaseVectorRepository):
                 ]
 
             except Exception as e:
-                logger.error(
-                    f"Qdrant live native hybrid search failed: {e}. Falling back to in-memory search."
-                )
+                logger.error(f"Qdrant live native hybrid search failed: {e}. Falling back to in-memory search.")
 
         # In-memory keyword + cosine fallback
         query_words = set(query.lower().split())
@@ -250,7 +230,7 @@ class QdrantVectorRepository(BaseVectorRepository):
                 section_title=c.section_title,
                 page_number=c.page_number,
                 score=score,
-                metadata=c.metadata
+                metadata=c.metadata,
             )
             for score, c in scored_chunks[:top_k]
         ]

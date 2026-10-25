@@ -1,8 +1,5 @@
-import pytest
 from telecopilot.ingestion.chunkers.policy_chunkers import (
     SIMPolicyChunker,
-    WifiPolicyChunker,
-    BillingPolicyChunker,
     WebScrapedPolicyChunker,
 )
 from telecopilot.models.document_models import ExtractedDocument
@@ -20,11 +17,7 @@ def test_langchain_splitters_in_chunkers():
         title="SIM Policy Test",
         raw_text="Long text " * 50,
         policy_type="sim_replacement",
-        sections=[{
-            "section_title": "eSIM Activation Steps",
-            "content": "Step 1: Open app. " * 30,
-            "page_number": 1
-        }]
+        sections=[{"section_title": "eSIM Activation Steps", "content": "Step 1: Open app. " * 30, "page_number": 1}],
     )
 
     chunks = sim_chunker.chunk(doc)
@@ -42,11 +35,13 @@ def test_langchain_splitters_in_chunkers():
         title="WE Egypt Web",
         raw_text="WE Space Mega Plan Details. " * 40,
         policy_type="telecom_egypt_web",
-        sections=[{
-            "section_title": "WE Space Super Mega Ultra",
-            "content": "Super 30Mbps 140GB. Mega 70Mbps 250GB. Ultra 100Mbps 600GB. " * 15,
-            "page_number": 1
-        }]
+        sections=[
+            {
+                "section_title": "WE Space Super Mega Ultra",
+                "content": "Super 30Mbps 140GB. Mega 70Mbps 250GB. Ultra 100Mbps 600GB. " * 15,
+                "page_number": 1,
+            }
+        ],
     )
 
     web_chunks = web_chunker.chunk(web_doc)

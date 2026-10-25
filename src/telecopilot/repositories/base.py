@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+
 from telecopilot.models.document_models import DocumentChunk, SearchResult, SparseVectorData
 
 
@@ -12,7 +12,7 @@ class BaseVectorRepository(ABC):
         pass
 
     @abstractmethod
-    def upsert_chunks(self, chunks: List[DocumentChunk]) -> int:
+    def upsert_chunks(self, chunks: list[DocumentChunk]) -> int:
         """Insert or update chunks into the unified Qdrant vector collection with dense + sparse vectors."""
         pass
 
@@ -20,12 +20,12 @@ class BaseVectorRepository(ABC):
     def hybrid_search(
         self,
         query: str,
-        query_dense_vector: List[float],
-        query_sparse_vector: Optional[SparseVectorData] = None,
+        query_dense_vector: list[float],
+        query_sparse_vector: SparseVectorData | None = None,
         top_k: int = 5,
-        policy_filter: Optional[str] = None,
-        intent_filter: Optional[str] = None,
-    ) -> List[SearchResult]:
+        policy_filter: str | None = None,
+        intent_filter: str | None = None,
+    ) -> list[SearchResult]:
         """Execute true hybrid search combining Dense (Cohere) + Sparse (BM25) with Reciprocal Rank Fusion (RRF)."""
         pass
 

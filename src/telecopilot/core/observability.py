@@ -1,9 +1,10 @@
-import time
 import json
-from typing import Optional, Dict, Any
+import time
+from typing import Any
+
 from telecopilot.config.settings import get_settings
-from telecopilot.core.singletons import SingletonsManager
 from telecopilot.core.logger import get_logger
+from telecopilot.core.singletons import SingletonsManager
 
 logger = get_logger()
 settings = get_settings()
@@ -13,7 +14,7 @@ MODEL_COST_PER_MILLION = {
     "gemini-3.1-flash-lite-preview": {"input": 0.075, "output": 0.30},
     "gemini-1.5-flash": {"input": 0.075, "output": 0.30},
     "embed-multilingual-v3.0": {"input": 0.10, "output": 0.00},
-    "rerank-v3.5": {"search_unit": 0.002}
+    "rerank-v3.5": {"search_unit": 0.002},
 }
 
 
@@ -26,7 +27,7 @@ class ObservabilityTracer:
     """
 
     @staticmethod
-    def trace_agent_assist(query: str, session_id: Optional[str] = None):
+    def trace_agent_assist(query: str, session_id: str | None = None):
         """Create a new Langfuse trace for agent assist resolution.
 
         Returns a dict with trace metadata that other methods use to attach spans.
@@ -72,7 +73,9 @@ class ObservabilityTracer:
         return None
 
     @staticmethod
-    def log_span(trace, name: str, input_data: Any, output_data: Any, latency: float, metadata: Optional[Dict[str, Any]] = None):
+    def log_span(
+        trace, name: str, input_data: Any, output_data: Any, latency: float, metadata: dict[str, Any] | None = None
+    ):
         """Log an intermediate execution step (Embedder, Vector Search, Reranker) as a child span."""
         if not trace:
             return
@@ -122,9 +125,9 @@ class ObservabilityTracer:
         output_data: Any,
         model: str,
         latency: float,
-        prompt_tokens: Optional[int] = None,
-        completion_tokens: Optional[int] = None,
-    ) -> Dict[str, Any]:
+        prompt_tokens: int | None = None,
+        completion_tokens: int | None = None,
+    ) -> dict[str, Any]:
         """
         Log generation step to Langfuse with complete token usage and financial cost calculation.
         """
@@ -178,7 +181,7 @@ class ObservabilityTracer:
             "prompt_tokens": p_tokens,
             "completion_tokens": c_tokens,
             "total_tokens": total_tokens,
-            "estimated_cost_usd": cost_usd
+            "estimated_cost_usd": cost_usd,
         }
 
     @staticmethod

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+
 from telecopilot.models.document_models import DocumentChunk, ExtractedDocument
 
 
@@ -16,6 +16,6 @@ class BaseChunker(ABC):
     """Abstract base class for specialized policy chunkers (Factory target)."""
 
     @abstractmethod
-    def chunk(self, document: ExtractedDocument) -> List[DocumentChunk]:
+    def chunk(self, document: ExtractedDocument) -> list[DocumentChunk]:
         """Split extracted document into semantic, policy-grounded chunks."""
         pass

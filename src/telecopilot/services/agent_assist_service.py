@@ -1,8 +1,10 @@
+import asyncio
+import json
 import os
 import time
-import json
-import asyncio
-from typing import AsyncIterator, Dict, Any, Optional, List
+from collections.abc import AsyncIterator
+from typing import Any
+
 from telecopilot.config.settings import get_settings
 from telecopilot.core.logger import get_logger
 from telecopilot.core.observability import ObservabilityTracer
@@ -47,13 +49,9 @@ class AgentAssistService:
 
     def _embed_query(self, customer_query: str):
         """Embed query using Cohere (dense) and BM25 (sparse). Returns (dense_vec, sparse_vec)."""
-        query_dense_vector = self.cohere_service.get_embedding(
-            customer_query, input_type="search_query"
-        )
+        query_dense_vector = self.cohere_service.get_embedding(customer_query, input_type="search_query")
         sparse_vec = self.sparse_model.embed_text(customer_query)
-        query_sparse_vector = SparseVectorData(
-            indices=sparse_vec.indices, values=sparse_vec.values
-        )
+        query_sparse_vector = SparseVectorData(indices=sparse_vec.indices, values=sparse_vec.values)
         return query_dense_vector, query_sparse_vector
 
     def _hybrid_search(self, customer_query, dense_vec, sparse_vec, policy_filter, intent_filter):
@@ -73,7 +71,7 @@ class AgentAssistService:
             )
         return results
 
-    def _rerank(self, customer_query: str, search_results) -> List[Dict[str, Any]]:
+    def _rerank(self, customer_query: str, search_results) -> list[dict[str, Any]]:
         """Rerank via Cohere and return ordered top_contexts list."""
         candidate_docs = [r.content for r in search_results]
         rerank_results = self.cohere_service.rerank(
@@ -84,22 +82,25 @@ class AgentAssistService:
         top_contexts = []
         for item in rerank_results:
             res = search_results[item["index"]]
-            top_contexts.append({
-                "chunk_id": res.chunk_id,
-                "content": res.content,
-                "source": res.source,
-                "source_modality": res.source_modality,
-                "policy_type": res.policy_type,
-                "intent_category": res.intent_category,
-                "section_title": res.section_title,
-                "page_number": res.page_number,
-                "relevance_score": item["relevance_score"],
-            })
+            top_contexts.append(
+                {
+                    "chunk_id": res.chunk_id,
+                    "content": res.content,
+                    "source": res.source,
+                    "source_modality": res.source_modality,
+                    "policy_type": res.policy_type,
+                    "intent_category": res.intent_category,
+                    "section_title": res.section_title,
+                    "page_number": res.page_number,
+                    "relevance_score": item["relevance_score"],
+                }
+            )
         return top_contexts
 
     @staticmethod
-    def _build_citations(top_contexts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _build_citations(top_contexts: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Build citation list from the top 3 reranked chunks."""
+
         def display_source(source: str) -> str:
             # Show only the file name for local documents (never the server's absolute path); keep URLs as-is
             if source.startswith(("http://", "https://")):
@@ -124,10 +125,10 @@ class AgentAssistService:
     def solve_customer_problem(
         self,
         customer_query: str,
-        session_id: Optional[str] = None,
-        policy_filter: Optional[str] = None,
-        intent_filter: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        session_id: str | None = None,
+        policy_filter: str | None = None,
+        intent_filter: str | None = None,
+    ) -> dict[str, Any]:
         """
         Full RAG pipeline returning a complete structured solution dict.
         Raises on any pipeline error — no silent fallback.
@@ -147,7 +148,10 @@ class AgentAssistService:
                 input_data={"query": customer_query},
                 output_data={"dense_dim": len(dense_vec), "sparse_indices_count": len(sparse_vec.indices)},
                 latency=embed_latency,
-                metadata={"dense_model": settings.DENSE_EMBEDDING_MODEL, "sparse_model": settings.SPARSE_EMBEDDING_MODEL},
+                metadata={
+                    "dense_model": settings.DENSE_EMBEDDING_MODEL,
+                    "sparse_model": settings.SPARSE_EMBEDDING_MODEL,
+                },
             )
 
             # 2. Hybrid search
@@ -157,7 +161,11 @@ class AgentAssistService:
             ObservabilityTracer.log_span(
                 trace=trace,
                 name="qdrant_hybrid_vector_search",
-                input_data={"top_k": settings.RETRIEVAL_TOP_K, "intent_filter": intent_filter, "policy_filter": policy_filter},
+                input_data={
+                    "top_k": settings.RETRIEVAL_TOP_K,
+                    "intent_filter": intent_filter,
+                    "policy_filter": policy_filter,
+                },
                 output_data={"retrieved_candidates_count": len(search_results)},
                 latency=search_latency,
                 metadata={"collection": settings.QDRANT_COLLECTION},
@@ -230,9 +238,9 @@ class AgentAssistService:
     async def solve_customer_problem_stream(
         self,
         customer_query: str,
-        session_id: Optional[str] = None,
-        policy_filter: Optional[str] = None,
-        intent_filter: Optional[str] = None,
+        session_id: str | None = None,
+        policy_filter: str | None = None,
+        intent_filter: str | None = None,
     ) -> AsyncIterator[str]:
         """
         Async SSE generator — yields three event types in order:
@@ -295,9 +303,7 @@ class AgentAssistService:
             gen_start = time.time()
             accumulated_text = ""
 
-            async for token in self.gemini_service.generate_reply_stream_async(
-                customer_query, top_contexts
-            ):
+            async for token in self.gemini_service.generate_reply_stream_async(customer_query, top_contexts):
                 accumulated_text += token
                 # ── event: token ─────────────────────────────────────────
                 yield f"event: token\ndata: {json.dumps({'token': token})}\n\n"

@@ -1,7 +1,6 @@
-import pytest
-from telecopilot.services.sparse_embedding_model import SparseEmbeddingModel, SparseVector
 from telecopilot.repositories.base import DocumentChunk, SparseVectorData
 from telecopilot.repositories.qdrant_repository import QdrantVectorRepository
+from telecopilot.services.sparse_embedding_model import SparseEmbeddingModel, SparseVector
 
 
 def test_sparse_embedding_model():
@@ -37,7 +36,7 @@ def test_dense_and_sparse_hybrid_upsert_and_search():
         section_title="eSIM Guide",
         page_number=1,
         dense_vector=[0.15] * 1024,
-        sparse_vector=SparseVectorData(indices=sparse_vec.indices, values=sparse_vec.values)
+        sparse_vector=SparseVectorData(indices=sparse_vec.indices, values=sparse_vec.values),
     )
 
     upserted = repo.upsert_chunks([chunk])
@@ -51,7 +50,7 @@ def test_dense_and_sparse_hybrid_upsert_and_search():
         query_dense_vector=[0.15] * 1024,
         query_sparse_vector=SparseVectorData(indices=q_sparse.indices, values=q_sparse.values),
         top_k=3,
-        intent_filter="SIM_MANAGEMENT"
+        intent_filter="SIM_MANAGEMENT",
     )
 
     assert len(results) >= 1

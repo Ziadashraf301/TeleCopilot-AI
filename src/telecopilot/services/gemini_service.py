@@ -1,5 +1,7 @@
 import json
-from typing import AsyncIterator, Iterator, List, Dict, Any
+from collections.abc import AsyncIterator, Iterator
+from typing import Any
+
 from telecopilot.config.settings import get_settings
 from telecopilot.core.logger import get_logger
 from telecopilot.core.singletons import SingletonsManager
@@ -26,8 +28,7 @@ class GeminiService:
         self.client = SingletonsManager.get_gemini_client()
         if not self.client:
             raise RuntimeError(
-                "Gemini client could not be initialised. "
-                "Ensure GEMINI_API_KEY is set correctly in your .env file."
+                "Gemini client could not be initialised. Ensure GEMINI_API_KEY is set correctly in your .env file."
             )
 
     # ------------------------------------------------------------------
@@ -35,7 +36,7 @@ class GeminiService:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _build_context_str(retrieved_contexts: List[Dict[str, Any]]) -> str:
+    def _build_context_str(retrieved_contexts: list[dict[str, Any]]) -> str:
         """Format retrieved policy chunks into a numbered context block for the prompt."""
         parts = []
         for idx, ctx in enumerate(retrieved_contexts):
@@ -58,7 +59,7 @@ class GeminiService:
             "Analyze the customer problem and verified policies below, and generate a polite, "
             "empathetic, and professional message ready to send directly to the customer "
             "explaining the resolution and actionable steps.\n\n"
-            f"CUSTOMER PROBLEM:\n\"{customer_query}\"\n\n"
+            f'CUSTOMER PROBLEM:\n"{customer_query}"\n\n'
             f"VERIFIED COMPANY POLICIES:\n{context_str}\n\n"
             "Respond with ONLY the polite, empathetic message ready to send to the customer. "
             "Do NOT include markdown code blocks, JSON tags, or introductory remarks like "
@@ -72,8 +73,8 @@ class GeminiService:
     def generate_agent_solution(
         self,
         customer_query: str,
-        retrieved_contexts: List[Dict[str, Any]],
-    ) -> Dict[str, Any]:
+        retrieved_contexts: list[dict[str, Any]],
+    ) -> dict[str, Any]:
         """
         Call Gemini in JSON mode to synthesise a fully structured CSR solution.
         Raises on any Gemini API error — no fallback.
@@ -116,7 +117,7 @@ Respond STRICTLY in valid JSON format with the following keys:
     def generate_reply_stream(
         self,
         customer_query: str,
-        retrieved_contexts: List[Dict[str, Any]],
+        retrieved_contexts: list[dict[str, Any]],
     ) -> Iterator[str]:
         """Sync streaming — only use in non-async contexts. Prefer generate_reply_stream_async."""
         context_str = self._build_context_str(retrieved_contexts)
@@ -133,7 +134,7 @@ Respond STRICTLY in valid JSON format with the following keys:
     async def generate_reply_stream_async(
         self,
         customer_query: str,
-        retrieved_contexts: List[Dict[str, Any]],
+        retrieved_contexts: list[dict[str, Any]],
     ) -> AsyncIterator[str]:
         """
         Async generator that streams CSR reply tokens directly from Gemini.

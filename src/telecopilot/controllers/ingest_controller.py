@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
+
 from telecopilot.core.logger import get_logger
+from telecopilot.dependencies import get_ingestion_service
 from telecopilot.models.api_models import ScrapeUrlRequest
 from telecopilot.services.ingestion_service import IngestionService
-from telecopilot.dependencies import get_ingestion_service
 
 logger = get_logger()
 router = APIRouter(prefix="/api/ingest", tags=["Ingestion"])
@@ -16,18 +17,15 @@ async def ingest_all_policies(service: IngestionService = Depends(get_ingestion_
         return {
             "message": "Live online website ingestion completed in-memory without local files.",
             "pages_scraped": len(results),
-            "details": results
+            "details": results,
         }
     except Exception as e:
         logger.error(f"Live web ingestion failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/scrape-url")
-async def scrape_and_ingest_url(
-    request: ScrapeUrlRequest,
-    service: IngestionService = Depends(get_ingestion_service)
-):
+async def scrape_and_ingest_url(request: ScrapeUrlRequest, service: IngestionService = Depends(get_ingestion_service)):
     """
     Live in-memory Web Scraper endpoint:
     Fetches real-time web pages directly over HTTP, chunks content in-memory,
@@ -35,10 +33,7 @@ async def scrape_and_ingest_url(
     """
     try:
         result = service.ingest_url(request.url)
-        return {
-            "message": "Web page successfully scraped in-memory and indexed into Qdrant.",
-            "details": result
-        }
+        return {"message": "Web page successfully scraped in-memory and indexed into Qdrant.", "details": result}
     except Exception as e:
         logger.error(f"Web scraper ingestion failed for {request.url}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e

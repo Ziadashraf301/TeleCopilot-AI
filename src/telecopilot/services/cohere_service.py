@@ -1,5 +1,5 @@
-from typing import List
 import hashlib
+
 from telecopilot.config.settings import get_settings
 from telecopilot.core.logger import get_logger
 from telecopilot.core.singletons import SingletonsManager
@@ -20,17 +20,17 @@ class CohereService:
         self.model = settings.DENSE_EMBEDDING_MODEL
         self.rerank_model = settings.RERANK_MODEL
 
-    def get_embedding(self, text: str, input_type: str = "search_document") -> List[float]:
+    def get_embedding(self, text: str, input_type: str = "search_document") -> list[float]:
         """Generate embedding vector for a single text."""
         embeddings = self.get_embeddings_batch([text], input_type=input_type)
         return embeddings[0]
 
     def get_embeddings_batch(
         self,
-        texts: List[str],
+        texts: list[str],
         input_type: str = "search_document",
         batch_size: int = 96,
-    ) -> List[List[float]]:
+    ) -> list[list[float]]:
         """Batch generate dense embeddings using embed-multilingual-v3.0,
         automatically chunking requests to stay within Cohere's 96-text limit.
         """
@@ -39,7 +39,7 @@ class CohereService:
 
         if self.client:
             try:
-                all_embeddings: List[List[float]] = []
+                all_embeddings: list[list[float]] = []
 
                 for i in range(0, len(texts), batch_size):
                     batch = texts[i : i + batch_size]
@@ -53,14 +53,12 @@ class CohereService:
 
                 return all_embeddings
             except Exception as e:
-                logger.error(
-                    f"Cohere embedding failed: {e}. Falling back to deterministic pseudo-embeddings."
-                )
+                logger.error(f"Cohere embedding failed: {e}. Falling back to deterministic pseudo-embeddings.")
 
         # Fallback deterministic embedding
         return [self._generate_fallback_embedding(t) for t in texts]
-        
-    def rerank(self, query: str, documents: List[str], top_n: int = 3) -> List[dict]:
+
+    def rerank(self, query: str, documents: list[str], top_n: int = 3) -> list[dict]:
         """Rerank candidate document texts using rerank-v3.5."""
         if not documents:
             return []
@@ -68,17 +66,11 @@ class CohereService:
         if self.client:
             try:
                 response = self.client.rerank(
-                    model=self.rerank_model,
-                    query=query,
-                    documents=documents,
-                    top_n=min(top_n, len(documents))
+                    model=self.rerank_model, query=query, documents=documents, top_n=min(top_n, len(documents))
                 )
                 results = []
                 for item in response.results:
-                    results.append({
-                        "index": item.index,
-                        "relevance_score": item.relevance_score
-                    })
+                    results.append({"index": item.index, "relevance_score": item.relevance_score})
                 return results
             except Exception as e:
                 logger.error(f"Cohere rerank failed: {e}. Defaulting to original score ranking.")
@@ -86,7 +78,7 @@ class CohereService:
         # Fallback ranking
         return [{"index": i, "relevance_score": 1.0 - (i * 0.1)} for i in range(min(top_n, len(documents)))]
 
-    def _generate_fallback_embedding(self, text: str) -> List[float]:
+    def _generate_fallback_embedding(self, text: str) -> list[float]:
         """Creates normalized deterministic 1024-dim vector from text hash."""
         dim = settings.VECTOR_DIMENSION
         hash_digest = hashlib.sha256(text.encode("utf-8")).digest()
@@ -95,5 +87,5 @@ class CohereService:
             byte_val = hash_digest[i % len(hash_digest)]
             val = (byte_val / 255.0) - 0.5
             vector.append(float(val))
-        norm = sum(x ** 2 for x in vector) ** 0.5
+        norm = sum(x**2 for x in vector) ** 0.5
         return [x / (norm or 1.0) for x in vector]
