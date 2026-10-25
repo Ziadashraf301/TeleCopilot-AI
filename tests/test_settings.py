@@ -47,7 +47,7 @@ def test_defaults_keep_v1_behaviour(clean_env):
 def test_defaults_point_at_local_compose_services(clean_env):
     settings = make_settings()
     assert settings.DATABASE_URL.startswith("postgresql+psycopg://")
-    assert settings.REDIS_URL == "redis://localhost:6379/0"
+    assert settings.REDIS_URL == "redis://127.0.0.1:6379/0"
     assert settings.CORS_ORIGINS == ["http://localhost:8000"]
 
 

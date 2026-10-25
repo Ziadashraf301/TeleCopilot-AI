@@ -2,7 +2,7 @@ import math
 from collections.abc import Iterator
 from functools import lru_cache
 
-from sqlalchemy import Engine, create_engine
+from sqlalchemy import Engine, create_engine, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -36,3 +36,9 @@ def get_db_session() -> Iterator[Session]:
     """FastAPI dependency: one session per request. Services commit explicitly; anything uncommitted rolls back."""
     with get_session_factory()() as session:
         yield session
+
+
+def ping() -> None:
+    """Raise if Postgres cannot be reached (used by /api/ready)."""
+    with get_engine().connect() as connection:
+        connection.execute(text("SELECT 1"))

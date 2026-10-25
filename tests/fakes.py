@@ -39,6 +39,9 @@ class FakeVectorRepository(BaseVectorRepository):
     def count(self) -> int:
         return 1
 
+    def ping(self) -> None:
+        pass
+
 
 class FakeCohereService:
     def get_embedding(self, text: str, input_type: str = "search_document") -> list[float]:

@@ -162,6 +162,26 @@
         }
       }
     },
+    "/api/ready": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Readiness Check",
+        "description": "200 when Qdrant, Postgres and Redis are reachable, else 503 with the failing check(s). Sync: checks block.",
+        "operationId": "readiness_check_api_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/scraper/run": {
       "post": {
         "tags": [

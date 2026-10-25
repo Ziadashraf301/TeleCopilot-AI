@@ -221,8 +221,8 @@ New settings (S01-04), all overridable from `.env`, defaults keep today's behavi
 
 | Setting | Default | Why |
 |---|---|---|
-| `DATABASE_URL` | `postgresql+psycopg://telecopilot:telecopilot@localhost:5432/telecopilot` | Local compose Postgres |
-| `REDIS_URL` | `redis://localhost:6379/0` | Local compose Redis |
+| `DATABASE_URL` | `postgresql+psycopg://telecopilot:telecopilot@127.0.0.1:5432/telecopilot` | Local compose Postgres (IPv4: see S01-07 report) |
+| `REDIS_URL` | `redis://127.0.0.1:6379/0` | Local compose Redis |
 | `QDRANT_TIMEOUT_S`, `DB_TIMEOUT_S`, `REDIS_TIMEOUT_S`, `SCRAPER_TIMEOUT_S` | today's values: Qdrant 10 s, scraper 30 s; DB 5 s and Redis 2 s (new) | Replaces hard-coded numbers |
 | `CORS_ORIGINS` | `["http://localhost:8000"]` | Replaces `*` (S01-08 wires it) |
 | `LLM_PROVIDER` / `EMBED_PROVIDER` / `RERANK_PROVIDER` | `gemini` / `cohere` / `cohere` | Placeholders for ADR-2; validated as a fixed list of names, only today's value is accepted until M3 adds the others |

@@ -33,3 +33,8 @@ class BaseVectorRepository(ABC):
     def count(self) -> int:
         """Return total number of indexed vectors."""
         pass
+
+    @abstractmethod
+    def ping(self) -> None:
+        """Raise if the vector store cannot be reached (used by /api/ready)."""
+        pass

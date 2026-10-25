@@ -236,6 +236,10 @@ class QdrantVectorRepository(BaseVectorRepository):
         ]
         return results
 
+    def ping(self) -> None:
+        """Ask the server directly, so the in-memory mode can't make an unreachable Qdrant look ready."""
+        self.client.get_collections()
+
     def count(self) -> int:
         """Count points in store."""
         if self._is_live:

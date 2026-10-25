@@ -1,4 +1,5 @@
 from qdrant_client import QdrantClient
+from redis import Redis
 
 from telecopilot.config.settings import get_settings
 from telecopilot.core.logger import get_logger
@@ -17,6 +18,7 @@ class SingletonsManager:
     _cohere_client: object | None = None
     _gemini_client: object | None = None
     _langfuse_client: object | None = None
+    _redis_client: Redis | None = None
 
     @classmethod
     def get_qdrant_client(cls) -> QdrantClient:
@@ -34,6 +36,17 @@ class SingletonsManager:
                 timeout=settings.QDRANT_TIMEOUT_S,
             )
         return cls._qdrant_client
+
+    @classmethod
+    def get_redis_client(cls) -> Redis:
+        """Get or initialize singleton Redis client (sessions, pub/sub, jobs from M5 on; readiness today)."""
+        if cls._redis_client is None:
+            cls._redis_client = Redis.from_url(
+                settings.REDIS_URL,
+                socket_timeout=settings.REDIS_TIMEOUT_S,
+                socket_connect_timeout=settings.REDIS_TIMEOUT_S,
+            )
+        return cls._redis_client
 
     @classmethod
     def get_cohere_client(cls):

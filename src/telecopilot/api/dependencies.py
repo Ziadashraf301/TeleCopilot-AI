@@ -1,6 +1,9 @@
 from functools import lru_cache
 
 from telecopilot.agent.assist_service import AgentAssistService
+from telecopilot.api.readiness import ReadinessCheck
+from telecopilot.core.singletons import SingletonsManager
+from telecopilot.db import session as db_session
 from telecopilot.kb.ingestion_service import IngestionService
 from telecopilot.kb.repositories.base import BaseVectorRepository
 from telecopilot.kb.repositories.qdrant import QdrantVectorRepository
@@ -51,3 +54,12 @@ def get_hybrid_retriever() -> HybridRetriever:
 def get_agent_assist_service() -> AgentAssistService:
     """Dependency for Agent Assist RAG Service."""
     return AgentAssistService(retriever=get_hybrid_retriever(), gemini_service=get_gemini_service())
+
+
+def get_readiness_checks() -> dict[str, ReadinessCheck]:
+    """Dependencies /api/ready verifies: every service in the compose stack."""
+    return {
+        "qdrant": get_vector_repository().ping,
+        "postgres": db_session.ping,
+        "redis": SingletonsManager.get_redis_client().ping,
+    }

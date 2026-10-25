@@ -36,10 +36,12 @@ class Settings(BaseSettings):
     QDRANT_TIMEOUT_S: float = 10.0
     VECTOR_DIMENSION: int = 1024  # embed-multilingual-v3.0
 
-    # Postgres (CRM, tickets, audit) and Redis (sessions, pub/sub, jobs) — ADR-5
-    DATABASE_URL: str = "postgresql+psycopg://telecopilot:telecopilot@localhost:5432/telecopilot"
+    # Postgres (CRM, tickets, audit) and Redis (sessions, pub/sub, jobs) — ADR-5.
+    # 127.0.0.1, not "localhost": compose binds both to IPv4 only, and on Windows "localhost" tries IPv6 first,
+    # adding ~2 s to every new connection.
+    DATABASE_URL: str = "postgresql+psycopg://telecopilot:telecopilot@127.0.0.1:5432/telecopilot"
     DB_TIMEOUT_S: float = 5.0
-    REDIS_URL: str = "redis://localhost:6379/0"
+    REDIS_URL: str = "redis://127.0.0.1:6379/0"
     REDIS_TIMEOUT_S: float = 2.0
 
     # Model providers (ADR-2). Only today's implementations are accepted; M3 adds llamacpp | vllm | tei | local.
