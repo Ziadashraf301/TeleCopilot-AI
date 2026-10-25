@@ -13,7 +13,9 @@ from fakes import FakeCohereService, FakeVectorRepository
 from fastapi.testclient import TestClient
 
 from telecopilot.api.main import app
+from telecopilot.kb.factories import ChunkerFactory
 from telecopilot.kb.ingestion_service import IngestionService
+from telecopilot.kb.sparse import SparseEmbeddingModel
 
 GOLDEN_DIR = Path(__file__).parent / "golden"
 RAW_DIR = Path(__file__).parents[1] / "data" / "raw"
@@ -77,7 +79,9 @@ def stream_contract() -> list[dict]:
 
 def ingest_file_contract() -> dict:
     repo = FakeVectorRepository()
-    result = IngestionService(repo, FakeCohereService()).ingest_file(str(RAW_DIR / "sim_replacement_policy.html"))
+    result = IngestionService(repo, FakeCohereService(), SparseEmbeddingModel()).ingest_file(
+        str(RAW_DIR / "sim_replacement_policy.html")
+    )
     result["source"] = Path(result["source"]).name  # absolute path differs per machine
     return {"result": result, "chunks": chunk_summary(repo)}
 
@@ -88,7 +92,9 @@ def ingest_url_contract(monkeypatch) -> dict:
 
     monkeypatch.setattr(httpx.Client, "get", fake_get)
     repo = FakeVectorRepository()
-    result = IngestionService(repo, FakeCohereService()).ingest_url("https://www.te.eg/test-page")
+    result = IngestionService(repo, FakeCohereService(), SparseEmbeddingModel()).ingest_url(
+        "https://www.te.eg/test-page"
+    )
     return {"result": result, "chunks": chunk_summary(repo)}
 
 
@@ -112,3 +118,25 @@ def test_ingest_file_output_unchanged():
 
 def test_ingest_url_output_unchanged(monkeypatch):
     assert ingest_url_contract(monkeypatch) == load_golden("ingest_url.json")
+
+
+def test_ingest_empty_document_result_unchanged(monkeypatch):
+    class NoChunks:
+        def chunk(self, document):
+            return []
+
+    monkeypatch.setattr(ChunkerFactory, "get_chunker", staticmethod(lambda policy_type: NoChunks()))
+    monkeypatch.setattr(
+        httpx.Client, "get", lambda self, url: httpx.Response(200, text=SCRAPED_PAGE, request=httpx.Request("GET", url))
+    )
+    repo = FakeVectorRepository()
+    service = IngestionService(repo, FakeCohereService(), SparseEmbeddingModel())
+    html_file = str(RAW_DIR / "sim_replacement_policy.html")
+
+    assert service.ingest_file(html_file) == {"file_path": html_file, "chunks_count": 0, "status": "EMPTY"}
+    assert service.ingest_url("https://www.te.eg/x") == {
+        "file_path": "https://www.te.eg/x",
+        "chunks_count": 0,
+        "status": "EMPTY",
+    }
+    assert repo.upserted == []

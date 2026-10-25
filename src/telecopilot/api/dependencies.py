@@ -36,7 +36,9 @@ def get_sparse_model() -> SparseEmbeddingModel:
 
 def get_ingestion_service() -> IngestionService:
     """Dependency for Ingestion Service."""
-    return IngestionService(vector_repo=get_vector_repository(), cohere_service=get_cohere_service())
+    return IngestionService(
+        vector_repo=get_vector_repository(), cohere_service=get_cohere_service(), sparse_model=get_sparse_model()
+    )
 
 
 def get_hybrid_retriever() -> HybridRetriever:

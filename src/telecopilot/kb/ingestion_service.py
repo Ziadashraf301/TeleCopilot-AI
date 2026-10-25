@@ -3,6 +3,7 @@ from typing import Any
 
 from telecopilot.core.logger import get_logger
 from telecopilot.kb.factories import ChunkerFactory, ExtractorFactory
+from telecopilot.kb.models import DocumentChunk, ExtractedDocument
 from telecopilot.kb.repositories.base import BaseVectorRepository, SparseVectorData
 from telecopilot.kb.sparse import SparseEmbeddingModel
 from telecopilot.llm.cohere import CohereService
@@ -26,46 +27,43 @@ class IngestionService:
     No local data/ folders required.
     """
 
-    def __init__(self, vector_repo: BaseVectorRepository, cohere_service: CohereService):
+    def __init__(
+        self, vector_repo: BaseVectorRepository, cohere_service: CohereService, sparse_model: SparseEmbeddingModel
+    ):
         self.vector_repo = vector_repo
         self.cohere_service = cohere_service
-        self.sparse_model = SparseEmbeddingModel()
+        self.sparse_model = sparse_model
+
+    def _index_source(self, source: str) -> tuple[ExtractedDocument, list[DocumentChunk], int]:
+        """Extract, chunk, embed (dense + sparse) and upsert one URL or file. Returns (document, chunks, upserted)."""
+        extracted_doc = ExtractorFactory.get_extractor(source).extract(source)
+        chunks = ChunkerFactory.get_chunker(extracted_doc.policy_type).chunk(extracted_doc)
+        if not chunks:
+            return extracted_doc, chunks, 0
+
+        texts = [chunk.content for chunk in chunks]
+        dense_embeddings = self.cohere_service.get_embeddings_batch(texts, input_type="search_document")
+        sparse_embeddings = self.sparse_model.embed_batch(texts)
+        for chunk, dense, sparse in zip(chunks, dense_embeddings, sparse_embeddings, strict=True):
+            chunk.dense_vector = dense
+            chunk.sparse_vector = SparseVectorData(indices=sparse.indices, values=sparse.values)
+
+        return extracted_doc, chunks, self.vector_repo.upsert_chunks(chunks)
 
     def ingest_url(self, target_url: str) -> dict[str, Any]:
         """Scrapes a live website URL in-memory and indexes it directly into Qdrant."""
         logger.info(f"Starting in-memory scrape & ingestion for: {target_url}")
-
-        # 1. Scrape URL in-memory via Extractor Factory
-        extractor = ExtractorFactory.get_extractor(target_url)
-        extracted_doc = extractor.extract(target_url)
-
-        # 2. Chunk in-memory via Chunker Factory
-        chunker = ChunkerFactory.get_chunker(extracted_doc.policy_type)
-        chunks = chunker.chunk(extracted_doc)
-
+        extracted_doc, chunks, upserted_count = self._index_source(target_url)
         if not chunks:
             logger.warning(f"No chunks extracted from {target_url}")
             return {"file_path": target_url, "chunks_count": 0, "status": "EMPTY"}
 
-        # 3. Generate Dense Vectors (Cohere) + Sparse Vectors (BM25 Model)
-        texts = [chunk.content for chunk in chunks]
-        dense_embeddings = self.cohere_service.get_embeddings_batch(texts, input_type="search_document")
-        sparse_embeddings = self.sparse_model.embed_batch(texts)
-
-        for idx, chunk in enumerate(chunks):
-            chunk.dense_vector = dense_embeddings[idx]
-            sv = sparse_embeddings[idx]
-            chunk.sparse_vector = SparseVectorData(indices=sv.indices, values=sv.values)
-
-        # 4. Upsert Dense + Sparse Points directly into Qdrant
-        upserted_count = self.vector_repo.upsert_chunks(chunks)
         logger.info(f"Successfully scraped & indexed {upserted_count} chunks from {target_url} into Qdrant.")
-
         return {
             "source_url": target_url,
             "document_title": extracted_doc.title,
             "policy_type": extracted_doc.policy_type,
-            "intent_category": chunks[0].intent_category if chunks else "PLANS_AND_OFFERS",
+            "intent_category": chunks[0].intent_category,
             "chunks_count": upserted_count,
             "vector_types": ["dense_cohere_1024", "sparse_bm25_lexical"],
             "status": "SUCCESS",
@@ -74,30 +72,15 @@ class IngestionService:
     def ingest_file(self, file_path: str) -> dict[str, Any]:
         """Extracts and indexes a local policy file (HTML, PDF, DOCX) into Qdrant."""
         logger.info(f"Ingesting local document: {file_path}")
-        extractor = ExtractorFactory.get_extractor(file_path)
-        extracted_doc = extractor.extract(file_path)
-
-        chunker = ChunkerFactory.get_chunker(extracted_doc.policy_type)
-        chunks = chunker.chunk(extracted_doc)
-
+        extracted_doc, chunks, upserted_count = self._index_source(file_path)
         if not chunks:
             return {"file_path": file_path, "chunks_count": 0, "status": "EMPTY"}
 
-        texts = [chunk.content for chunk in chunks]
-        dense_embeddings = self.cohere_service.get_embeddings_batch(texts, input_type="search_document")
-        sparse_embeddings = self.sparse_model.embed_batch(texts)
-
-        for idx, chunk in enumerate(chunks):
-            chunk.dense_vector = dense_embeddings[idx]
-            sv = sparse_embeddings[idx]
-            chunk.sparse_vector = SparseVectorData(indices=sv.indices, values=sv.values)
-
-        upserted_count = self.vector_repo.upsert_chunks(chunks)
         return {
             "source": file_path,
             "document_title": extracted_doc.title,
             "policy_type": extracted_doc.policy_type,
-            "intent_category": chunks[0].intent_category if chunks else "GENERAL",
+            "intent_category": chunks[0].intent_category,
             "chunks_count": upserted_count,
             "status": "SUCCESS",
         }

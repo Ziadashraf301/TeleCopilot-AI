@@ -8,7 +8,6 @@ from fastapi.staticfiles import StaticFiles
 from telecopilot.api.routers import assist, documents, health, ingest, scraper
 from telecopilot.config.settings import get_settings
 from telecopilot.core.logger import get_logger
-from telecopilot.kb.ingestion_service import IngestionService
 
 logger = get_logger()
 settings = get_settings()
@@ -22,11 +21,10 @@ async def lifespan(app: FastAPI):
     """
     logger.info(f"Starting {settings.APP_NAME} in {settings.APP_ENV} mode...")
     try:
-        from telecopilot.api.dependencies import get_cohere_service, get_vector_repository
+        from telecopilot.api.dependencies import get_ingestion_service, get_vector_repository
 
         repo = get_vector_repository()
-        cohere_svc = get_cohere_service()
-        ingestion_svc = IngestionService(repo, cohere_svc)
+        ingestion_svc = get_ingestion_service()
 
         logger.info("Automatically scraping website content from https://www.te.eg/ and portal pages into Qdrant...")
 
