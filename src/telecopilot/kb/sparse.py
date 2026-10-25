@@ -1,23 +1,12 @@
 import re
 from collections import Counter
-from typing import Any
 
 from telecopilot.config.settings import get_settings
 from telecopilot.core.logger import get_logger
+from telecopilot.kb.models import SparseVectorData
 
 logger = get_logger()
 settings = get_settings()
-
-
-class SparseVector:
-    """Represents a sparse vector with indices and weights for Qdrant BM25 hybrid search."""
-
-    def __init__(self, indices: list[int], values: list[float]):
-        self.indices = indices
-        self.values = values
-
-    def to_dict(self) -> dict[str, Any]:
-        return {"indices": self.indices, "values": self.values}
 
 
 class SparseEmbeddingModel:
@@ -46,14 +35,14 @@ class SparseEmbeddingModel:
         """Hash token to a fixed sparse index space (0 to vocab_size - 1)."""
         return abs(hash(token)) % self.vocab_size
 
-    def embed_text(self, text: str) -> SparseVector:
+    def embed_text(self, text: str) -> SparseVectorData:
         """
-        Generate a SparseVector for a single document or query text using Okapi BM25 scoring:
+        Generate a sparse vector for a single document or query text using Okapi BM25 scoring:
         BM25_TF = (tf * (k1 + 1)) / (tf + k1 * (1 - b + b * (doc_len / avg_doc_len)))
         """
         tokens = self._tokenize(text)
         if not tokens:
-            return SparseVector(indices=[], values=[])
+            return SparseVectorData()
 
         doc_len = len(tokens)
         counts = Counter(tokens)
@@ -78,8 +67,8 @@ class SparseEmbeddingModel:
         indices = [item[0] for item in sorted_items]
         values = [round(item[1], 4) for item in sorted_items]
 
-        return SparseVector(indices=indices, values=values)
+        return SparseVectorData(indices=indices, values=values)
 
-    def embed_batch(self, texts: list[str]) -> list[SparseVector]:
+    def embed_batch(self, texts: list[str]) -> list[SparseVectorData]:
         """Batch generate sparse vectors."""
         return [self.embed_text(t) for t in texts]

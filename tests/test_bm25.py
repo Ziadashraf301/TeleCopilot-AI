@@ -1,4 +1,5 @@
-from telecopilot.kb.sparse import SparseEmbeddingModel, SparseVector
+from telecopilot.kb.models import SparseVectorData
+from telecopilot.kb.sparse import SparseEmbeddingModel
 
 
 def test_okapi_bm25_sparse_model():
@@ -9,7 +10,7 @@ def test_okapi_bm25_sparse_model():
     query = "eSIM activation router red light"
     q_sparse = model.embed_text(query)
 
-    assert isinstance(q_sparse, SparseVector)
+    assert isinstance(q_sparse, SparseVectorData)
     assert len(q_sparse.indices) == 5
     assert len(q_sparse.values) == 5
     # Verify strict ascending order for Qdrant

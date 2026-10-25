@@ -4,7 +4,7 @@ from typing import Any
 from telecopilot.core.logger import get_logger
 from telecopilot.kb.factories import ChunkerFactory, ExtractorFactory
 from telecopilot.kb.models import DocumentChunk, ExtractedDocument
-from telecopilot.kb.repositories.base import BaseVectorRepository, SparseVectorData
+from telecopilot.kb.repositories.base import BaseVectorRepository
 from telecopilot.kb.sparse import SparseEmbeddingModel
 from telecopilot.llm.cohere import CohereService
 
@@ -46,7 +46,7 @@ class IngestionService:
         sparse_embeddings = self.sparse_model.embed_batch(texts)
         for chunk, dense, sparse in zip(chunks, dense_embeddings, sparse_embeddings, strict=True):
             chunk.dense_vector = dense
-            chunk.sparse_vector = SparseVectorData(indices=sparse.indices, values=sparse.values)
+            chunk.sparse_vector = sparse
 
         return extracted_doc, chunks, self.vector_repo.upsert_chunks(chunks)
 

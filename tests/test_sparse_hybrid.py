@@ -1,6 +1,6 @@
 from telecopilot.kb.repositories.base import DocumentChunk, SparseVectorData
 from telecopilot.kb.repositories.qdrant import QdrantVectorRepository
-from telecopilot.kb.sparse import SparseEmbeddingModel, SparseVector
+from telecopilot.kb.sparse import SparseEmbeddingModel
 
 
 def test_sparse_embedding_model():
@@ -9,7 +9,7 @@ def test_sparse_embedding_model():
     text = "WE Space Fiber Internet Super Mega Ultra 5G"
     sparse_vec = model.embed_text(text)
 
-    assert isinstance(sparse_vec, SparseVector)
+    assert isinstance(sparse_vec, SparseVectorData)
     assert len(sparse_vec.indices) > 0
     assert len(sparse_vec.values) == len(sparse_vec.indices)
     # Okapi BM25 TF weights are positive and bounded by (k1 + 1), not by 1.0
@@ -36,7 +36,7 @@ def test_dense_and_sparse_hybrid_upsert_and_search():
         section_title="eSIM Guide",
         page_number=1,
         dense_vector=[0.15] * 1024,
-        sparse_vector=SparseVectorData(indices=sparse_vec.indices, values=sparse_vec.values),
+        sparse_vector=sparse_vec,
     )
 
     upserted = repo.upsert_chunks([chunk])
@@ -48,7 +48,7 @@ def test_dense_and_sparse_hybrid_upsert_and_search():
     results = repo.hybrid_search(
         query=query,
         query_dense_vector=[0.15] * 1024,
-        query_sparse_vector=SparseVectorData(indices=q_sparse.indices, values=q_sparse.values),
+        query_sparse_vector=q_sparse,
         top_k=3,
         intent_filter="SIM_MANAGEMENT",
     )
