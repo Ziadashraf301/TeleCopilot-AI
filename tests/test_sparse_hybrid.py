@@ -1,58 +1,82 @@
-from telecopilot.kb.repositories.base import DocumentChunk, SparseVectorData
+"""Keyword search through our Qdrant collection (sparse vector with modifier=IDF) on the embedded Qdrant."""
+
+import pytest
+from qdrant_client.http import models as qmodels
+
+from telecopilot.kb.models import DocumentChunk
 from telecopilot.kb.repositories.qdrant import QdrantVectorRepository
 from telecopilot.kb.sparse import SparseEmbeddingModel
 
-
-def test_sparse_embedding_model():
-    """Verify BM25 Sparse Embedding Model generates valid token indices and weights."""
-    model = SparseEmbeddingModel(vocab_size=10000)
-    text = "WE Space Fiber Internet Super Mega Ultra 5G"
-    sparse_vec = model.embed_text(text)
-
-    assert isinstance(sparse_vec, SparseVectorData)
-    assert len(sparse_vec.indices) > 0
-    assert len(sparse_vec.values) == len(sparse_vec.indices)
-    # Okapi BM25 TF weights are positive and bounded by (k1 + 1), not by 1.0
-    assert all(0.0 < v <= model.k1 + 1.0 for v in sparse_vec.values)
-    # Verify indices are sorted for Qdrant compatibility
-    assert sparse_vec.indices == sorted(sparse_vec.indices)
+CHUNKS = {
+    "esim": "The customer can get an instant eSIM by scanning the QR code sent by SMS.",
+    "billing": "The customer may request a courtesy late fee waiver once every twelve months.",
+    "router": "If the customer router shows a red LOS light, check the fibre drop cable before a field visit.",
+    "family": "يمكن للعميل ضم حتى خمسة خطوط إلى باقة WE Mix العائلية وتوزيع الجيجابايتس بينها.",
+    "sla": "يحصل العميل المؤسسي على تعويض مالي عند انخفاض نسبة التشغيل عن اتفاقية مستوى الخدمة.",
+}
 
 
-def test_dense_and_sparse_hybrid_upsert_and_search():
-    """Verify QdrantVectorRepository stores and searches with both Dense and Sparse vectors."""
+@pytest.fixture
+def indexed_repo() -> tuple[QdrantVectorRepository, SparseEmbeddingModel]:
+    model = SparseEmbeddingModel()
     repo = QdrantVectorRepository()
-    model = SparseEmbeddingModel(vocab_size=10000)
+    texts = list(CHUNKS.values())
+    chunks = [
+        DocumentChunk(
+            chunk_id=chunk_id,
+            content=text,
+            source="test.html",
+            source_modality="LOCAL_HTML",
+            policy_type="test",
+            intent_category="GENERAL",
+            section_title=chunk_id,
+            dense_vector=[0.1] * 1024,
+            sparse_vector=sparse,
+        )
+        for (chunk_id, text), sparse in zip(CHUNKS.items(), model.embed_documents(texts), strict=True)
+    ]
+    repo.upsert_chunks(chunks)
+    return repo, model
 
-    content = "Instant digital eSIM replacement is free of charge for iPhone and Samsung devices."
-    sparse_vec = model.embed_text(content)
 
-    chunk = DocumentChunk(
-        chunk_id="test_hybrid_1",
-        content=content,
-        source="sim_policy.html",
-        source_modality="LOCAL_HTML",
-        policy_type="sim_replacement",
-        intent_category="SIM_MANAGEMENT",
-        section_title="eSIM Guide",
-        page_number=1,
-        dense_vector=[0.15] * 1024,
-        sparse_vector=sparse_vec,
-    )
+def sparse_ranking(repo: QdrantVectorRepository, model: SparseEmbeddingModel, query: str) -> list[str]:
+    vector = model.embed_query(query)
+    points = repo.client.query_points(
+        collection_name=repo.collection_name,
+        query=qmodels.SparseVector(indices=vector.indices, values=vector.values),
+        using="sparse",
+        limit=3,
+        with_payload=True,
+    ).points
+    return [point.payload["chunk_id"] for point in points]
 
-    upserted = repo.upsert_chunks([chunk])
-    assert upserted == 1
 
-    query = "How to get digital eSIM for iPhone?"
-    q_sparse = model.embed_text(query)
+def test_collection_uses_qdrant_side_idf(indexed_repo):
+    repo, _ = indexed_repo
+    sparse_config = repo.client.get_collection(repo.collection_name).config.params.sparse_vectors["sparse"]
+    assert sparse_config.modifier == qmodels.Modifier.IDF
 
+
+@pytest.mark.parametrize(
+    ("query", "expected_first"),
+    [
+        ("eSIM", "esim"),
+        ("late fee waiver", "billing"),
+        ("red LOS light on the router", "router"),
+        ("WE Mix", "family"),  # plan name inside Arabic text
+        ("الباقات العائلية", "family"),  # Arabic stemming: plural + article
+        ("تعويض اتفاقية مستوى الخدمة", "sla"),
+    ],
+)
+def test_keyword_query_ranks_the_right_chunk_first(indexed_repo, query, expected_first):
+    repo, model = indexed_repo
+    assert sparse_ranking(repo, model, query)[0] == expected_first
+
+
+def test_hybrid_search_uses_the_sparse_leg(indexed_repo):
+    """Dense vectors are identical here, so the sparse (BM25) leg decides the fused RRF order."""
+    repo, model = indexed_repo
     results = repo.hybrid_search(
-        query=query,
-        query_dense_vector=[0.15] * 1024,
-        query_sparse_vector=q_sparse,
-        top_k=3,
-        intent_filter="SIM_MANAGEMENT",
+        query="eSIM QR code", query_dense_vector=[0.1] * 1024, query_sparse_vector=model.embed_query("eSIM QR code")
     )
-
-    assert len(results) >= 1
-    assert results[0].chunk_id == "test_hybrid_1"
-    assert results[0].intent_category == "SIM_MANAGEMENT"
+    assert results[0].chunk_id == "esim"

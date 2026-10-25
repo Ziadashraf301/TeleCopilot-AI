@@ -31,7 +31,7 @@ class HybridRetriever:
     def embed_query(self, customer_query: str) -> tuple[list[float], SparseVectorData]:
         """Embed query using Cohere (dense) and BM25 (sparse)."""
         query_dense_vector = self.cohere_service.get_embedding(customer_query, input_type="search_query")
-        return query_dense_vector, self.sparse_model.embed_text(customer_query)
+        return query_dense_vector, self.sparse_model.embed_query(customer_query)
 
     def search(
         self,

@@ -1,74 +1,68 @@
+"""
+BM25 sparse vectors for hybrid search, via FastEmbed's Qdrant/bm25.
+
+- Documents get BM25 term-frequency weights (k=1.2, b=0.75); queries get weight 1 per unique term.
+- IDF is not computed here: the Qdrant sparse vector uses `modifier=IDF`, so Qdrant computes it from the live
+  collection (it stays correct as documents are added).
+- Tokens are hashed with murmur3, so the same text gives the same indices in every process.
+- Bilingual corpus (Arabic + English): Arabic-script tokens use the Arabic Snowball stemmer, all other tokens the
+  English one, and both stopword lists apply. A single language setting stems only one side (measured in the
+  S01-11 report: "english" misses Arabic article variants, "arabic" misses English inflections).
+"""
+
 import re
-from collections import Counter
+from pathlib import Path
+
+from fastembed import SparseTextEmbedding
+from py_rust_stemmers import SnowballStemmer
 
 from telecopilot.config.settings import get_settings
-from telecopilot.core.logger import get_logger
 from telecopilot.kb.models import SparseVectorData
 
-logger = get_logger()
-settings = get_settings()
+# Stopword lists from Qdrant/bm25 (Apache-2.0), vendored so no Hugging Face download is ever needed.
+BM25_MODEL_DIR = Path(__file__).parent / "bm25_model"
+BM25_LANGUAGES = ("english", "arabic")
+ARABIC_SCRIPT = re.compile(r"[؀-ۿ]")
+
+
+class ScriptAwareStemmer:
+    """Arabic Snowball stemmer for Arabic-script tokens, English Snowball stemmer for everything else."""
+
+    def __init__(self) -> None:
+        self._arabic = SnowballStemmer("arabic")
+        self._english = SnowballStemmer("english")
+
+    def stem_word(self, word: str) -> str:
+        stemmer = self._arabic if ARABIC_SCRIPT.search(word) else self._english
+        return stemmer.stem_word(word)
+
+
+def _load_stopwords() -> set[str]:
+    return {
+        word
+        for language in BM25_LANGUAGES
+        for word in (BM25_MODEL_DIR / f"{language}.txt").read_text(encoding="utf-8").split()
+    }
+
+
+def _to_sparse_vector(embedding) -> SparseVectorData:
+    return SparseVectorData(indices=embedding.indices.tolist(), values=embedding.values.tolist())
 
 
 class SparseEmbeddingModel:
-    """
-    Qdrant-compatible BM25 Sparse Embedding Model (SPARSE_EMBEDDING_MODEL = 'Qdrant/bm25').
-    Implements standard Okapi BM25 Term Frequency & Inverse Document Frequency (IDF) scoring
-    with token hashing into Qdrant sparse index space.
-    - k1: Term frequency saturation parameter (default 1.5)
-    - b: Document length normalization parameter (default 0.75)
-    - avg_doc_len: Average document length (default 128 tokens)
-    """
+    """BM25 sparse embeddings: `embed_documents` when indexing, `embed_query` when searching."""
 
-    def __init__(self, vocab_size: int = 100000, k1: float = 1.5, b: float = 0.75, avg_doc_len: float = 128.0):
-        self.model_name = settings.SPARSE_EMBEDDING_MODEL
-        self.vocab_size = vocab_size
-        self.k1 = k1
-        self.b = b
-        self.avg_doc_len = avg_doc_len
+    def __init__(self) -> None:
+        self.model_name = get_settings().SPARSE_EMBEDDING_MODEL
+        self._model = SparseTextEmbedding(
+            self.model_name,
+            specific_model_path=str(BM25_MODEL_DIR),
+            stemmer=ScriptAwareStemmer(),
+            stopwords=_load_stopwords(),
+        )
 
-    def _tokenize(self, text: str) -> list[str]:
-        """Tokenize Arabic, English words and numbers."""
-        tokens = re.findall(r"\b\w+\b", text.lower())
-        return [t for t in tokens if len(t) > 1]
+    def embed_documents(self, texts: list[str]) -> list[SparseVectorData]:
+        return [_to_sparse_vector(embedding) for embedding in self._model.embed(texts)]
 
-    def _hash_token(self, token: str) -> int:
-        """Hash token to a fixed sparse index space (0 to vocab_size - 1)."""
-        return abs(hash(token)) % self.vocab_size
-
-    def embed_text(self, text: str) -> SparseVectorData:
-        """
-        Generate a sparse vector for a single document or query text using Okapi BM25 scoring:
-        BM25_TF = (tf * (k1 + 1)) / (tf + k1 * (1 - b + b * (doc_len / avg_doc_len)))
-        """
-        tokens = self._tokenize(text)
-        if not tokens:
-            return SparseVectorData()
-
-        doc_len = len(tokens)
-        counts = Counter(tokens)
-
-        token_weights: dict[int, float] = {}
-        for token, tf in counts.items():
-            idx = self._hash_token(token)
-
-            # Okapi BM25 term frequency formula
-            numerator = tf * (self.k1 + 1.0)
-            denominator = tf + self.k1 * (1.0 - self.b + self.b * (doc_len / self.avg_doc_len))
-            bm25_weight = numerator / max(denominator, 1e-6)
-
-            # Keep max weight for hash collisions
-            if idx in token_weights:
-                token_weights[idx] = max(token_weights[idx], bm25_weight)
-            else:
-                token_weights[idx] = bm25_weight
-
-        # Sort indices as required by Qdrant sparse vector specifications
-        sorted_items = sorted(token_weights.items(), key=lambda x: x[0])
-        indices = [item[0] for item in sorted_items]
-        values = [round(item[1], 4) for item in sorted_items]
-
-        return SparseVectorData(indices=indices, values=values)
-
-    def embed_batch(self, texts: list[str]) -> list[SparseVectorData]:
-        """Batch generate sparse vectors."""
-        return [self.embed_text(t) for t in texts]
+    def embed_query(self, text: str) -> SparseVectorData:
+        return _to_sparse_vector(next(iter(self._model.query_embed(text))))

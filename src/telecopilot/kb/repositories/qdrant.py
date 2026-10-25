@@ -46,7 +46,10 @@ class QdrantVectorRepository(BaseVectorRepository):
                     "dense": qmodels.VectorParams(size=settings.VECTOR_DIMENSION, distance=qmodels.Distance.COSINE)
                 },
                 sparse_vectors_config={
-                    "sparse": qmodels.SparseVectorParams(index=qmodels.SparseIndexParams(on_disk=False))
+                    # Qdrant computes BM25's IDF from the collection at query time (FastEmbed sends TF only)
+                    "sparse": qmodels.SparseVectorParams(
+                        index=qmodels.SparseIndexParams(on_disk=False), modifier=qmodels.Modifier.IDF
+                    )
                 },
             )
         except UnexpectedResponse as e:

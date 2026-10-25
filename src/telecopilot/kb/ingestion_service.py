@@ -44,7 +44,7 @@ class IngestionService:
 
         texts = [chunk.content for chunk in chunks]
         dense_embeddings = self.cohere_service.get_embeddings_batch(texts, input_type="search_document")
-        sparse_embeddings = self.sparse_model.embed_batch(texts)
+        sparse_embeddings = self.sparse_model.embed_documents(texts)
         for chunk, dense, sparse in zip(chunks, dense_embeddings, sparse_embeddings, strict=True):
             chunk.dense_vector = dense
             chunk.sparse_vector = sparse
