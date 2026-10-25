@@ -37,7 +37,8 @@ Status: **in progress** (filled ticket by ticket; finalised in S01-09).
 - `pip install --no-build-isolation --no-deps -e .` OK; `import telecopilot` works from another folder.
 - `uvicorn telecopilot.api.main:app` (API keys blanked, Qdrant down): `/api/health` 200 after 7 s, `/` 200,
   `/api/v1/policies` 200.
-- `pytest`: 16 passed (15 s; was 42 s — the old `conftest`/startup path no longer imports the app twice).
+- `pytest`: 16 passed (15–19 s; baseline was 42 s. Cause of the difference not investigated; the remaining time is Qdrant
+  connection timeouts, which S01-10 removes).
 - `ruff check`: all checks passed; `ruff format --check`: 78 files already formatted.
 - **Not yet verified**: `docker build` (Docker Desktop not running) — verified in S01-05.
 
