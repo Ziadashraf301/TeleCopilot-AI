@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from models.document_models import DocumentChunk, SearchResult, SparseVectorData
+from telecopilot.models.document_models import DocumentChunk, SearchResult, SparseVectorData
 
 
 class BaseVectorRepository(ABC):

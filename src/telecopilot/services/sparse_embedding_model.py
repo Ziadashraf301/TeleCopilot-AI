@@ -2,8 +2,8 @@ import re
 import math
 from typing import List, Dict, Any, Optional
 from collections import Counter
-from config.settings import get_settings
-from core.logger import get_logger
+from telecopilot.config.settings import get_settings
+from telecopilot.core.logger import get_logger
 
 logger = get_logger()
 settings = get_settings()

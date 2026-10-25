@@ -1,4 +1,4 @@
-from ingestion.chunkers.policy_chunkers import (
+from telecopilot.ingestion.chunkers.policy_chunkers import (
     SIMPolicyChunker,
     WifiPolicyChunker,
     BillingPolicyChunker,

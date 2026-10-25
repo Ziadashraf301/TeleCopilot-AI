@@ -1,10 +1,10 @@
-from models.document_models import (
+from telecopilot.models.document_models import (
     SparseVectorData,
     DocumentChunk,
     SearchResult,
     ExtractedDocument,
 )
-from models.api_models import (
+from telecopilot.models.api_models import (
     CustomerQueryRequest,
     PolicyCitation,
     AgentSolutionResponse,

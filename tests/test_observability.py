@@ -1,5 +1,5 @@
 import pytest
-from core.observability import ObservabilityTracer, MODEL_COST_PER_MILLION
+from telecopilot.core.observability import ObservabilityTracer, MODEL_COST_PER_MILLION
 
 
 def test_token_estimation_and_cost_calculation():

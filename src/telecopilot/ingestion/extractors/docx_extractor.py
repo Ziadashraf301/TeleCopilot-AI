@@ -1,7 +1,7 @@
 import os
 from docx import Document
-from core.logger import get_logger
-from ingestion.base import BaseExtractor, ExtractedDocument
+from telecopilot.core.logger import get_logger
+from telecopilot.ingestion.base import BaseExtractor, ExtractedDocument
 
 logger = get_logger()
 

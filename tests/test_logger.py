@@ -1,7 +1,7 @@
 import pytest
 import os
 import json
-from core.logger import get_logger
+from telecopilot.core.logger import get_logger
 
 
 def test_structured_logger():

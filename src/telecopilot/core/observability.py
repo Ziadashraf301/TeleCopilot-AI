@@ -1,9 +1,9 @@
 import time
 import json
 from typing import Optional, Dict, Any
-from config.settings import get_settings
-from core.singletons import SingletonsManager
-from core.logger import get_logger
+from telecopilot.config.settings import get_settings
+from telecopilot.core.singletons import SingletonsManager
+from telecopilot.core.logger import get_logger
 
 logger = get_logger()
 settings = get_settings()

@@ -3,9 +3,9 @@ from typing import List, Dict, Any, Optional
 import httpx
 from bs4 import BeautifulSoup
 from pydantic import BaseModel, Field
-from config.settings import get_settings
-from core.logger import get_logger
-from ingestion.base import BaseExtractor, ExtractedDocument
+from telecopilot.config.settings import get_settings
+from telecopilot.core.logger import get_logger
+from telecopilot.ingestion.base import BaseExtractor, ExtractedDocument
 
 logger = get_logger()
 

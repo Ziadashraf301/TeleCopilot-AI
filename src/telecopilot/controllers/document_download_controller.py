@@ -7,7 +7,7 @@ import fitz  # PyMuPDF
 from docx import Document
 from fastapi import APIRouter, Response, HTTPException
 from fastapi.responses import HTMLResponse, StreamingResponse, FileResponse
-from core.logger import get_logger
+from telecopilot.core.logger import get_logger
 
 logger = get_logger()
 router = APIRouter(tags=["Document Files & Policies"])

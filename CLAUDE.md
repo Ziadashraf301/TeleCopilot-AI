@@ -51,10 +51,11 @@ agreement). Work only on the current sprint's tickets, tick them off there, and 
 ## Commands
 ```bash
 docker compose up --build                                  # Qdrant + app on :8000
-uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+pip install -e ".[dev]"                                    # once; installs the telecopilot package
+uvicorn telecopilot.api.main:app --host 0.0.0.0 --port 8000 --reload
 pytest -v                                                  # CI runs this + docker build
 ```
-Imports are relative to `src/` (`from config.settings import ...`); `src/api/main.py` and `tests/conftest.py` put `src` on `sys.path`.
+Code is one installable package under `src/telecopilot/`; always import absolutely (`from telecopilot.config.settings import ...`). No `sys.path` edits.
 
 ## Conventions
 - Fail fast: no silent fallbacks in the pipeline; errors propagate (see `AgentAssistService`).

@@ -2,9 +2,9 @@ import os
 import io
 import fitz  # PyMuPDF
 from PIL import Image
-from core.logger import get_logger
-from core.singletons import SingletonsManager
-from ingestion.base import BaseExtractor, ExtractedDocument
+from telecopilot.core.logger import get_logger
+from telecopilot.core.singletons import SingletonsManager
+from telecopilot.ingestion.base import BaseExtractor, ExtractedDocument
 
 logger = get_logger()
 

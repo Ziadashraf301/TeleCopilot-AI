@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
-from core.logger import get_logger
-from models.api_models import ManualScrapeRequest
-from services.ingestion_service import IngestionService
-from dependencies import get_ingestion_service
+from telecopilot.core.logger import get_logger
+from telecopilot.models.api_models import ManualScrapeRequest
+from telecopilot.services.ingestion_service import IngestionService
+from telecopilot.dependencies import get_ingestion_service
 
 logger = get_logger()
 router = APIRouter(prefix="/api/scraper", tags=["Manual Scraper"])

@@ -1,11 +1,11 @@
 import uuid
 from typing import List, Optional, Dict, Any
 from qdrant_client.http import models as qmodels
-from config.settings import get_settings
-from core.logger import get_logger
-from core.singletons import SingletonsManager
-from repositories.base import BaseVectorRepository
-from models.document_models import DocumentChunk, SearchResult, SparseVectorData
+from telecopilot.config.settings import get_settings
+from telecopilot.core.logger import get_logger
+from telecopilot.core.singletons import SingletonsManager
+from telecopilot.repositories.base import BaseVectorRepository
+from telecopilot.models.document_models import DocumentChunk, SearchResult, SparseVectorData
 
 logger = get_logger()
 settings = get_settings()

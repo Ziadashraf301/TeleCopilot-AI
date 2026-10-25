@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
-from models.document_models import DocumentChunk, ExtractedDocument
+from telecopilot.models.document_models import DocumentChunk, ExtractedDocument
 
 
 class BaseExtractor(ABC):

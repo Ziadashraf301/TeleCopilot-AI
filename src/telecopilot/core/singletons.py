@@ -1,7 +1,7 @@
 from typing import Optional
 from qdrant_client import QdrantClient
-from config.settings import get_settings
-from core.logger import get_logger
+from telecopilot.config.settings import get_settings
+from telecopilot.core.logger import get_logger
 
 logger = get_logger()
 settings = get_settings()

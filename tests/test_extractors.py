@@ -1,7 +1,7 @@
 import os
 import pytest
-from ingestion.extractors.html_extractor import HTMLExtractor
-from ingestion.chunkers.policy_chunkers import SIMPolicyChunker
+from telecopilot.ingestion.extractors.html_extractor import HTMLExtractor
+from telecopilot.ingestion.chunkers.policy_chunkers import SIMPolicyChunker
 
 
 def test_html_extractor_and_sim_chunker(tmp_path):

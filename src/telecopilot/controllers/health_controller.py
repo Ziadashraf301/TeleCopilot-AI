@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
-from config.settings import get_settings
-from repositories.base import BaseVectorRepository
-from dependencies import get_vector_repository
+from telecopilot.config.settings import get_settings
+from telecopilot.repositories.base import BaseVectorRepository
+from telecopilot.dependencies import get_vector_repository
 
 router = APIRouter(prefix="/api/health", tags=["Health"])
 settings = get_settings()

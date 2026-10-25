@@ -1,11 +1,11 @@
 import os
 import glob
 from typing import List, Dict, Any
-from core.logger import get_logger
-from ingestion.factories import ExtractorFactory, ChunkerFactory
-from repositories.base import BaseVectorRepository, SparseVectorData
-from services.cohere_service import CohereService
-from services.sparse_embedding_model import SparseEmbeddingModel
+from telecopilot.core.logger import get_logger
+from telecopilot.ingestion.factories import ExtractorFactory, ChunkerFactory
+from telecopilot.repositories.base import BaseVectorRepository, SparseVectorData
+from telecopilot.services.cohere_service import CohereService
+from telecopilot.services.sparse_embedding_model import SparseEmbeddingModel
 
 logger = get_logger()
 

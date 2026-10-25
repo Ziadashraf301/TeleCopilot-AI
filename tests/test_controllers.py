@@ -1,11 +1,11 @@
 import pytest
 from fastapi.testclient import TestClient
-from api.main import app
-from core.singletons import SingletonsManager
-from dependencies import get_agent_assist_service
-from models.document_models import SearchResult
-from repositories.base import BaseVectorRepository
-from services.agent_assist_service import AgentAssistService
+from telecopilot.api.main import app
+from telecopilot.core.singletons import SingletonsManager
+from telecopilot.dependencies import get_agent_assist_service
+from telecopilot.models.document_models import SearchResult
+from telecopilot.repositories.base import BaseVectorRepository
+from telecopilot.services.agent_assist_service import AgentAssistService
 
 client = TestClient(app)
 

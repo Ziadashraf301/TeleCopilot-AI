@@ -1,10 +1,9 @@
-# Multi-stage lightweight Python container
-FROM python:3.11-slim as base
+# syntax=docker/dockerfile:1
+FROM python:3.11-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    APP_ENV=production \
-    PYTHONPATH="/app/src:/app"
+    APP_ENV=production
 
 WORKDIR /app
 
@@ -14,12 +13,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# The package install needs the source, so this layer rebuilds on code changes;
+# the pip cache mount keeps those rebuilds from downloading the wheels again.
+COPY pyproject.toml README.md ./
+COPY src ./src
+RUN --mount=type=cache,target=/root/.cache/pip pip install .
 
-# Copy application source code
+# Runtime assets read relative to the working directory (static UI, raw policies)
 COPY . .
 
 EXPOSE 8000
 
-CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "telecopilot.api.main:app", "--host", "0.0.0.0", "--port", "8000"]

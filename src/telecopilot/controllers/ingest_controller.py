@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
-from core.logger import get_logger
-from models.api_models import ScrapeUrlRequest
-from services.ingestion_service import IngestionService
-from dependencies import get_ingestion_service
+from telecopilot.core.logger import get_logger
+from telecopilot.models.api_models import ScrapeUrlRequest
+from telecopilot.services.ingestion_service import IngestionService
+from telecopilot.dependencies import get_ingestion_service
 
 logger = get_logger()
 router = APIRouter(prefix="/api/ingest", tags=["Ingestion"])

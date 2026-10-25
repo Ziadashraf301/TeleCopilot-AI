@@ -1,8 +1,8 @@
 import os
 import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
-from core.logger import get_logger
-from ingestion.base import BaseExtractor, ExtractedDocument
+from telecopilot.core.logger import get_logger
+from telecopilot.ingestion.base import BaseExtractor, ExtractedDocument
 
 logger = get_logger()
 

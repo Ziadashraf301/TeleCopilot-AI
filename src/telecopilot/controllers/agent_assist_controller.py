@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
-from core.logger import get_logger
-from models.api_models import CustomerQueryRequest, AgentSolutionResponse
-from services.agent_assist_service import AgentAssistService
-from dependencies import get_agent_assist_service
+from telecopilot.core.logger import get_logger
+from telecopilot.models.api_models import CustomerQueryRequest, AgentSolutionResponse
+from telecopilot.services.agent_assist_service import AgentAssistService
+from telecopilot.dependencies import get_agent_assist_service
 
 logger = get_logger()
 router = APIRouter(prefix="/api/agent-assist", tags=["Agent Assist"])

@@ -3,7 +3,7 @@ import json
 import os
 from datetime import datetime
 from loguru import logger
-from config.settings import get_settings
+from telecopilot.config.settings import get_settings
 
 settings = get_settings()
 

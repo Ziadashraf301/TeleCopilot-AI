@@ -1,4 +1,4 @@
-from dependencies.dependencies import (
+from telecopilot.dependencies.dependencies import (
     get_vector_repository,
     get_cohere_service,
     get_gemini_service,

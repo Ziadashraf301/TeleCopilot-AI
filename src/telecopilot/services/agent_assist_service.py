@@ -3,13 +3,13 @@ import time
 import json
 import asyncio
 from typing import AsyncIterator, Dict, Any, Optional, List
-from config.settings import get_settings
-from core.logger import get_logger
-from core.observability import ObservabilityTracer
-from repositories.base import BaseVectorRepository, SparseVectorData
-from services.cohere_service import CohereService
-from services.gemini_service import GeminiService
-from services.sparse_embedding_model import SparseEmbeddingModel
+from telecopilot.config.settings import get_settings
+from telecopilot.core.logger import get_logger
+from telecopilot.core.observability import ObservabilityTracer
+from telecopilot.repositories.base import BaseVectorRepository, SparseVectorData
+from telecopilot.services.cohere_service import CohereService
+from telecopilot.services.gemini_service import GeminiService
+from telecopilot.services.sparse_embedding_model import SparseEmbeddingModel
 
 logger = get_logger()
 settings = get_settings()

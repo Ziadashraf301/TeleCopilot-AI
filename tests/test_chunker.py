@@ -1,11 +1,11 @@
 import pytest
-from ingestion.chunkers.policy_chunkers import (
+from telecopilot.ingestion.chunkers.policy_chunkers import (
     SIMPolicyChunker,
     WifiPolicyChunker,
     BillingPolicyChunker,
     WebScrapedPolicyChunker,
 )
-from models.document_models import ExtractedDocument
+from telecopilot.models.document_models import ExtractedDocument
 
 
 def test_langchain_splitters_in_chunkers():

@@ -1,7 +1,7 @@
 import pytest
-from services.sparse_embedding_model import SparseEmbeddingModel, SparseVector
-from repositories.base import DocumentChunk, SparseVectorData
-from repositories.qdrant_repository import QdrantVectorRepository
+from telecopilot.services.sparse_embedding_model import SparseEmbeddingModel, SparseVector
+from telecopilot.repositories.base import DocumentChunk, SparseVectorData
+from telecopilot.repositories.qdrant_repository import QdrantVectorRepository
 
 
 def test_sparse_embedding_model():

@@ -1,11 +1,11 @@
 from functools import lru_cache
-from repositories.base import BaseVectorRepository
-from repositories.qdrant_repository import QdrantVectorRepository
-from services.cohere_service import CohereService
-from services.gemini_service import GeminiService
-from services.sparse_embedding_model import SparseEmbeddingModel
-from services.ingestion_service import IngestionService
-from services.agent_assist_service import AgentAssistService
+from telecopilot.repositories.base import BaseVectorRepository
+from telecopilot.repositories.qdrant_repository import QdrantVectorRepository
+from telecopilot.services.cohere_service import CohereService
+from telecopilot.services.gemini_service import GeminiService
+from telecopilot.services.sparse_embedding_model import SparseEmbeddingModel
+from telecopilot.services.ingestion_service import IngestionService
+from telecopilot.services.agent_assist_service import AgentAssistService
 
 
 @lru_cache(maxsize=1)

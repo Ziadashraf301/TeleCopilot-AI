@@ -6,9 +6,9 @@ from langchain_text_splitters import (
     HTMLHeaderTextSplitter,
     RecursiveCharacterTextSplitter,
 )
-from ingestion.base import BaseChunker
-from models.document_models import ExtractedDocument, DocumentChunk
-from core.logger import get_logger
+from telecopilot.ingestion.base import BaseChunker
+from telecopilot.models.document_models import ExtractedDocument, DocumentChunk
+from telecopilot.core.logger import get_logger
 
 logger = get_logger()
 

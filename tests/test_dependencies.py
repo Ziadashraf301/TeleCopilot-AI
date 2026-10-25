@@ -1,5 +1,5 @@
 import pytest
-from dependencies import (
+from telecopilot.dependencies import (
     get_vector_repository,
     get_cohere_service,
     get_gemini_service,
@@ -7,18 +7,18 @@ from dependencies import (
     get_ingestion_service,
     get_agent_assist_service,
 )
-from repositories.base import BaseVectorRepository
-from services.cohere_service import CohereService
-from services.gemini_service import GeminiService
-from services.sparse_embedding_model import SparseEmbeddingModel
-from services.ingestion_service import IngestionService
-from services.agent_assist_service import AgentAssistService
+from telecopilot.repositories.base import BaseVectorRepository
+from telecopilot.services.cohere_service import CohereService
+from telecopilot.services.gemini_service import GeminiService
+from telecopilot.services.sparse_embedding_model import SparseEmbeddingModel
+from telecopilot.services.ingestion_service import IngestionService
+from telecopilot.services.agent_assist_service import AgentAssistService
 
 
 @pytest.fixture
 def fake_gemini_client(monkeypatch):
     """CI has no GEMINI_API_KEY: give GeminiService a stand-in client so wiring can be tested offline."""
-    from core.singletons import SingletonsManager
+    from telecopilot.core.singletons import SingletonsManager
     monkeypatch.setattr(SingletonsManager, "get_gemini_client", classmethod(lambda cls: object()))
 
 

@@ -1,30 +1,21 @@
 import os
-import sys
-from pathlib import Path
 from contextlib import asynccontextmanager
-
-# Automatically inject 'src' and project root to sys.path
-_SRC_DIR = Path(__file__).resolve().parent.parent
-_ROOT_DIR = _SRC_DIR.parent
-for _p in [str(_SRC_DIR), str(_ROOT_DIR)]:
-    if _p not in sys.path:
-        sys.path.insert(0, _p)
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from config.settings import get_settings
-from core.logger import get_logger
-from controllers import (
+from telecopilot.config.settings import get_settings
+from telecopilot.core.logger import get_logger
+from telecopilot.controllers import (
     agent_assist_router,
     ingest_router,
     health_router,
     scraper_router,
     download_router
 )
-from services.ingestion_service import IngestionService
-from services.cohere_service import CohereService
-from repositories.qdrant_repository import QdrantVectorRepository
+from telecopilot.services.ingestion_service import IngestionService
+from telecopilot.services.cohere_service import CohereService
+from telecopilot.repositories.qdrant_repository import QdrantVectorRepository
 
 logger = get_logger()
 settings = get_settings()
@@ -38,7 +29,7 @@ async def lifespan(app: FastAPI):
     """
     logger.info(f"Starting {settings.APP_NAME} in {settings.APP_ENV} mode...")
     try:
-        from dependencies.dependencies import get_vector_repository, get_cohere_service
+        from telecopilot.dependencies.dependencies import get_vector_repository, get_cohere_service
         repo = get_vector_repository()
         cohere_svc = get_cohere_service()
         ingestion_svc = IngestionService(repo, cohere_svc)
@@ -91,4 +82,4 @@ if os.path.exists(static_dir):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("src.api.main:app", host=settings.HOST, port=settings.PORT, reload=True)
+    uvicorn.run("telecopilot.api.main:app", host=settings.HOST, port=settings.PORT, reload=True)
