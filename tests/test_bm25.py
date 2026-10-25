@@ -21,3 +21,18 @@ def test_okapi_bm25_sparse_model():
     ar_sparse = model.embed_text(arabic_text)
     assert len(ar_sparse.indices) > 0
     assert ar_sparse.indices == sorted(ar_sparse.indices)
+
+
+def test_bm25_weights_per_token_are_pinned():
+    """Exact Okapi BM25 weights (k1=1.5, b=0.75, avg_doc_len=128, doc_len=4), keyed by token so the hash seed doesn't matter."""
+    model = SparseEmbeddingModel()
+    vector = model.embed_text("Router router WiFi راوتر a")  # 'a' is dropped (tokens shorter than 2 chars)
+
+    weights = dict(zip(vector.indices, vector.values, strict=True))
+    assert weights == {
+        model._hash_token("router"): 2.0746,
+        model._hash_token("wifi"): 1.7729,
+        model._hash_token("راوتر"): 1.7729,
+    }
+    assert vector.indices == sorted(vector.indices)
+    assert model.embed_text("").indices == []
