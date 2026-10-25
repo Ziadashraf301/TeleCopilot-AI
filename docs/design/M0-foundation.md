@@ -1,6 +1,6 @@
 # M0 — Restructure & Foundation (design pack, S01-00)
 
-Status: **draft, waiting for Ziad's approval**. No code changes until approved.
+Status: **approved by Ziad (2026-10-25)** with the corrections in section 11.
 Branch: `sprint/01-foundation`. Covers tickets S01-01 … S01-09 in [../SPRINTS.md](../SPRINTS.md).
 
 **Goal of M0 in one sentence:** the v1 app keeps doing exactly what it does today (same endpoints, same JSON),
@@ -49,13 +49,13 @@ What hurts today, and which ticket fixes it:
 flowchart TB
   subgraph pkg["src/telecopilot/  (installed with pip install -e .)"]
     direction TB
-    api2["api/<br/>main.py · dependencies.py · schemas.py<br/>routers/ assist · ingest · scraper · documents · health"]
+    api2["api/<br/>main.py · dependencies.py · schemas.py · readiness.py<br/>routers/ assist · ingest · scraper · documents · health"]
     agent2["agent/<br/>assist_service.py  (today's AgentAssistService)"]
     kb2["kb/<br/>models.py · extractors/ · chunkers/ · factories.py<br/>repositories/ (base, qdrant) · sparse.py · retrieval.py<br/>ingestion_service.py · ingest.py (CLI)"]
     llm2["llm/<br/>cohere.py · gemini.py  (unchanged behaviour)"]
     db2["db/<br/>base.py · session.py"]
     audit2["audit/<br/>models.py  (AuditLog table)"]
-    core2["core/<br/>logger · singletons · observability · readiness"]
+    core2["core/<br/>logger · singletons · observability"]
     config2["config/settings.py"]
   end
   migrations["migrations/  (Alembic) + alembic.ini"]
@@ -104,11 +104,12 @@ flowchart TB
   llm["llm<br/>(Cohere, Gemini clients wrapped)"]
   audit["audit"]
   db["db<br/>(SQLAlchemy base, session)"]
-  core["core<br/>(logging, singletons, tracing, readiness)"]
+  core["core<br/>(logging, singletons, tracing)"]
   config["config"]
   api --> agent
   api --> kb
   api --> core
+  api --> db
   agent --> kb
   agent --> llm
   kb --> llm
@@ -116,7 +117,6 @@ flowchart TB
   agent --> core
   kb --> core
   llm --> core
-  core --> db
   db --> config
   core --> config
 ```
@@ -125,6 +125,12 @@ Rule: **arrows point downwards only.** A lower package never imports a higher on
 `agent` or `api`). This is the "no wrong-way imports" rule from CODE_GUIDELINES. In plain words: the parts at the
 bottom (settings, logging, database) don't know who uses them, so they can be tested alone and reused by the
 worker, the CLI and the future Reflex app.
+
+`core` and `db` are both foundation packages and depend **only on `config`** (and third-party libraries). They
+never import each other. Anything that needs several of them at once (for example readiness) lives in `api`.
+
+The rule is enforced by a test (`tests/test_layers.py`) that parses every module's imports with `ast` and fails on
+any arrow not in the diagram.
 
 `kb → llm` exists because ingestion and retrieval need embeddings and reranking (Cohere today). In M3 this becomes
 `kb → llm.Embedder / llm.Reranker` interfaces (ADR-2); the direction stays the same.
@@ -157,7 +163,12 @@ sequenceDiagram
 - `/api/health` keeps today's response shape exactly (v1 UI and tests use it).
 - `/api/ready` is new infrastructure, not a feature: it answers "can this instance serve traffic?" Each check
   returns `ok`, `latency_ms` and, on failure, a short `error`. An empty Qdrant is *ready* (the CLI fills it); a
-  Qdrant that cannot be reached is *not ready*.
+  Qdrant, Postgres or Redis that cannot be reached makes the whole response **503 not ready**.
+- `api/readiness.py` composes small checks owned by each layer: `db.session.ping()`, the Redis client's `ping()`
+  (client is a singleton in `core/singletons.py`), and `ping()` on the vector repository interface. The API layer is
+  the only place allowed to know all three.
+- Logging: `core/logger.py` gets `configure_logging()`; importing the module has no side effects (no sinks, no
+  `logs/` folder). The app lifespan and the ingestion CLI call it once at start-up.
 - In Docker Compose the ingestion job is a one-off command:
   `docker compose run --rm app python -m telecopilot.kb.ingest --all`.
 
@@ -273,7 +284,8 @@ errors are visible (non-zero exit code instead of a warning), and in M2 the same
 job. A flag would be a "speculative option" and a background task hides failures.
 
 **D6 — Dependencies.** Runtime deps in `[project.dependencies]` pinned with `==` to the versions already installed
-on the laptop (no new downloads, reproducible); `dev` extra = pytest, pytest-asyncio, httpx, ruff; `eval` extra =
+on the laptop (no new downloads, reproducible), each checked to support Python 3.11 (Docker/CI use 3.11; CI green
+is the proof); `dev` extra = pytest, pytest-asyncio, httpx, ruff; `eval` extra =
 ragas, langchain-openai, langchain-cohere, jupyter bits used by the notebooks. Remove unused `google-genai` and the
 full `langchain` (only `langchain-text-splitters` is imported). `requirements.txt` is deleted (one source of truth).
 
@@ -305,7 +317,7 @@ repo root; it is not installed with the app because the app must never depend on
 | R3 | Rebuilding the Docker image re-downloads Python packages (estimate 150–250 MB) | Pip cache mount; I will measure the first rebuild and **ask before it if the estimate is over 200 MB** |
 | R4 | New images: `postgres:16-alpine` ≈ 100 MB, `redis:7-alpine` ≈ 15 MB download | Under the 200 MB limit; sizes will be listed in the review |
 | R5 | Docker Desktop is not running right now | S01-05/06 need it; I'll ask you to start it when I get there |
-| R6 | Tests take ~42 s today because they wait on Qdrant timeouts | S01-07 removes startup ingestion; tests override the repository so no network wait |
+| R6 | Tests take ~42 s today because they wait on Qdrant timeouts | S01-07 removes startup ingestion; S01-10 makes tests inject fakes instead of waiting for fallbacks |
 | R7 | Moving `ingestion` code changes the `logger` module name shown in logs | Cosmetic only; noted |
 | R8 | `pip install -e .` on OneDrive paths can be slow or lock files | If it fails, fall back to a `.pth` editable install mode (`--config-settings editable_mode=compat`) |
 
@@ -314,17 +326,13 @@ repo root; it is not installed with the app because the app must never depend on
 ## 9. Found while reading — proposals, **not** built in S01
 
 These conflict with CLAUDE.md rules but fixing them changes behaviour, so they belong to later tickets:
-- **Silent fallbacks**: `CohereService` returns hash-based "pseudo-embeddings" and fake rerank scores on any
-  error; `QdrantVectorRepository` silently switches to an in-memory mode. Both break "fail fast". Proposal: remove
-  in S08-02 when the provider interfaces replace these classes.
-- **Logger side effects at import** (adds file sinks and creates `logs/` on import, global state). Proposal:
-  a `configure_logging()` called from app/CLI start-up, in S01-07 if you want it now (small), otherwise M8.
+- ~~Silent fallbacks~~ → now ticket **S01-10** (see section 11).
+- ~~Logger side effects at import~~ → now part of **S01-07**.
 - **`documents` router holds a hard-coded catalogue and ~250 lines of HTML templates** (business logic in a route).
   Proposal: the KB source registry in M2 (S05-01) replaces the catalogue; preview rendering moves into `kb/`.
 - **Deprecated SDK**: `google-generativeai` is deprecated in favour of `google-genai`. Proposal: switch inside the
   Gemini provider in S08-01.
-- **Dead code**: `GeminiService.generate_reply_stream` (sync) is unused. Proposal: delete in S01-02 (dead code is a
-  listed anti-pattern; no behaviour change). I'll include it unless you object.
+- ~~Dead code `GeminiService.generate_reply_stream`~~ → deleted in S01-02 (approved).
 
 ---
 
@@ -337,3 +345,27 @@ These conflict with CLAUDE.md rules but fixing them changes behaviour, so they b
 3. Do you want a small test that enforces the layer arrows in section 3 (parses imports, ~30 lines, no new
    dependency)? My recommendation: yes, it stops wrong-way imports from creeping in during M1–M6.
 4. Logger clean-up (section 9): now in S01-07, or later?
+
+---
+
+## 11. Approval notes (Ziad, 2026-10-25)
+
+Corrections applied above:
+1. **`core` must not import `db`.** Readiness moved from `core/readiness.py` to `api/readiness.py`; it composes
+   per-layer checks (`db.session.ping()`, Redis `ping()`, vector repository `ping()`). Section 3 diagram updated:
+   `core` and `db` depend only on `config`.
+2. **Pins**: pinned to installed versions, each verified to support Python 3.11; CI on 3.11 is the proof.
+
+Answers to section 10:
+1. Yes to the three D4 clean-ups and deleting the dead sync stream method, **each in its own commit**, with tests
+   showing outputs are unchanged.
+2. Yes, `/api/ready` returns 503 when Qdrant, Postgres or Redis is unreachable.
+3. Yes, add the layer-import test with the corrected arrows.
+4. Logger clean-up now, in S01-07.
+
+New ticket **S01-10 — remove silent fallbacks** (3 h), done before the S01-09 review:
+- `CohereService` raises on failure instead of returning pseudo-embeddings or fake rerank scores (fake vectors
+  could silently corrupt Qdrant once ingestion runs as a standalone job).
+- `QdrantVectorRepository` raises when Qdrant is unreachable instead of switching to in-memory mode.
+- Tests inject fakes/stubs instead of relying on these fallbacks (also fixes the ~42 s test time).
+- Behaviour changes only on errors; documented in the ticket report and the review.
