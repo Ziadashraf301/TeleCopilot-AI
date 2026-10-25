@@ -53,6 +53,7 @@ agreement). Work only on the current sprint's tickets, tick them off there, and 
 docker compose up --build                                  # Qdrant + app on :8000
 pip install -e ".[dev]"                                    # once; installs the telecopilot package
 uvicorn telecopilot.api.main:app --host 0.0.0.0 --port 8000 --reload
+alembic upgrade head                                       # apply Postgres migrations (DATABASE_URL from .env)
 pytest -v                                                  # CI runs this + docker build
 ```
 Code is one installable package under `src/telecopilot/`; always import absolutely (`from telecopilot.config.settings import ...`). No `sys.path` edits.

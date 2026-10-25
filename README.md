@@ -185,6 +185,13 @@ app ingests all local documents and live pages into Qdrant, then serves the dash
 API keys are read from `.env` at runtime and never copied into the image. If another project already uses a port,
 move ours, e.g. `QDRANT_HOST_PORT=6343 docker compose up` (also `APP_HOST_PORT`, `POSTGRES_HOST_PORT`, `REDIS_HOST_PORT`).
 
+Apply database migrations once the stack is up (and after pulling new migrations):
+
+```bash
+alembic upgrade head                                   # from the host, uses DATABASE_URL (localhost:5432)
+docker compose run --rm app alembic upgrade head       # or inside the app container
+```
+
 ### 3. Or run locally
 
 ```bash

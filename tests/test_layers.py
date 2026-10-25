@@ -7,11 +7,13 @@ PACKAGE_ROOT = Path(__file__).parents[1] / "src" / "telecopilot"
 
 # package -> packages it may import (besides itself). `config` is the bottom layer, importable from everywhere.
 ALLOWED_IMPORTS: dict[str, set[str]] = {
-    "api": {"agent", "kb", "llm", "core", "config"},
+    "api": {"agent", "kb", "llm", "db", "core", "config"},
     "agent": {"kb", "llm", "core", "config"},
     "kb": {"llm", "core", "config"},
     "llm": {"core", "config"},
+    "audit": {"db", "config"},
     "core": {"config"},
+    "db": {"config"},
     "config": set(),
 }
 
