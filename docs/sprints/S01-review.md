@@ -206,3 +206,34 @@ Done before the first image build of the sprint; the rest of S01-08 (CORS, ruff 
 `localhost:6333`. On this laptop that is `crm_docker`'s Qdrant, which now contains a `telecom_customer_policies`
 collection with 1 test point. S01-10 makes the tests use in-memory/fake stores; removing that stray collection is
 left to Ziad (it is in another project's database).
+
+### S01-06 — SQLAlchemy 2 + Alembic + `audit_log` — ✅ done
+**What changed**: `db/base.py`, `db/session.py`, `audit/models.py`, `alembic.ini`, `migrations/` (env, template,
+`0001_create_audit_log.py`), `tests/test_db.py`; layer rules gained `db → config`, `audit → db`, `api → db`.
+
+**Why**
+- *Engine in `db/session.py` (cached with `lru_cache`), not in `core/singletons.py`*: CLAUDE.md puts clients in
+  `core/singletons.py`, but the approved layer rule says `core` must not import `db` and `db` depends only on
+  `config`. A cached factory gives the same "one pool per process" guarantee inside the layer that owns it.
+- *Sync SQLAlchemy*: matches every existing service; FastAPI runs sync dependencies in a thread pool; 20–100 CSRs
+  is far below any limit. Async only if a Locust run shows a need (design D-section 5).
+- *`pool_pre_ping`*: a connection Postgres closed (restart, idle timeout) is replaced instead of failing a request.
+- *Naming convention on `Base.metadata`*: constraint names (`pk_audit_log`) are deterministic, so later migrations
+  can alter/drop them by name on every machine.
+- *Type variants* (`BigInteger`→`Integer` on SQLite, `JSON`→`JSONB` on Postgres): one model works for production
+  Postgres and for SQLite in CI. The migration uses `sa.func.now()` (autogenerate wrote a Postgres-only literal
+  `now()`, which SQLite rejects).
+- *URL from settings in `env.py`*: no credentials in `alembic.ini`; I also dropped Alembic's default
+  `prepend_sys_path = .` (a `sys.path` edit; not needed with the installed package) and set
+  `disable_existing_loggers=False` so running migrations in a process doesn't silence its loggers.
+- *No indexes or audit writes yet*: which actions are audited and how they are queried is part of the M1 ERD.
+- Rejected: `Base.metadata.create_all()` at startup — it can't change existing tables; migrations can.
+
+**Evidence**
+- `alembic upgrade head` on the compose Postgres: `Running upgrade -> 0001`; `alembic current` = `0001 (head)`;
+  `\d audit_log` shows `bigint` identity, `timestamptz default now()`, `jsonb`, `pk_audit_log`.
+- `alembic check`: "No new upgrade operations detected" (models and migrations agree).
+- Tests on SQLite (4): upgrade + downgrade, `command.check`, round trip with Arabic JSON and DB-filled
+  `occurred_at`, uncommitted work rolled back when the request's session closes. `pytest` 35 passed; ruff clean.
+
+**Behaviour change**: none (nothing writes to Postgres yet).
