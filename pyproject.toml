@@ -1,0 +1,80 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "telecopilot"
+version = "1.0.0"
+description = "Agent-assist copilot for telecom customer service representatives (Arabic + English)"
+readme = "README.md"
+requires-python = ">=3.11"
+# Direct dependencies pinned to the versions the code is tested with (laptop, Python 3.12; CI and Docker, 3.11).
+dependencies = [
+    "fastapi==0.141.1",
+    "uvicorn[standard]==0.52.1",
+    "pydantic==2.13.4",
+    "pydantic-settings==2.14.2",
+    "httpx==0.28.1",
+    "loguru==0.7.3",
+    # knowledge base: extraction, chunking, vector store
+    "beautifulsoup4==4.15.0",
+    "lxml==6.1.1",
+    "python-docx==1.2.0",
+    "pymupdf==1.28.2",
+    "pillow==12.3.0",
+    "langchain-text-splitters==1.1.2",
+    "qdrant-client==1.19.0",
+    "fastembed==0.9.1",  # BM25 sparse vectors (Qdrant/bm25)
+    # model providers and tracing
+    "cohere==5.21.1",
+    "google-generativeai==0.8.6",
+    "langfuse==4.15.1",
+    # Postgres + Redis (ADR-5)
+    "sqlalchemy==2.0.54",
+    "alembic==1.20.0",
+    "psycopg[binary]==3.3.6",
+    "redis==7.4.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "pytest-asyncio==1.4.0",
+    "ruff==0.17.2",
+]
+# Notebooks and scripts under evals/ (never needed by the app)
+eval = [
+    "ragas==0.4.3",
+    "langchain-openai==1.1.9",
+    "langchain-cohere==0.6.0",
+    "python-dotenv==1.2.2",
+    "pandas==3.0.5",
+    "matplotlib==3.11.1",
+    "nbformat==5.11.1",
+    "ipykernel==7.3.0",
+    "pyyaml==6.0.3",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"telecopilot.kb" = ["bm25_model/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["*.ipynb"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+# The formatter owns line length; the long lines it leaves are prompt/HTML string literals.
+ignore = ["E501"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency-injection idiom puts these calls in argument defaults.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Body"]

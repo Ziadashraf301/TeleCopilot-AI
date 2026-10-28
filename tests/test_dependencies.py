@@ -1,28 +1,33 @@
 import pytest
-from dependencies import (
-    get_vector_repository,
+
+from telecopilot.agent.assist_service import AgentAssistService
+from telecopilot.api.dependencies import (
+    get_agent_assist_service,
     get_cohere_service,
     get_gemini_service,
-    get_sparse_model,
+    get_hybrid_retriever,
     get_ingestion_service,
-    get_agent_assist_service,
+    get_sparse_model,
+    get_vector_repository,
 )
-from repositories.base import BaseVectorRepository
-from services.cohere_service import CohereService
-from services.gemini_service import GeminiService
-from services.sparse_embedding_model import SparseEmbeddingModel
-from services.ingestion_service import IngestionService
-from services.agent_assist_service import AgentAssistService
+from telecopilot.kb.ingestion_service import IngestionService
+from telecopilot.kb.repositories.base import BaseVectorRepository
+from telecopilot.kb.retrieval import HybridRetriever
+from telecopilot.kb.sparse import SparseEmbeddingModel
+from telecopilot.llm.cohere import CohereService
+from telecopilot.llm.gemini import GeminiService
 
 
 @pytest.fixture
-def fake_gemini_client(monkeypatch):
-    """CI has no GEMINI_API_KEY: give GeminiService a stand-in client so wiring can be tested offline."""
-    from core.singletons import SingletonsManager
+def fake_api_clients(monkeypatch):
+    """CI has no API keys: give the Gemini and Cohere services stand-in clients so wiring can be tested offline."""
+    from telecopilot.core.singletons import SingletonsManager
+
     monkeypatch.setattr(SingletonsManager, "get_gemini_client", classmethod(lambda cls: object()))
+    monkeypatch.setattr(SingletonsManager, "get_cohere_client", classmethod(lambda cls: object()))
 
 
-def test_dependency_injection_singletons(fake_gemini_client):
+def test_dependency_injection_singletons(fake_api_clients):
     """Verify dependencies module instantiates and caches singleton instances."""
     repo1 = get_vector_repository()
     repo2 = get_vector_repository()
@@ -46,6 +51,10 @@ def test_dependency_injection_singletons(fake_gemini_client):
 
     ingest_svc = get_ingestion_service()
     assert isinstance(ingest_svc, IngestionService)
+
+    retriever = get_hybrid_retriever()
+    assert isinstance(retriever, HybridRetriever)
+    assert retriever.sparse_model is sparse1  # shares the singleton BM25 model
 
     assist_svc = get_agent_assist_service()
     assert isinstance(assist_svc, AgentAssistService)

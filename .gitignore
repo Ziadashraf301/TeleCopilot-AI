@@ -3,4 +3,13 @@
 logs/
 Sprint_2.md
 # Local evaluation run logs
-experiments/reports/*.log
+evals/reports/**/*.log
+
+# --- secrets (added 2026-10-16) ---
+.env.*
+!.env.example
+!.env.example.*
+secrets/
+*.pem
+*service-account*.json
+*service_account*.json

@@ -115,20 +115,22 @@ The app uses a layered **controller → service → repository** design, with **
 chunkers, **singletons** for API clients and the database connection, and FastAPI dependency injection.
 
 ```
-src/
-├── api/main.py              FastAPI app; ingests sources on startup if Qdrant is empty
-├── controllers/             agent assist, ingestion, scraper, documents, health
-├── services/                agent_assist, ingestion, cohere, gemini, sparse embeddings
-├── repositories/            Qdrant repository (collection, upsert, hybrid search)
-├── ingestion/
-│   ├── extractors/          html, xml, docx, gemini_ocr, web_scraper
-│   ├── chunkers/            format-aware policy chunkers
-│   └── factories.py         ExtractorFactory, ChunkerFactory
-├── core/                    logger (loguru), Langfuse observability, singletons
-├── models/                  Pydantic API and document models
-└── config/settings.py       pydantic-settings configuration
-static/                      CSR dashboard (HTML, CSS, JS)
-tests/                       11 pytest modules
+src/telecopilot/                 one installable package (pip install -e .)
+├── api/                         main.py (FastAPI app), routers/, schemas.py, dependencies.py (DI wiring)
+├── agent/assist_service.py      copilot orchestration: retrieve, then generate (batch JSON or SSE)
+├── kb/
+│   ├── extractors/              html, xml, docx, gemini_ocr, web_scraper
+│   ├── chunkers/                format-aware policy chunkers
+│   ├── factories.py             ExtractorFactory, ChunkerFactory
+│   ├── repositories/            Qdrant repository (collection, upsert, hybrid search)
+│   ├── sparse.py                BM25 sparse embeddings
+│   ├── ingestion_service.py     extract → chunk → embed → upsert
+│   └── models.py                document and chunk models
+├── llm/                         Cohere (embed, rerank) and Gemini (generation) clients
+├── core/                        logger (loguru), Langfuse observability, client singletons
+└── config/settings.py           pydantic-settings configuration
+static/                          CSR dashboard (HTML, CSS, JS)
+tests/                           pytest suite, incl. v1 contract (golden files) and layer-import rules
 ```
 
 ---
@@ -178,14 +180,30 @@ QDRANT_PORT=6333
 docker compose up --build
 ```
 
-This starts Qdrant (v1.13.0) and the app. On first start, the app ingests all local documents and live pages into
-Qdrant, then serves the dashboard at http://localhost:8000.
+This starts Qdrant (v1.13.0), Postgres 16, Redis 7 and the app (services in `deploy/compose/`), and serves the
+dashboard at http://localhost:8000. Indexing is a separate job (the API no longer ingests on start-up):
+
+```bash
+docker compose run --rm app python -m telecopilot.kb.ingest --all   # or locally: python -m telecopilot.kb.ingest --all
+```
+
+`GET /api/health` keeps the v1 response; `GET /api/ready` returns 200 when Qdrant, Postgres and Redis are reachable
+and 503 (naming the failing check) when one is not.
+API keys are read from `.env` at runtime and never copied into the image. If another project already uses a port,
+move ours, e.g. `QDRANT_HOST_PORT=6343 docker compose up` (also `APP_HOST_PORT`, `POSTGRES_HOST_PORT`, `REDIS_HOST_PORT`).
+
+Apply database migrations once the stack is up (and after pulling new migrations):
+
+```bash
+alembic upgrade head                                   # from the host, uses DATABASE_URL (127.0.0.1:5432)
+docker compose run --rm app alembic upgrade head       # or inside the app container
+```
 
 ### 3. Or run locally
 
 ```bash
-pip install -r requirements.txt
-uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+pip install -e ".[dev]"
+uvicorn telecopilot.api.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### 4. Tests
@@ -200,7 +218,7 @@ GitHub Actions runs the test suite and builds the Docker image on every push and
 
 ## Evaluation (RAGAS)
 
-`experiments/03_rag_evaluation_ragas.ipynb` runs the production pipeline on 13 CSR questions (10 English, 3 Arabic)
+`evals/notebooks/03_rag_evaluation_ragas.ipynb` runs the production pipeline on 13 CSR questions (10 English, 3 Arabic)
 across 8 intents. Every reference answer is taken from the human-verified ground truth in `data/ground_truth/`.
 The notebook uses an embedded Qdrant instance, so the real hybrid RRF search is evaluated.
 
@@ -215,7 +233,7 @@ The notebook uses an embedded Qdrant instance, so the real hybrid RRF search is 
 | Factual correctness (recall) | 0.61 |
 | Median end-to-end latency | 3.9 s |
 
-![RAGAS scores](experiments/reports/ragas_scores.png)
+![RAGAS scores](evals/reports/generation/v1/ragas_scores.png)
 
 **What the results show**
 
@@ -227,11 +245,17 @@ The notebook uses an embedded Qdrant instance, so the real hybrid RRF search is 
   (SEC-88) was not in the top 3, so the answer gave generic troubleshooting.
 
 Judge: `gemini-3.1-flash-lite-preview` (the same model as the app, so scores may be slightly generous), with Cohere
-`embed-multilingual-v3.0` embeddings. Per-question scores are in `experiments/reports/ragas_results.csv`.
+`embed-multilingual-v3.0` embeddings. Per-question scores are in `evals/reports/generation/v1/ragas_results.csv`.
 
 ---
 
 ## Roadmap
+
+**v2 is planned** (agent desktop in Arabic + English, knowledge-base and data pipelines, five open-source models
+chosen on Egyptian dialect evals, channels, agent with tools and memory, speech, measured local baseline).
+See [docs/PLAN.md](docs/PLAN.md), [docs/SPRINTS.md](docs/SPRINTS.md) and [docs/design/](docs/design/).
+The items below are the v1 follow-ups, folded into the v2 milestones.
+
 
 - **Improve answer faithfulness:** a stricter grounding prompt (state only facts from the context, include every
   fee and threshold found), and a stronger judge model.

@@ -1,6 +1,5 @@
-import pytest
-from ingestion.extractors.web_scraper_extractor import WebScraperExtractor
-from ingestion.chunkers.policy_chunkers import WebScrapedPolicyChunker
+from telecopilot.kb.chunkers.policy_chunkers import WebScrapedPolicyChunker
+from telecopilot.kb.extractors.web_scraper_extractor import WebScraperExtractor
 
 
 def test_web_scraper_html_parsing():

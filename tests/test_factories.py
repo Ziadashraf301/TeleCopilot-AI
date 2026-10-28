@@ -1,15 +1,16 @@
 import pytest
-from ingestion.factories import ExtractorFactory, ChunkerFactory
-from ingestion.extractors.html_extractor import HTMLExtractor
-from ingestion.extractors.gemini_ocr_extractor import GeminiOCRExtractor
-from ingestion.extractors.docx_extractor import DocxExtractor
-from ingestion.extractors.web_scraper_extractor import WebScraperExtractor
-from ingestion.chunkers.policy_chunkers import (
-    SIMPolicyChunker,
-    WifiPolicyChunker,
+
+from telecopilot.kb.chunkers.policy_chunkers import (
     BillingPolicyChunker,
+    SIMPolicyChunker,
     WebScrapedPolicyChunker,
+    WifiPolicyChunker,
 )
+from telecopilot.kb.extractors.docx_extractor import DocxExtractor
+from telecopilot.kb.extractors.gemini_ocr_extractor import GeminiOCRExtractor
+from telecopilot.kb.extractors.html_extractor import HTMLExtractor
+from telecopilot.kb.extractors.web_scraper_extractor import WebScraperExtractor
+from telecopilot.kb.factories import ChunkerFactory, ExtractorFactory
 
 
 def test_extractor_factory():

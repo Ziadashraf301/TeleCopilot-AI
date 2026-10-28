@@ -1,0 +1,53 @@
+[
+  {
+    "event": "context_ready",
+    "data": {
+      "customer_issue_summary": "Customer lost phone and needs a replacement SIM.",
+      "detected_intent": "SIM_MANAGEMENT",
+      "primary_source_modality": "LOCAL_HTML",
+      "policy_applied": "SIM Replacement Policy",
+      "resolution_status": "RESOLVED",
+      "actionable_agent_steps": [
+        "Verify customer ID",
+        "Block old SIM",
+        "Issue replacement SIM"
+      ],
+      "policy_citations": [
+        {
+          "document": "sim_replacement_policy.html",
+          "source_modality": "LOCAL_HTML",
+          "intent_category": "SIM_MANAGEMENT",
+          "section": "Lost or Stolen Device",
+          "clause_summary": "Lost or stolen phones: a replacement SIM is issued in-store after ID verification...."
+        }
+      ],
+      "sla_or_credit_details": "Same-day replacement."
+    }
+  },
+  {
+    "event": "token",
+    "data": {
+      "token": "We can "
+    }
+  },
+  {
+    "event": "token",
+    "data": {
+      "token": "replace "
+    }
+  },
+  {
+    "event": "token",
+    "data": {
+      "token": "your SIM today."
+    }
+  },
+  {
+    "event": "done",
+    "data": {
+      "retrieved_chunks_count": 1,
+      "total_tokens": 38,
+      "estimated_cost_usd": 6e-06
+    }
+  }
+]
