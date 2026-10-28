@@ -16,6 +16,9 @@ Source of truth for *what* and *why*: [PLAN.md](PLAN.md). Architecture decisions
   `docs/design/M<n>-<name>.md` with Mermaid diagrams (architecture, data flow / sequence, ERD when there is data),
   the decisions for that milestone (options considered, choice, why, trade-offs) in plain language, and open
   questions. **Ziad approves the design pack before any code for that milestone is written.**
+  Readable diagrams: at most ~10 boxes per diagram (split bigger ones), short labels (details go in a table under
+  the diagram), every box connected, vertical (`TB`) for long chains, folder layouts as text trees (not Mermaid), and
+  `%%{init: {"themeVariables": {"fontSize": "18px"}}}%%` as the first line of each Mermaid block.
 - **One branch per sprint**: `sprint/<nn>-<slug>` from `master`. Small commits per ticket (`S01-03: ...`).
   Merge to `master` only after Ziad accepts the sprint review. Never push or open PRs without Ziad's OK.
 - **Definition of Done (ticket)**: code + tests (no network, GPU or API keys in tests) · `pytest` green ·
@@ -89,6 +92,7 @@ Take its colours, spacing and clean chat layout; drop emojis and robot/chatbot s
 | S02-01 | Design system from Ziad's style guide: colour tokens (light/dark), typography (Arabic + Latin), spacing, components (buttons, tables, chips, panes), RTL rules | 6 |
 | S02-02 | Data model + Alembic migrations from the approved ERD | 8 |
 | S02-03 | Synthetic seed (Faker `ar_EG`): 500 customers, plans, bills, usage, 2,000 tickets; deterministic; data-quality checks on the seed | 8 |
+| S02-05 | **Housekeeping from the S01 review**: (a) the BM25 language experiment has a report but no code — add `evals/kb/bm25_language_choice.py` that regenerates `evals/reports/kb/s01/bm25_language_choice.md` (+ `.json` with raw numbers) in one command, and a short learning notebook `evals/notebooks/04_bm25_language_choice.ipynb` that imports those functions and shows tokens → stems → TF weights → Qdrant IDF → ranking on 2–3 examples; (b) fix the stale `hash()` comment in `tests/test_v1_contract.py::chunk_summary` (indices are stable now and can be compared); (c) M4 notes: the stream makes two Gemini calls (JSON + reply) and mid-stream errors need an `event: error`; (d) M2/M6 notes: intent comes from file-name rules + the top chunk — move to content-based tagging (M2) and query intent classification + automatic filters (M6) | 3 |
 | S02-04 | Sprint review | 2 |
 | S03-01 | Auth: CSR / supervisor / admin, JWT, password hashing, rate-limited login | 6 |
 | S03-02 | CRM API: customer search, customer 360, tickets CRUD, dispositions, audit of CSR actions | 10 |

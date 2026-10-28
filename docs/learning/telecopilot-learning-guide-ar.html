@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>دليل تعلم TeleCopilot</title>
+<style>
+:root{
+  --bg:#eef4fc; --surface:#ffffff; --ink:#1f2937; --muted:#64748b; --line:#dfe7f1;
+  --primary:#1e6fdb; --primary-soft:#dce9fb; --accent:#0f766e; --accent-soft:#d9f2ee;
+  --warn:#b45309; --warn-soft:#fdf0dc; --bad:#b91c1c; --bad-soft:#fde4e4; --good:#15803d; --good-soft:#dcf3e4;
+  --code-bg:#0f1b2d; --code-ink:#dbe7f5;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0b1220; --surface:#121b2d; --ink:#e5edf7; --muted:#9aa9bd; --line:#24324a;
+    --primary:#5b9cf0; --primary-soft:#1b2c4a; --accent:#34c3b0; --accent-soft:#12302d;
+    --warn:#f2b053; --warn-soft:#33270f; --bad:#f07878; --bad-soft:#3a1717; --good:#5fd38a; --good-soft:#12301f;
+    --code-bg:#070d18; --code-ink:#d6e2f2;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Tahoma,"Noto Sans Arabic",Arial,sans-serif;font-size:16px;line-height:1.85}
+.layout{display:grid;grid-template-columns:280px 1fr;gap:24px;max-width:1280px;margin:0 auto;padding:24px 16px}
+nav.toc{position:sticky;top:16px;align-self:start;max-height:calc(100vh - 32px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+nav.toc h2{font-size:15px;margin:0 0 8px;color:var(--muted)}
+nav.toc ol{margin:0;padding-inline-start:20px}
+nav.toc li{margin:3px 0;font-size:14px}
+nav.toc a{color:var(--ink);text-decoration:none}
+nav.toc a:hover{color:var(--primary)}
+main{min-width:0}
+header.hero{background:linear-gradient(135deg,var(--primary),#0e4f9a);color:#fff;border-radius:18px;padding:32px 28px;margin-bottom:20px}
+header.hero h1{margin:0 0 6px;font-size:30px}
+header.hero p{margin:0;opacity:.92}
+section{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:18px;scroll-margin-top:12px}
+section h2{margin:0 0 12px;font-size:22px;color:var(--primary);display:flex;gap:10px;align-items:center}
+section h2 .n{background:var(--primary-soft);color:var(--primary);border-radius:10px;padding:0 10px;font-size:16px}
+section h3{font-size:17px;margin:18px 0 6px}
+p{margin:6px 0 10px}
+table{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:14.5px}
+th{background:var(--primary-soft);color:var(--ink);text-align:start;padding:8px 10px;border-bottom:2px solid var(--line)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+code{font-family:Consolas,"Cascadia Mono",monospace;font-size:13.5px;background:var(--primary-soft);padding:1px 6px;border-radius:6px;direction:ltr;unicode-bidi:embed}
+pre{direction:ltr;text-align:left;background:var(--code-bg);color:var(--code-ink);border-radius:12px;padding:14px 16px;overflow:auto;font-size:13.5px;line-height:1.55}
+pre code{background:none;padding:0;color:inherit}
+.box{border-radius:12px;padding:12px 16px;margin:12px 0;border:1px solid var(--line)}
+.tip{background:var(--accent-soft);border-color:transparent}
+.warn{background:var(--warn-soft);border-color:transparent}
+.bad{background:var(--bad-soft);border-color:transparent}
+.good{background:var(--good-soft);border-color:transparent}
+.box b.t{display:block;margin-bottom:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg)}
+.card h4{margin:0 0 4px;font-size:15px;color:var(--accent)}
+.pill{display:inline-block;background:var(--primary-soft);color:var(--primary);border-radius:20px;padding:0 10px;font-size:13px;margin:2px}
+footer{color:var(--muted);font-size:13px;text-align:center;padding:12px}
+@media (max-width:900px){.layout{grid-template-columns:1fr}nav.toc{position:static;max-height:none}}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc" aria-label="المحتويات">
+  <h2>المحتويات</h2>
+  <ol>
+    <li><a href="#business">المشكلة من ناحية البيزنس</a></li>
+    <li><a href="#plan">الخطة: Milestones وSprints</a></li>
+    <li><a href="#adr">ADR وقرارات المعمارية</a></li>
+    <li><a href="#quality">جودة الكود: SOLID وأخواتها</a></li>
+    <li><a href="#antipatterns">Over-engineering والـ Anti-patterns</a></li>
+    <li><a href="#structure">هيكلة المشروع والطبقات</a></li>
+    <li><a href="#pyproject">pyproject و pip install -e</a></li>
+    <li><a href="#docker">Docker وCompose والـ cache</a></li>
+    <li><a href="#db">قاعدة البيانات: ORM وSession وAlembic</a></li>
+    <li><a href="#sync">Sync ولا Async</a></li>
+    <li><a href="#settings">الإعدادات وCORS وReadiness</a></li>
+    <li><a href="#tests">أنواع الاختبارات</a></li>
+    <li><a href="#pytest">pytest: fixtures وmonkeypatch</a></li>
+    <li><a href="#rag">رحلة السؤال: Hybrid RAG</a></li>
+    <li><a href="#bm25">BM25 بالتفصيل</a></li>
+    <li><a href="#sse">الـ Streaming (SSE)</a></li>
+    <li><a href="#intent">الـ Intent والـ Filters</a></li>
+    <li><a href="#failfast">Fail fast والـ silent fallbacks</a></li>
+    <li><a href="#models">الموديلات الخمسة والـ serving</a></li>
+    <li><a href="#ui">الواجهة: ستايل وثنائية اللغة</a></li>
+    <li><a href="#tools">أدوات وتلميحات</a></li>
+    <li><a href="#glossary">قاموس المصطلحات</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>دليل تعلّم TeleCopilot AI</h1>
+  <p>كل المفاهيم اللي ناقشناها لحد نهاية Sprint S01: البيزنس، الخطة، المعمارية، الكود، الاختبارات، الداتا، والبحث. مرجع سريع بالعربي مع المصطلحات الإنجليزي.</p>
+</header>
+
+<section id="business">
+  <h2><span class="n">1</span> المشكلة من ناحية البيزنس</h2>
+  <p>المشروع <b>Agent Assist Copilot</b> لموظفي خدمة العملاء (CSRs) في <b>contact center شركة اتصالات واحدة</b>. الـ AI مش بيرد على العميل بداله، هو بيساعد الموظف يرد أسرع وأدق.</p>
+  <h3>الموظف بيشتغل إزاي النهارده؟</h3>
+  <table>
+    <tr><th>الخطوة</th><th>من غير AI</th><th>مع الـ Copilot</th></tr>
+    <tr><td>يفهم المشكلة</td><td>يسمع ويسأل</td><td>Intent وملخص من المحادثة</td></tr>
+    <tr><td>يشوف بيانات العميل</td><td>يفتح شاشات الـ CRM</td><td>Tools بتجيب الباقة والفواتير والأعطال</td></tr>
+    <tr><td>يلاقي السياسة</td><td>يدوّر في PDFs</td><td>إجابة بمصدر (citation)</td></tr>
+    <tr><td>يكتب الرد</td><td>يكتبه بإيده</td><td>رد مقترح بلهجة العميل، بضغطة</td></tr>
+    <tr><td>يقفل المحادثة</td><td>يكتب ملاحظات</td><td>ملخص وكود تلقائي والموظف يأكد</td></tr>
+  </table>
+  <h3>الـ KPIs اللي بنقيس بيها</h3>
+  <div class="grid">
+    <div class="card"><h4>AHT</h4>متوسط وقت التعامل مع العميل</div>
+    <div class="card"><h4>FCR</h4>حل المشكلة من أول تواصل</div>
+    <div class="card"><h4>ACW</h4>الشغل بعد المكالمة (ملاحظات وأكواد)</div>
+    <div class="card"><h4>Acceptance rate</h4>نسبة الاقتراحات اللي الموظف قبلها</div>
+  </div>
+  <div class="box tip"><b class="t">ليه الـ Memory مهمة؟</b>لما العميل يكلم للمرة التالتة على نفس المشكلة، الـ Copilot يقول للموظف «ده تكرار، اعرض escalation» بدل ما يعيد نفس الخطوات.</div>
+</section>
+
+<section id="plan">
+  <h2><span class="n">2</span> الخطة: Milestone ← Sprint ← Ticket ← Commit</h2>
+  <table>
+    <tr><th>المستوى</th><th>إيه هو</th><th>الحجم</th><th>مثال</th></tr>
+    <tr><td><b>Milestone</b></td><td>هدف كبير ليه شرط خروج</td><td>1–3 sprints</td><td>M0 تنظيم الكود</td></tr>
+    <tr><td><b>Sprint</b></td><td>فترة زمنية ثابتة</td><td>أسبوعين (~40 ساعة)</td><td>S01</td></tr>
+    <tr><td><b>Ticket</b></td><td>شغلانة بشروط قبول</td><td>1–14 ساعة</td><td>S01-07</td></tr>
+    <tr><td><b>Commit</b></td><td>خطوة صغيرة محفوظة في git</td><td>دقايق</td><td><code>S01-07: configure_logging()</code></td></tr>
+  </table>
+  <h3>ترتيب الـ Milestones</h3>
+  <p><span class="pill">M0 تنظيم</span><span class="pill">M1 الواجهة + CRM</span><span class="pill">M2 الداتا قبل الموديلات</span><span class="pill">M3 الموديلات الخمسة</span><span class="pill">M4 التوليد</span><span class="pill">M5 القنوات</span><span class="pill">M6 الـ Agent</span><span class="pill">M7 الصوت</span><span class="pill">M8 MCP والتأمين</span><span class="pill">M9 تقرير Stage A</span><span class="pill">M10 الكلاود</span></p>
+  <h3>طريقة الشغل</h3>
+  <ul>
+    <li>كل milestone يبدأ بـ <b>Design pack</b> (رسومات + ERD + شرح القرارات) وإنت بتوافق قبل الكود.</li>
+    <li>بعد كل ticket: الـ agent يكتب تقرير «عملت إيه، وغيرت إيه، وليه».</li>
+    <li>آخر كل sprint: <b>Sprint review</b> ويقف لحد ما تراجع.</li>
+    <li><b>Definition of Done:</b> tests خضرا + ruff نضيف + docs محدثة + مفيش secrets.</li>
+    <li>ده نفس فكرة Scrum: Epic = Milestone، Story/Task = Ticket.</li>
+  </ul>
+  <div class="box tip"><b class="t">Local-first</b>كل حاجة تشتغل على اللابتوب (RTX 2050، 4GB) الأول ونقيس جودتها وأقصى عدد موظفين، بعدين GPUs مجانية، وبعدين بحد أقصى $10.</div>
+</section>
+
+<section id="adr">
+  <h2><span class="n">3</span> ADR وقرارات المعمارية</h2>
+  <p><b>ADR = Architecture Decision Record</b>: ملاحظة قصيرة لكل قرار تقني مهم: المشكلة، البدائل، القرار، السبب، والنتايج. علشان أي حد يفهم ليه النظام معمول كده.</p>
+  <table>
+    <tr><th>#</th><th>القرار</th><th>ليه باختصار</th></tr>
+    <tr><td>1</td><td>Package واحدة <code>src/telecopilot</code></td><td>imports نضيفة من غير sys.path</td></tr>
+    <tr><td>2</td><td>Providers ورا interfaces (Strategy)</td><td>نبدّل Gemini ↔ llama.cpp ↔ vLLM من الإعدادات</td></tr>
+    <tr><td>3</td><td>5 موديلات من Hugging Face تتختار في M3</td><td>على اختبارات باللهجة المصرية</td></tr>
+    <tr><td>4</td><td>BM25 = Qdrant/bm25 (FastEmbed)</td><td>جاهز وثابت ومتقاس</td></tr>
+    <tr><td>5</td><td>Postgres + Redis + Qdrant</td><td>كل واحد لشغلانة</td></tr>
+    <tr><td>6</td><td>شركة واحدة</td><td>تركيز على التعلم</td></tr>
+    <tr><td>7</td><td>Reflex للواجهة، عربي وإنجليزي</td><td>كل المشروع Python</td></tr>
+    <tr><td>8</td><td>LangGraph + tools + MCP</td><td>agent واضح الخطوات</td></tr>
+    <tr><td>9</td><td>Locust للـ load testing</td><td>نقيس أقصى capacity</td></tr>
+    <tr><td>10</td><td>الداتا قبل الموديلات</td><td>موديل كويس على داتا وحشة = نتيجة وحشة</td></tr>
+  </table>
+  <h3>الـ Design patterns الموجودة في الكود</h3>
+  <div class="grid">
+    <div class="card"><h4>Layered</h4>Controller ← Service ← Repository: الـ HTTP منفصل عن المنطق عن التخزين</div>
+    <div class="card"><h4>Factory</h4>بيختار الـ extractor/chunker المناسب لكل نوع ملف</div>
+    <div class="card"><h4>Singleton</h4>client واحد مشترك (Qdrant، Cohere…)</div>
+    <div class="card"><h4>Dependency Injection</h4>FastAPI <code>Depends</code>: نبدّل الحقيقي بـ fake في الاختبارات</div>
+    <div class="card"><h4>Repository</h4>تفاصيل Qdrant مستخبية ورا interface</div>
+    <div class="card"><h4>Strategy</h4>نفس الـ interface وأكتر من implementation</div>
+  </div>
+</section>
+
+<section id="quality">
+  <h2><span class="n">4</span> جودة الكود: SOLID وأخواتها</h2>
+  <table>
+    <tr><th>المبدأ</th><th>المعنى</th><th>عندنا</th></tr>
+    <tr><td><b>KISS</b></td><td>أبسط حل يشتغل</td><td>function قبل class</td></tr>
+    <tr><td><b>YAGNI</b></td><td>متبنيش حاجة «يمكن نحتاجها»</td><td>مفيش فولدرات فاضية للمستقبل</td></tr>
+    <tr><td><b>DRY</b></td><td>المنطق في مكان واحد</td><td><code>_index_source</code> واحدة للملفات والروابط</td></tr>
+    <tr><td><b>S</b>ingle responsibility</td><td>كل جزء ليه شغلانة واحدة</td><td>الـ retrieval اتفصل عن AgentAssistService</td></tr>
+    <tr><td><b>O</b>pen/closed</td><td>ضيف كود جديد متعدلش القديم</td><td>نوع ملف جديد = extractor جديد</td></tr>
+    <tr><td><b>L</b>iskov</td><td>أي implementation يحل محل التاني</td><td>Gemini / llama.cpp / vLLM</td></tr>
+    <tr><td><b>I</b>nterface segregation</td><td>interfaces صغيرة</td><td>Embedder منفصل عن Reranker</td></tr>
+    <tr><td><b>D</b>ependency inversion</td><td>اعتمد على interface مش class</td><td>الـ agent بياخد LLMProvider</td></tr>
+  </table>
+  <div class="box tip"><b class="t">قاعدة التلات مرات</b>متعملش تعميم غير تالت مرة تحتاج نفس الحاجة.</div>
+</section>
+
+<section id="antipatterns">
+  <h2><span class="n">5</span> Over-engineering والـ Anti-patterns</h2>
+  <p><b>Over-engineering</b> = كود أعقد من المشكلة: interface ليها implementation واحدة، طبقات بتعدّي النداء بس، options محدش طلبها، تحسين أداء قبل القياس.</p>
+  <p><b>Anti-pattern</b> = حل شائع شكله معقول بس بيعمل مشاكل بعدين:</p>
+  <table>
+    <tr><th>الـ Anti-pattern</th><th>معناه</th><th>البديل</th></tr>
+    <tr><td>God class</td><td>class بتعمل كل حاجة</td><td>قسّم حسب المسؤولية</td></tr>
+    <tr><td>Copy-paste</td><td>نفس المنطق متكرر</td><td>function مشتركة</td></tr>
+    <tr><td>Magic numbers</td><td><code>0.35</code> من غير شرح</td><td>constant أو setting</td></tr>
+    <tr><td>Hard-coded config/secrets</td><td>مفاتيح ولينكات جوه الكود</td><td><code>settings.py</code> + <code>.env</code></td></tr>
+    <tr><td>Swallowing exceptions</td><td><code>except: pass</code></td><td>Fail fast أو تعامل مع خطأ محدد</td></tr>
+    <tr><td>Wrong-way imports</td><td>طبقة تحت تستورد طبقة فوق</td><td>الأسهم لتحت بس</td></tr>
+    <tr><td>Global mutable state</td><td>متغيرات مشتركة بتتغير</td><td>DI</td></tr>
+    <tr><td>Logic in routes/UI</td><td>قواعد البيزنس جوه الـ route</td><td>الـ route ينادي service</td></tr>
+    <tr><td>Leaky abstraction</td><td>المستخدم لازم يعرف تفاصيل مستخبية</td><td>خبّي تفاصيل الـ vendor</td></tr>
+    <tr><td>Primitive obsession</td><td>dicts وstrings سايبة</td><td>Pydantic models</td></tr>
+    <tr><td>Dead code</td><td>كود مش مستخدم</td><td>امسحه، git فاكر</td></tr>
+  </table>
+</section>
+
+<section id="structure">
+  <h2><span class="n">6</span> هيكلة المشروع والطبقات</h2>
+<pre><code>src/telecopilot/
+├── api/      HTTP: routers, schemas, DI, readiness
+├── agent/    orchestration: retrieve -> generate
+├── kb/       extract, chunk, index, retrieve, BM25
+├── llm/      Cohere, Gemini (providers later)
+├── db/       SQLAlchemy engine + session
+├── audit/    AuditLog table
+├── core/     logging, singletons, tracing
+└── config/   settings
+evals/  deploy/compose/  migrations/  tests/  docs/</code></pre>
+  <h3>قاعدة الطبقات: الأسهم لتحت بس</h3>
+<pre><code>api -> agent -> kb -> llm -> core -> config
+api -> db -> config        audit -> db</code></pre>
+  <p>الطبقة اللي تحت <b>متعرفش</b> مين بيستخدمها، فتتجرب لوحدها وتتعاد استخدامها. الاختبار <code>tests/test_layers.py</code> بيمنع أي import غلط.</p>
+  <div class="box tip"><b class="t">Git: حرف R</b>R = Renamed/moved. استخدام <code>git mv</code> بيحفظ تاريخ الملف: <code>git log --follow &lt;file&gt;</code>. وباقي الحروف: M معدّل، A جديد، D اتمسح، U مش متتبّع.</div>
+</section>
+
+<section id="pyproject">
+  <h2><span class="n">7</span> pyproject.toml و pip install -e</h2>
+  <p><b>pyproject.toml</b> = بطاقة هوية المشروع وملف إعداداته الوحيد (بدل requirements.txt وsetup.py وpytest.ini).</p>
+  <table>
+    <tr><th>القسم</th><th>بيعمل إيه</th></tr>
+    <tr><td><code>[build-system]</code></td><td>إزاي المشروع يتسطب كـ package</td></tr>
+    <tr><td><code>[project]</code></td><td>الاسم، Python ≥ 3.11، والمكتبات بأرقام ثابتة <code>==</code></td></tr>
+    <tr><td><code>[project.optional-dependencies]</code></td><td>extras: <code>dev</code> (pytest, ruff) و<code>eval</code> (ragas, jupyter)</td></tr>
+    <tr><td><code>[tool.pytest]</code> / <code>[tool.ruff]</code></td><td>إعدادات الاختبارات والـ lint</td></tr>
+  </table>
+  <h3>ليه pinned versions؟</h3>
+  <p>من غير تثبيت، كل build بينزّل أحدث إصدار، وممكن يكسر الكود فجأة (كان هيجيب cohere 7 وpymupdf 2). مع التثبيت كل build <b>متطابق</b> = reproducible.</p>
+  <h3><code>pip install -e .</code></h3>
+  <ul>
+    <li><code>.</code> = سطّب المشروع ده (من pyproject).</li>
+    <li><code>-e</code> = editable: لينك لفولدرك مش نسخة، فأي تعديل يشتغل فورًا.</li>
+    <li><code>pip install -e ".[dev]"</code> يضيف أدوات التطوير.</li>
+    <li>جوه Docker بنستخدم <code>pip install .</code> من غير <code>-e</code> (نسخة ثابتة).</li>
+  </ul>
+</section>
+
+<section id="docker">
+  <h2><span class="n">8</span> Docker وCompose والـ cache</h2>
+  <h3>Compose = تشغيل 4 برامج مع بعض بأمر واحد</h3>
+<pre><code>docker compose up
+  app (FastAPI :8000) ---> postgres :5432  (records vault, volume postgres_data)
+                      ---> redis    :6379  (fast temporary notes)
+                      ---> qdrant   :6333  (vectors, volume qdrant_storage)</code></pre>
+  <table>
+    <tr><th>الحاجة</th><th>تشبيه البنك</th></tr>
+    <tr><td>postgres</td><td>خزنة السجلات الرئيسية</td></tr>
+    <tr><td>redis</td><td>ورق ملاحظات سريع على مكتب الموظف</td></tr>
+    <tr><td>qdrant</td><td>فهرس المكتبة بالمعنى</td></tr>
+    <tr><td>volume</td><td>خزنة ثابتة مبتضيعش لو الحاوية اتمسحت</td></tr>
+    <tr><td>healthcheck + depends_on</td><td>الموظف ميفتحش الشباك غير لما الخزنة تبقى جاهزة</td></tr>
+    <tr><td><code>127.0.0.1:5432</code></td><td>الخزنة تتفتح من جوه المبنى بس</td></tr>
+  </table>
+  <h3>pip cache في الـ Dockerfile</h3>
+<pre><code>RUN --mount=type=cache,target=/root/.cache/pip pip install .</code></pre>
+  <p>الـ cache بيفضل بين الـ builds برا الـ image: أول build بينزّل (~132MB)، والباقي ياخد من الـ cache. لو package واحدة اتغيرت، هي بس اللي بتتنزل.</p>
+  <h3>.dockerignore</h3>
+  <p>بيمنع نسخ <code>.env</code> (المفاتيح) و<code>.git</code> والـ docs والـ tests جوه الـ image. الـ image صغرت من 977MB لـ 709MB (780MB بعد FastEmbed).</p>
+</section>
+
+<section id="db">
+  <h2><span class="n">9</span> قاعدة البيانات: ORM وSession وAlembic</h2>
+<pre><code>Request -> get_db_session() -> Session -> ORM objects -> session.commit()
+                                   |                          |
+                             Session factory            SQL: INSERT / UPDATE
+                                   |                          |
+                                Engine === connection pool ===> PostgreSQL</code></pre>
+  <table>
+    <tr><th>القطعة</th><th>تشبيه البنك</th><th>الشغلانة</th></tr>
+    <tr><td><b>Engine</b></td><td>السويتش بخطوط مفتوحة</td><td>connection pool واحد للبرنامج، <code>pool_pre_ping</code> يتأكد إن الخط عايش</td></tr>
+    <tr><td><b>Session factory</b></td><td>المدير اللي بيعيّن موظف</td><td>بيعمل session لكل طلب</td></tr>
+    <tr><td><b>Session</b></td><td>زيارة موظف لعميل</td><td>session واحدة لكل request</td></tr>
+    <tr><td><b>Transaction</b></td><td>تحويل بنكي: كله أو ولا حاجة</td><td>من غير <code>commit()</code> كله بيرجع (rollback)</td></tr>
+    <tr><td><b>ORM</b></td><td>المترجم</td><td>Python objects ↔ صفوف الجداول</td></tr>
+    <tr><td><b>Base / Model</b></td><td>سجل النماذج الرسمية / النموذج</td><td><code>class AuditLog(Base)</code> يوصف الجدول</td></tr>
+    <tr><td><b>Alembic</b></td><td>خطة ترميم المبنى بأرقام</td><td>migrations متسلسلة لتغيير شكل الجداول</td></tr>
+  </table>
+  <h3>Alembic</h3>
+<pre><code>migrations/versions/
+  0001_create_audit_log.py   upgrade(): create_table   downgrade(): drop_table
+  0002_...                   (M1: customers, tickets...)
+
+alembic upgrade head                        # apply missing steps
+alembic current                             # where am I
+alembic revision --autogenerate -m "..."    # write the next step from the models
+alembic check                               # do models and DB match?</code></pre>
+  <p>Alembic بيحفظ آخر خطوة اتطبقت في جدول <code>alembic_version</code> (زي ورقة على باب الخزنة). والـ URL بيتقري من الـ settings، فمفيش باسورد في الملفات.</p>
+  <div class="box tip"><b class="t">ليه audit_log؟</b>كل فعل يتسجل: مين، عمل إيه، على إيه، إمتى. مطلوب للثقة والتحقيق، وبعدين بيبقى داتا تقييم لقبول اقتراحات الـ AI.</div>
+</section>
+
+<section id="sync">
+  <h2><span class="n">10</span> Sync ولا Async</h2>
+  <ul>
+    <li><b>Sync:</b> الكود يبعت الاستعلام ويستنى الرد. بسيط.</li>
+    <li><b>Async:</b> وهو مستني يخدم طلب تاني. أسرع تحت ضغط، بس أعقد.</li>
+  </ul>
+  <p>اخترنا <b>Sync</b> لأن كل الكود sync، وFastAPI بيشغّل الكود الـ sync في <b>thread pool</b> (مجموعة عمال) فالسيرفر مبيقفش، و20–100 موظف حمل صغير. لو الـ load test أثبت إن الداتابيز عنق زجاجة، نحوّل.</p>
+  <div class="box tip"><b class="t">تشبيه</b>مطعم فيه كذا جرسون، كل واحد مستني طبقه من المطبخ، وعددهم كفاية للزباين.</div>
+</section>
+
+<section id="settings">
+  <h2><span class="n">11</span> الإعدادات وCORS وReadiness</h2>
+  <h3>Settings (pydantic-settings)</h3>
+  <p>كل القيم اللي كانت مكتوبة جوه الكود اتنقلت لـ <code>settings.py</code> بنفس قيمها، وتتغير من الـ environment أو <code>.env</code> من غير ما نلمس الكود. لو حد كتب provider مش موجود، البرنامج <b>يرفض يشتغل</b> (fail fast).</p>
+  <h3>CORS</h3>
+  <p>المتصفح بيمنع موقع يكلّم API على موقع تاني إلا لو مسموح. قبل الـ POST بيبعت <b>preflight</b> (<code>OPTIONS</code>) يستأذن.</p>
+  <table>
+    <tr><th>الخيار</th><th>المعنى</th></tr>
+    <tr><td><code>allow_origins</code></td><td>مين مسموحله (كانت <code>*</code> = أي حد، دلوقتي من الـ settings)</td></tr>
+    <tr><td><code>allow_credentials</code></td><td>يبعت cookies/تسجيل دخول</td></tr>
+    <tr><td><code>allow_methods</code> / <code>allow_headers</code></td><td>أنواع الطلبات والـ headers المسموحة</td></tr>
+  </table>
+  <div class="box bad"><b class="t">قاعدة أمان</b><code>allow_credentials=True</code> مع <code>allow_origins=["*"]</code> = ثغرة. دلوقتي الـ origins قائمة محددة.</div>
+  <h3>/api/health و /api/ready</h3>
+  <p><code>/api/health</code> زي ما هو من v1. <code>/api/ready</code> جديد: بيعمل ping لـ Qdrant وPostgres وRedis ويرجع 200 أو 503 باسم اللي واقع. موجود في <code>api/</code> مش <code>core/</code> علشان قاعدة الطبقات.</p>
+</section>
+
+<section id="tests">
+  <h2><span class="n">12</span> أنواع الاختبارات</h2>
+  <h3>حسب الحجم</h3>
+  <table>
+    <tr><th>النوع</th><th>بيختبر</th><th>مثال عندنا</th></tr>
+    <tr><td><b>Unit</b></td><td>جزء صغير لوحده، كله fake</td><td>stemmer، settings</td></tr>
+    <tr><td><b>Integration</b></td><td>أجزاء مع بعض أو مع أداة حقيقية</td><td>BM25 جوه Qdrant in-memory، Alembic</td></tr>
+    <tr><td><b>E2E</b></td><td>النظام كله من ناحية المستخدم</td><td>لاحقًا: CSR يقفل تيكت من الشاشة</td></tr>
+  </table>
+  <h3>حسب الغرض</h3>
+  <table>
+    <tr><th>النوع</th><th>السؤال</th><th>مثال عندنا</th></tr>
+    <tr><td><b>Smoke</b></td><td>شغال أصلًا؟</td><td>/api/ready + /solve عربي وإنجليزي حقيقي</td></tr>
+    <tr><td><b>Regression</b></td><td>كسرت حاجة كانت شغالة؟</td><td>الـ pytest كله في CI</td></tr>
+    <tr><td><b>Contract</b></td><td>الـ interface لسه زي ما وعد؟</td><td><code>test_v1_contract.py</code> + golden files</td></tr>
+  </table>
+  <div class="box tip"><b class="t">Golden files</b>قبل الـ refactor اتحفظت مخرجات v1 الحقيقية في <code>tests/golden/</code>، وكل test بيقارن بالظبط حقل بحقل (بعد شيل الأوقات اللي بتتغير). تغيير golden file = تغيير API مقصود لازم يتشرح.</div>
+  <p><b>هرم الاختبارات:</b> unit كتير، integration أقل، e2e قليل.</p>
+</section>
+
+<section id="pytest">
+  <h2><span class="n">13</span> pytest: fixtures وmonkeypatch</h2>
+  <ul>
+    <li><b>fixture:</b> تجهيز قبل الـ test: اللي قبل <code>yield</code> قبل، واللي بعده تنضيف.</li>
+    <li>pytest بيدي الـ fixture للـ test <b>بالاسم</b>: لو كتبت parameter اسمه <code>monkeypatch</code> بيبعتهولك تلقائي (dependency injection by name).</li>
+    <li><b>monkeypatch:</b> يبدّل function أو قيمة مؤقتًا ويرجعها بعد الـ test.</li>
+    <li><b>autouse=True:</b> الـ fixture يشتغل قبل كل test من غير ما يتطلب.</li>
+    <li><b>conftest.py:</b> ملف pytest بيقراه تلقائي ويطبق fixtures بتاعته على الفولدر.</li>
+    <li><b>scope="module":</b> يتعمل مرة واحدة للملف كله.</li>
+    <li><b>parametrize:</b> نفس الـ test بكذا مدخل.</li>
+  </ul>
+<pre><code>@pytest.fixture(autouse=True)
+def embedded_qdrant(monkeypatch):
+    client = QdrantClient(":memory:")          # Qdrant in RAM only
+    monkeypatch.setattr(SingletonsManager, "get_qdrant_client",
+                        classmethod(lambda cls: client))
+    get_vector_repository.cache_clear()        # fresh repository per test
+    yield client</code></pre>
+  <p>علشان كده أي <code>QdrantVectorRepository()</code> في أي test بياخد الـ Qdrant اللي في الذاكرة، ومفيش test يقدر يلمس سيرفر حقيقي.</p>
+  <h3>مثال: اختبار مفتاح Cohere الناقص</h3>
+<pre><code>def test_missing_api_key_fails_at_construction(monkeypatch):
+    with pytest.raises(RuntimeError, match="COHERE_API_KEY"):
+        service_with(monkeypatch, None)   # get_cohere_client -> None, then CohereService()</code></pre>
+  <p>بنمثّل «مفيش مفتاح» ونبني الـ CohereService الحقيقية ونتأكد إنها توقف بخطأ واضح بدل embeddings مزيفة.</p>
+  <h3>uuid5: نفس الـ ID كل مرة</h3>
+  <p><code>uuid4</code> عشوائي. <code>uuid5(NAMESPACE_DNS, chunk_id)</code> محسوب من نص ثابت، فنفس الـ chunk ياخد نفس الـ ID دايمًا، وإعادة الفهرسة <b>تستبدل</b> النقطة بدل ما تكررها.</p>
+  <h3>Fake vs Stub</h3>
+  <p><b>Fake/Stub</b> = بديل لخدمة خارجية بيرجع نتايج ثابتة: من غير إنترنت ولا مفاتيح، سريع ونفس النتيجة كل مرة.</p>
+</section>
+
+<section id="rag">
+  <h2><span class="n">14</span> رحلة السؤال: Hybrid RAG</h2>
+<pre><code>question
+  |-> dense vector  (Cohere embed, meaning)
+  |-> sparse vector (BM25, exact words)
+  v
+Qdrant hybrid search: dense + sparse fused with RRF -> top 5
+  v
+Cohere rerank -> top 3
+  v
+Gemini: grounded answer + citations</code></pre>
+  <table>
+    <tr><th>المفهوم</th><th>المعنى</th></tr>
+    <tr><td>Dense</td><td>بحث بالمعنى (سؤالين بكلام مختلف ونفس المعنى)</td></tr>
+    <tr><td>Sparse / BM25</td><td>بحث بالكلمة نفسها (أسماء باقات، أكواد، eSIM)</td></tr>
+    <tr><td>RRF</td><td>Reciprocal Rank Fusion: دمج ترتيبين في ترتيب واحد</td></tr>
+    <tr><td>Rerank</td><td>موديل يعيد ترتيب أفضل النتايج بدقة أعلى</td></tr>
+    <tr><td>Grounding</td><td>الإجابة من المصادر بس، مع citation</td></tr>
+  </table>
+  <div class="box warn"><b class="t">نتايج v1</b>hit@3 = 1.00 بس faithfulness = 0.61، وأرقام RAGAS اتقاست والـ BM25 كان بايظ. هنعيد القياس في M3.</div>
+</section>
+
+<section id="bm25">
+  <h2><span class="n">15</span> BM25 بالتفصيل</h2>
+  <h3>ليه hash؟</h3>
+  <p>الـ sparse vector = أرقام (indices) بأوزان. كل كلمة لازم تبقى رقم. بدل قاموس لازم نديره، بنستخدم <b>hash</b> يحول أي كلمة لرقم مباشرة. لازم يكون <b>ثابت</b>: Python <code>hash()</code> كان بيتغير كل تشغيل (الباج)، دلوقتي <b>murmur3</b> ثابت على كل جهاز.</p>
+  <h3>الـ Preprocessing</h3>
+<pre><code>"تفعيل eSIM للعميل على باقة WE Mix"
+1 tokenize   -> [تفعيل, esim, للعميل, على, باقة, we, mix]
+2 stopwords  -> drop "على" (English + Arabic lists)
+3 stem       -> Arabic letters: Arabic Snowball | else: English Snowball
+4 hash       -> murmur3 -> fixed index per stem
+5 weight     -> document: BM25 TF weight | query: 1 per word
+6 IDF        -> computed by Qdrant (modifier=IDF)</code></pre>
+  <h3>المعادلة: score = IDF × TF-part</h3>
+<pre><code>TF-part = tf*(k+1) / (tf + k*(1 - b + b*doc_len/avg_len))     k=1.2, b=0.75
+IDF     = log(1 + (N - n + 0.5) / (n + 0.5))                   N = chunks, n = chunks with the word</code></pre>
+  <div class="grid">
+    <div class="card"><h4>TF (FastEmbed)</h4>التكرار بيفيد بس بعائد متناقص (k)، والـ chunk الطويل بيتظبط (b). tf=1 ≈ 1.0، tf=5 ≈ 1.8، tf=20 ≈ 2.1</div>
+    <div class="card"><h4>IDF (Qdrant)</h4>الكلمة النادرة أقوى: «customer» ≈ 0.5، «eSIM» ≈ 4.4، «LOS» ≈ 5.6</div>
+    <div class="card"><h4>Query = 1</h4>كل كلمة في السؤال مرة واحدة، فالحساب كله على ناحية المستند</div>
+    <div class="card"><h4>ليه IDF في Qdrant؟</h4>بيتحسب من المجموعة الحية، فيفضل صح لما مستندات تتضاف من غير re-index</div>
+  </div>
+  <h3>تجربة اختيار اللغة</h3>
+  <table>
+    <tr><th>الإعداد</th><th>hit@1 من 34</th><th>MRR@3</th><th>مع/من غير «ال» من 60</th></tr>
+    <tr><td>english</td><td>23</td><td>0.701</td><td>1 ❌</td></tr>
+    <tr><td>arabic</td><td>23</td><td>0.686</td><td>8</td></tr>
+    <tr><td><b>bilingual</b></td><td><b>24</b></td><td><b>0.716</b></td><td><b>8</b></td></tr>
+  </table>
+  <p><b>القرار:</b> bilingual (stemmer عربي للحروف العربي وإنجليزي للباقي + قائمتين stopwords). الـ normalization مضافتش حاجة فاتأجلت لـ M2.</p>
+  <div class="box warn"><b class="t">اكتشاف داتا</b>ملفين اسمهم «arabic» جواهم إنجليزي. المصدر العربي الحقيقي الوحيد هو SLA XML. ده سبب تاني لـ «الداتا قبل الموديلات».</div>
+  <p><b>الاختبارات:</b> <code>test_bm25.py</code> (نفس الأرقام في عمليتين منفصلتين، الـ stopwords، الـ stemmers) و<code>test_sparse_hybrid.py</code> (IDF في Qdrant، الكلمة الصح بتطلع أول، والـ BM25 فعلًا بيأثر في الـ hybrid).</p>
+</section>
+
+<section id="sse">
+  <h2><span class="n">16</span> الـ Streaming (SSE)</h2>
+  <p><b>Server-Sent Events:</b> السيرفر يبعت الإجابة حتة حتة على نفس الاتصال (تأثير الكتابة).</p>
+<pre><code>embed -> hybrid search -> rerank -> Gemini JSON call
+   event: context_ready   (intent, steps, citations)
+Gemini streaming call
+   event: token           (one per text piece)
+   event: done            (latency, tokens, cost)</code></pre>
+  <ul>
+    <li><code>StreamingResponse</code> + <code>text/event-stream</code>، والـ headers بتمنع التخزين المؤقت.</li>
+    <li><code>asyncio.to_thread</code> بيشغل الكود الـ sync في thread علشان السيرفر يفضل فاضي.</li>
+  </ul>
+  <div class="box warn"><b class="t">ملاحظات لـ M4</b>بيكلم Gemini مرتين (ضعف الوقت والتكلفة)، والخطأ في نص الـ stream محتاج <code>event: error</code>.</div>
+</section>
+
+<section id="intent">
+  <h2><span class="n">17</span> الـ Intent والـ Filters</h2>
+  <ul>
+    <li>وقت الفهرسة: الـ intent بيتحدد من <b>اسم الملف</b> بقواعد كلمات (sim → SIM_MANAGEMENT…).</li>
+    <li>وقت الإجابة: <code>detected_intent</code> = intent أول chunk في النتايج، مش تصنيف لسؤال العميل.</li>
+    <li>الفلاتر (<code>policy_filter</code>، <code>intent_filter</code>) اختيارية من الواجهة وبتبقى شروط <code>must</code> في Qdrant.</li>
+  </ul>
+  <div class="box tip"><b class="t">التحسين</b>M2: تصنيف كل جزء حسب محتواه. M6: الـ agent يصنف نية العميل من المحادثة ويطبق الفلتر تلقائي.</div>
+</section>
+
+<section id="failfast">
+  <h2><span class="n">18</span> Fail fast والـ silent fallbacks</h2>
+  <p><b>Silent fallback</b> = لما حاجة تفشل، الكود يكمل بحاجة مزيفة من غير ما يقول. ده خطير:</p>
+  <table>
+    <tr><th>قبل S01-10</th><th>بعد</th></tr>
+    <tr><td>Cohere وقع → embeddings مزيفة تتكتب في Qdrant</td><td>خطأ واضح</td></tr>
+    <tr><td>Qdrant مش موجود → in-memory بسكوت</td><td>خطأ واضح</td></tr>
+    <tr><td>/health يقول HEALTHY و/solve يرد من قايمة كلمات</td><td>500 و/ready = 503 باسم qdrant</td></tr>
+  </table>
+  <p>الاستثناء المقبول: خطأ <b>محدد</b> فاهمينه (زي 409 لما عملية تانية عملت الـ collection) نتجاهله، وأي خطأ تاني يطلع.</p>
+</section>
+
+<section id="models">
+  <h2><span class="n">19</span> الموديلات الخمسة والـ serving</h2>
+  <table>
+    <tr><th>الدور</th><th>مرشحين (يتختاروا في M3)</th></tr>
+    <tr><td>LLM</td><td>Nile-Chat-4B (مصري عربي وفرانكو)، NileChat-3B، Qwen</td></tr>
+    <tr><td>Embedding</td><td>BGE-M3، Qwen3-Embedding، Arabic GATE</td></tr>
+    <tr><td>Reranker</td><td>bge-reranker-v2-m3، Qwen3-Reranker</td></tr>
+    <tr><td>ASR</td><td>Cohere Transcribe Arabic، Whisper مصري، faster-whisper</td></tr>
+    <tr><td>Vision/OCR</td><td>QARI-OCR، Qwen2.5-VL عربي، Tesseract</td></tr>
+  </table>
+  <p>كلها من <b>Hugging Face Hub</b>، والاختيار على اختباراتنا: لهجات مختلفة، code-switching، فرانكو.</p>
+  <table>
+    <tr><th></th><th>llama.cpp</th><th>vLLM</th><th>TEI</th></tr>
+    <tr><td>لـ</td><td>اللابتوب (4GB)، GGUF 4-bit</td><td>GPU كبير، مستخدمين كتير (continuous batching)</td><td>Embeddings وReranker كخدمة</td></tr>
+    <tr><td>ميزته</td><td>ذاكرة قليلة، Windows</td><td>throughput عالي، معيار الإنتاج</td><td>batching سريع</td></tr>
+  </table>
+  <p>llama.cpp وvLLM الاتنين بيتكلموا OpenAI-compatible API، فالتبديل = تغيير URL في الإعدادات.</p>
+</section>
+
+<section id="ui">
+  <h2><span class="n">20</span> الواجهة: ستايل وثنائية اللغة</h2>
+  <ul>
+    <li>مرجع Figma «Chat UI»: خلفية زرقاء فاتحة، كروت بيضا، أزرق <code>#1E6FDB</code>، 3 أعمدة، من غير emojis ولا شكل روبوت.</li>
+    <li>الأعمدة: الطابور ← المحادثة ← Customer 360 + Copilot.</li>
+    <li>عربي وإنجليزي بالكامل: <code>ar.json</code>/<code>en.json</code>، عربي RTL كامل، رسايل العميل بـ <code>dir="auto"</code>، الأرقام LTR.</li>
+    <li>كل حاجة باينة على شاشة 1366×768، اختصارات كيبورد، والاقتراح عمره ما يتبعت من غير الموظف.</li>
+  </ul>
+</section>
+
+<section id="tools">
+  <h2><span class="n">21</span> أدوات وتلميحات</h2>
+  <div class="grid">
+    <div class="card"><h4>Mermaid في VS Code</h4>Extension: <code>bierner.markdown-mermaid</code>، وزوّم بـ Ctrl +، أو mermaid.live</div>
+    <div class="card"><h4>ruff</h4><code>ruff check .</code> و<code>ruff format .</code></div>
+    <div class="card"><h4>pytest</h4><code>pytest -q</code> و<code>pytest --fixtures-per-test</code></div>
+    <div class="card"><h4>Port clash</h4>crm_docker ماسك 6333: <code>QDRANT_HOST_PORT=6343 docker compose up</code></div>
+    <div class="card"><h4>Ingestion</h4><code>python -m telecopilot.kb.ingest --all</code></div>
+    <div class="card"><h4>Jira؟</h4>مش محتاجينه دلوقتي: SPRINTS.md + git + reviews كفاية</div>
+  </div>
+</section>
+
+<section id="glossary">
+  <h2><span class="n">22</span> قاموس المصطلحات</h2>
+  <table>
+    <tr><th>المصطلح</th><th>المعنى</th></tr>
+    <tr><td>CSR</td><td>موظف خدمة العملاء</td></tr>
+    <tr><td>Chunk</td><td>جزء صغير من مستند بيتخزن ويتبحث فيه</td></tr>
+    <tr><td>Embedding</td><td>تحويل نص لأرقام تمثل معناه</td></tr>
+    <tr><td>Vector DB</td><td>قاعدة بيانات بتبحث بالتشابه (Qdrant)</td></tr>
+    <tr><td>Hit@k / MRR</td><td>المستند الصح في أول k / متوسط مقلوب ترتيبه</td></tr>
+    <tr><td>Faithfulness</td><td>الإجابة ملتزمة بالمصادر</td></tr>
+    <tr><td>Stemming</td><td>رجوع الكلمة لجذرها</td></tr>
+    <tr><td>Stopwords</td><td>كلمات شائعة بتتشال (the، في)</td></tr>
+    <tr><td>Migration</td><td>خطوة مرقمة لتغيير شكل الداتابيز</td></tr>
+    <tr><td>Fixture</td><td>تجهيز قبل الاختبار</td></tr>
+    <tr><td>Idempotent</td><td>تكرار العملية مبيغيرش النتيجة (uuid5 + upsert)</td></tr>
+    <tr><td>Reproducible</td><td>نفس النتيجة كل مرة (pinned versions)</td></tr>
+    <tr><td>Throughput / Latency / p95</td><td>كمية في الثانية / زمن الرد / 95% من الطلبات أسرع من الرقم ده</td></tr>
+    <tr><td>Load test</td><td>قياس أقصى حمل (Locust)</td></tr>
+  </table>
+</section>
+
+<footer>TeleCopilot AI · دليل تعلّم داخلي · لحد Sprint S01</footer>
+</main>
+</div>
+</body>
+</html>

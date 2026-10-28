@@ -11,23 +11,20 @@ ready for M1.
 
 ## 1. Where we are today
 
-```mermaid
-flowchart TB
-  subgraph src["src/  (put on sys.path by hand)"]
-    api["api/main.py<br/>app + startup ingestion + CORS *"]
-    controllers["controllers/<br/>5 routers"]
-    dependencies["dependencies/<br/>FastAPI DI"]
-    services["services/<br/>agent_assist · ingestion · cohere · gemini · sparse BM25"]
-    repositories["repositories/<br/>base + qdrant"]
-    ingestion["ingestion/<br/>extractors · chunkers · factories"]
-    models["models/<br/>api_models · document_models"]
-    core["core/<br/>logger · singletons · observability"]
-    config["config/settings.py"]
-  end
-  experiments["experiments/<br/>3 notebooks + extraction_eval + rag_eval + reports"]
-  static["static/ (v1 UI)"]
-  data["data/raw · data/ground_truth"]
-  experiments -. "sys.path hack" .-> src
+```text
+src/                      ← put on sys.path by hand (fragile)
+├── api/main.py           app + startup ingestion + CORS "*"
+├── controllers/          5 routers
+├── dependencies/         FastAPI DI
+├── services/             agent_assist · ingestion · cohere · gemini · sparse BM25
+├── repositories/         base + qdrant
+├── ingestion/            extractors · chunkers · factories
+├── models/               api_models · document_models
+├── core/                 logger · singletons · observability
+└── config/settings.py
+experiments/              notebooks + extraction_eval + rag_eval + reports  (imports src via sys.path hack)
+static/                   v1 UI
+data/                     raw · ground_truth
 ```
 
 What hurts today, and which ticket fixes it:
@@ -45,24 +42,23 @@ What hurts today, and which ticket fixes it:
 
 ## 2. Target layout after S01
 
-```mermaid
-flowchart TB
-  subgraph pkg["src/telecopilot/  (installed with pip install -e .)"]
-    direction TB
-    api2["api/<br/>main.py · dependencies.py · schemas.py · readiness.py<br/>routers/ assist · ingest · scraper · documents · health"]
-    agent2["agent/<br/>assist_service.py  (today's AgentAssistService)"]
-    kb2["kb/<br/>models.py · extractors/ · chunkers/ · factories.py<br/>repositories/ (base, qdrant) · sparse.py · retrieval.py<br/>ingestion_service.py · ingest.py (CLI)"]
-    llm2["llm/<br/>cohere.py · gemini.py  (unchanged behaviour)"]
-    db2["db/<br/>base.py · session.py"]
-    audit2["audit/<br/>models.py  (AuditLog table)"]
-    core2["core/<br/>logger · singletons · observability"]
-    config2["config/settings.py"]
-  end
-  migrations["migrations/  (Alembic) + alembic.ini"]
-  evals["evals/<br/>notebooks/ · extraction/ · rag/ · reports/"]
-  deploy["deploy/compose/docker-compose.yml<br/>qdrant · postgres · redis · app"]
-  root["docker-compose.yml  (include: deploy/compose/…)"]
-  root --> deploy
+```text
+src/telecopilot/          installed with pip install -e .
+├── api/                  main.py · dependencies.py · schemas.py · readiness.py
+│   └── routers/          assist · ingest · scraper · documents · health
+├── agent/                assist_service.py (today's AgentAssistService)
+├── kb/                   models.py · extractors/ · chunkers/ · factories.py
+│                         repositories/ (base, qdrant) · sparse.py · retrieval.py
+│                         ingestion_service.py · ingest.py (CLI)
+├── llm/                  cohere.py · gemini.py (unchanged behaviour)
+├── db/                   base.py · session.py
+├── audit/                models.py (AuditLog table)
+├── core/                 logger · singletons · observability
+└── config/               settings.py
+migrations/ + alembic.ini Alembic
+evals/                    notebooks/ · extraction/ · rag/ · reports/
+deploy/compose/           docker-compose.yml: qdrant · postgres · redis · app
+docker-compose.yml        thin root file: include deploy/compose/…
 ```
 
 File-by-file moves (done with `git mv`, so `git log --follow` keeps each file's history):
@@ -97,30 +93,33 @@ S01. Empty folders for the future would be YAGNI; each appears in the milestone 
 ## 3. Layer dependencies (which package may import which)
 
 ```mermaid
+%%{init: {"themeVariables": {"fontSize": "18px"}}}%%
 flowchart TB
-  api["api<br/>(HTTP: routers, schemas, DI)"]
-  agent["agent<br/>(orchestration: retrieve → generate)"]
-  kb["kb<br/>(extract, chunk, index, retrieve)"]
-  llm["llm<br/>(Cohere, Gemini clients wrapped)"]
-  audit["audit"]
-  db["db<br/>(SQLAlchemy base, session)"]
-  core["core<br/>(logging, singletons, tracing)"]
-  config["config"]
-  api --> agent
+  api["api"] --> agent["agent"]
   api --> kb
   api --> llm
-  api --> core
   api --> db
-  agent --> kb
+  api --> core
+  agent --> kb["kb"]
   agent --> llm
-  kb --> llm
-  audit --> db
   agent --> core
+  kb --> llm["llm"]
   kb --> core
-  llm --> core
-  db --> config
+  llm --> core["core"]
+  audit["audit"] --> db["db"]
+  db --> config["config"]
   core --> config
 ```
+
+| Package | Job |
+|---|---|
+| `api` | HTTP: routers, schemas, DI, readiness |
+| `agent` | Orchestration: retrieve → generate |
+| `kb` | Extract, chunk, index, retrieve |
+| `llm` | Cohere and Gemini clients |
+| `db` / `audit` | SQLAlchemy base + session / AuditLog table |
+| `core` | Logging, singletons, tracing |
+| `config` | Settings |
 
 Rule: **arrows point downwards only.** A lower package never imports a higher one (for example `kb` never imports
 `agent` or `api`). This is the "no wrong-way imports" rule from CODE_GUIDELINES. In plain words: the parts at the
@@ -146,23 +145,26 @@ any arrow not in the diagram.
 Today startup scrapes and indexes everything. After S01-07 the API only connects; indexing is a separate command.
 
 ```mermaid
+%%{init: {"themeVariables": {"fontSize": "18px"}}}%%
 sequenceDiagram
   participant Dev as Ziad / CI
-  participant CLI as python -m telecopilot.kb.ingest --all
-  participant API as FastAPI app
+  participant CLI as Ingest CLI
+  participant API
   participant Q as Qdrant
   participant P as Postgres
   participant R as Redis
-  Dev->>API: start (uvicorn / compose)
-  API-->>Dev: up in seconds, even if Qdrant is empty
-  Dev->>CLI: run ingestion job (when data changes)
-  CLI->>Q: upsert chunks (dense + sparse)
+  Dev->>API: start
+  API-->>Dev: up in seconds
+  Dev->>CLI: kb.ingest --all
+  CLI->>Q: upsert chunks
   Dev->>API: GET /api/ready
   API->>Q: list collections
   API->>P: SELECT 1
   API->>R: PING
-  API-->>Dev: 200 {"status":"ready","checks":{...}} or 503 {"status":"not_ready",...}
+  API-->>Dev: 200 ready / 503 not_ready
 ```
+The ingestion command is `python -m telecopilot.kb.ingest --all`. The `/api/ready` response is
+`{"status": "ready" | "not_ready", "checks": {...}}`.
 
 - `/api/health` keeps today's response shape exactly (v1 UI and tests use it).
 - `/api/ready` is new infrastructure, not a feature: it answers "can this instance serve traffic?" Each check
@@ -181,32 +183,36 @@ sequenceDiagram
 ## 5. Data foundation (S01-04 … S01-06)
 
 ```mermaid
+%%{init: {"themeVariables": {"fontSize": "18px"}}}%%
 flowchart LR
-  subgraph compose["deploy/compose (one network)"]
-    app["app<br/>python:3.11-slim"]
-    qd[("qdrant v1.13.0<br/>(already used)")]
-    pg[("postgres:16-alpine")]
-    rd[("redis:7-alpine")]
-  end
-  app --> qd
-  app --> pg
-  app --> rd
+  app["app<br/>python:3.11-slim"] --> qd[("Qdrant 1.13")]
+  app --> pg[("Postgres 16")]
+  app --> rd[("Redis 7")]
 ```
 
 First (and only) table in S01, so Alembic and the session dependency are proven end to end:
 
 ```mermaid
+%%{init: {"themeVariables": {"fontSize": "18px"}}}%%
 erDiagram
   AUDIT_LOG {
     bigint id PK
-    timestamptz occurred_at "server default now()"
-    string actor "csr id, or 'system' until auth exists (M1)"
-    string action "e.g. ingest.run, ticket.update"
-    string entity_type "nullable"
-    string entity_id "nullable"
-    json details "free-form context"
+    timestamptz occurred_at
+    string actor
+    string action
+    string entity_type
+    string entity_id
+    json details
   }
 ```
+
+| Column | Meaning |
+|---|---|
+| `occurred_at` | Server default `now()` |
+| `actor` | CSR id, or `system` until auth exists (M1) |
+| `action` | e.g. `ingest.run`, `ticket.update` |
+| `entity_type`, `entity_id` | Nullable: what the action touched |
+| `details` | Free-form JSON context |
 
 - **Sync SQLAlchemy 2** (not async): every existing service is synchronous, FastAPI runs sync dependencies in a
   thread pool, and at 20–100 CSRs this is far below any limit. Async can be added if a load test (ADR-9) shows a need.
@@ -233,16 +239,19 @@ New settings (S01-04), all overridable from `.env`, defaults keep today's behavi
 ## 6. Migration steps (order of commits)
 
 ```mermaid
-flowchart LR
-  s0["S01-00<br/>this design"] --> s1["S01-01<br/>pyproject + src/telecopilot<br/>imports rewritten"]
-  s1 --> s2["S01-02<br/>group into kb / llm / agent / api"]
-  s2 --> s3["S01-03<br/>experiments → evals"]
-  s3 --> s4["S01-04<br/>settings v2"]
-  s4 --> s5["S01-05<br/>deploy/compose + PG + Redis"]
-  s5 --> s6["S01-06<br/>SQLAlchemy + Alembic + audit_log"]
-  s6 --> s7["S01-07<br/>ingest CLI + /api/ready"]
-  s7 --> s8["S01-08<br/>CORS, deps split, ruff in CI"]
-  s8 --> s9["S01-09<br/>review"]
+%%{init: {"themeVariables": {"fontSize": "18px"}}}%%
+flowchart TB
+  s0["S01-00 design"] --> s1["S01-01 package + imports"]
+  s1 --> s2["S01-02 kb / llm / agent / api"]
+  s2 --> s3["S01-03 experiments → evals"]
+  s3 --> s4["S01-04 settings v2"]
+  s4 --> s5["S01-05 compose + PG + Redis"]
+  s5 --> s6["S01-06 SQLAlchemy + Alembic"]
+  s6 --> s7["S01-07 ingest CLI + /api/ready"]
+  s7 --> s8["S01-08 CORS, deps, CI"]
+  s8 --> s10["S01-10 no silent fallbacks"]
+  s10 --> s11["S01-11 FastEmbed BM25"]
+  s11 --> s9["S01-09 review"]
 ```
 
 How each step stays safe:
